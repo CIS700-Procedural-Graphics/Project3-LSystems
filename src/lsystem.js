@@ -3,6 +3,51 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
+function Node(symbol) // Node for a linked list of grammar symbols
+{
+	this.next = null;
+	this.prev = null;
+	this.character = symbol;
+}
+
+function LinkedList()
+{
+	this.head = null;
+	this.tail = null;
+}
+
+// TODO: Link node 1 and node 2 such that 
+// node1's next is node2 and node2's prev is node1
+function symmetricallyLink(node1, node2) {
+}
+
+// TODO: Applies a grammar rule of the node's character and modifies the linkedList
+function ApplyRandomRule(linkedList, node, grammar) {
+	var symbol = node.character;
+	var rulesArray = grammar[symbol];
+}
+
+// TODO: Turn the string to linked list 
+export function StringToLinkedList(input_string) {
+	// ex. assuming input_string = "F+X"
+	// you should return a linked list where the head is 
+	// at Node('F') and the tail is at Node('X')
+	var ll = new LinkedList();;
+	return ll;
+}
+
+// TODO: Return a string form of the LinkedList
+export function LinkedListToString(linkedList) {
+	// ex. Node1("F")->Node2("X") should be "FX"
+	var result = "";
+	return result;
+}
+
+// TODO: Given the node to be replaced, 
+// insert a sub-linked-list that represents replacementString
+function ReplaceNode(linkedList, node, replacementString) {
+}
+
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
 	this.axiom = "FX";
@@ -35,15 +80,9 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
-	// Return results of lsystem after num iterations
-	this.DoIterations = function(n) {
-		var currString = this.axiom;
-
-		// TODO: Replace this with function that applies grammar rules
-		for(var i = 1; i <= n; i++) {
-			currString += "F";
-		}
-		
-		return currString;
+	// TODO: Return results of lsystem after num iterations
+	this.DoIterations = function(n) {	
+		var lSystemLL = StringToLinkedList(this.axiom);		
+		return lSystemLL;
 	}
 }

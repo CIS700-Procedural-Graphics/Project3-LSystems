@@ -13,6 +13,8 @@ export default class Turtle {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
 
+        // TODO: Start by adding rules for '[' and ']' then more!
+        // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
@@ -78,16 +80,17 @@ export default class Turtle {
     };
     
     // Call the function that a symbol is binded to. (Binded in the constructor)
-    renderSymbol(symbol) {
-        var func = this.renderGrammar[symbol]; //THIS DOES NOTHING
+    renderSymbol(symbolNode) {
+        var func = this.renderGrammar[symbolNode.character];
         if (func) {
             func();
         }
     };
 
-    renderSymbols(lsystemString) {
-        for(var i = 0; i < lsystemString.length; i++) {
-            this.renderSymbol(lsystemString[i]);
+    renderSymbols(linkedList) {
+        var currentNode;
+        for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
+            this.renderSymbol(currentNode);
         }
-    };
+    }
 }
