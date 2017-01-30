@@ -1,6 +1,9 @@
 const THREE = require('three')
 
-// The turtle state. Feel free to add other attributes like color
+// A class used to encapsulate the state of a turtle at a given moment.
+// The Turtle class contains one TurtleState member variable.
+// You are free to add features to this state class,
+// such as color or whimiscality
 var TurtleState = function(pos, dir) {
     return {
         pos: new THREE.Vector3(pos.x, pos.y, pos.z),
@@ -9,6 +12,7 @@ var TurtleState = function(pos, dir) {
 }
   
 export default class Turtle {
+    
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
@@ -26,15 +30,21 @@ export default class Turtle {
         }
     }
 
+    // Resets the turtle's position to the origin
+    // and its orientation to the Y axis
     clear() {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
     }
 
+    // A function to help you debug your turtle functions
+    // by printing out the turtle's current state.
     printState() {
         console.log(this.state.pos)
         console.log(this.state.dir)
     }
 
+    // Rotate the turtle's _dir_ vector by each of the 
+    // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
         var e = new THREE.Euler(
                 x * 3.14/180,
@@ -43,11 +53,14 @@ export default class Turtle {
         this.state.dir.applyEuler(e);
     }
 
+    // Translate the turtle along the input vector.
+    // Does NOT change the turtle's _dir_ vector
     moveTurtle(x, y, z) {
 	    var new_vec = THREE.Vector3(x, y, z);
 	    this.state.pos.add(new_vec);
     };
 
+    // Translate the turtle along its _dir_ vector by the distance indicated
     moveForward(dist) {
         var newVec = this.state.dir.multiplyScalar(dist);
         this.state.pos.add(newVec);
@@ -79,7 +92,9 @@ export default class Turtle {
         this.moveForward(len/2);
     };
     
-    // Call the function that a symbol is binded to. (Binded in the constructor)
+    // Call the function to which the input symbol is bound.
+    // Look in the Turtle's constructor for examples of how to bind 
+    // functions to grammar symbols.
     renderSymbol(symbolNode) {
         var func = this.renderGrammar[symbolNode.character];
         if (func) {
@@ -87,6 +102,7 @@ export default class Turtle {
         }
     };
 
+    // Invoke renderSymbol for every node in a linked list of grammar symbols.
     renderSymbols(linkedList) {
         var currentNode;
         for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
