@@ -1,6 +1,8 @@
 var colors = require('colors');
 var path = require('path');
 var git = require('simple-git')(__dirname);
+var deploy = require('gh-pages-deploy');
+var packageJSON = require('require-module')('./package.json');
 
 var success = 1;
 git.fetch('origin', 'master', function(err) {
@@ -25,11 +27,12 @@ git.fetch('origin', 'master', function(err) {
                 console.error('Error: Current branch is different from origin/master! Please push all changes first'.red)
             }
 
-            if (!success) {
-                throw new Error('git requirements for deploy failed!')
+            if (success) {
+                var cfg = packageJSON['gh-pages-deploy'] || {};
+                var buildCmd = deploy.getFullCmd(cfg);
+                deploy.displayCmds(deploy.getFullCmd(cfg));
+                deploy.execBuild(buildCmd, cfg);
             }
         })
-
-        
     })
 })
