@@ -1,57 +1,67 @@
-# Getting Started
 
-1. [Install Node.js](https://nodejs.org/en/download/). Node.js is a JavaScript runtime. It basically allows you to run JavaScript when not in a browser. For our purposes, this is not necessary. The important part is that with it comes `npm`, the Node Package Manager. This allows us to easily declare and install external dependencies such as [three.js](https://threejs.org/), [dat.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage), and [glMatrix](http://glmatrix.net/). Some other packages we'll be using make it significantly easier to develop your code and create modules for better code reuse and clarity. These tools make it _signficantly_ easier to write code in multiple `.js` files without globally defining everything.
+The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
 
-2. Fork and clone your repository.
+# L-System Parser
 
-3. In the root directory of your project, run `npm install`. This will download all of those dependencies.
+lsystem.js contains classes for L-system, Rule, and LinkedList. Here’s our suggested structure:
 
-4. Do either of the following (but I highly recommend the first one for reasons I will explain later).
+**The Symbol Nodes/Linked List:**
 
-    a. Run `npm start` and then go to `localhost:7000` in your web browser
+Rather than representing our symbols as a string like in many L-system implementations, we prefer to use a linked list. This allows us to store additional information about each symbol at time of parsing (e.g. what iteration was this symbol added in?) Since we’re adding and replacing symbols at each iteration, we also save on the overhead of creating and destroying strings, since linked lists of course make it easy to add and remove nodes. You should write a Linked List class with Nodes that contain at least the following information:
 
-    b. Run `npm run build` and then go open `index.html` in your web browser
+- The next node in the linked list
+- The previous node in the linked list
+- The grammar symbol at theis point in the overal string
 
-    You should hopefully see the framework code with a 3D cube at the center of the screen!
+We also recommend that you write the following functions to interact with your linked list:
+
+- A function to symmetrically link two nodes together (e.g. Node A’s next is Node B, and Node B’s prev is Node A)
+- A function to expand one of the symbol nodes of the linked list by replacing it with several new nodes. This function should look at the list of rules associated with the symbol in the linked list’s grammar dictionary, then generate a uniform random number between 0 and 1 in order to determine which of the Rules should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random number in order to determine which Rule should be chosen.
+
+**Rules:**
+
+These are containers for the preconditions, postconditions and probability of a single replacement operation. They should operate on a symbol node in your linked list.
+
+**L-system:**
+
+This is the parser, which will loop through your linked list of symbol nodes and apply rules at each iteration.
+
+Implement the following functions in L-System so that you can apply grammar rules to your axiom given some number of iterations. More details and implementation suggestions about  functions can be found in the TODO comments
+
+- stringToLinkedList(input_string)
+- linkedListToString(linkedList)
+- replaceNode(linkedList, node, replacementString)
+- doIterations(num)
+
+## Turtle
+
+`turtle.js` has a function called renderSymbol that takes in a single node of a linked list and performs an operation to change the turtle’s state based on the symbol contained in the node. Usually, the turtle’s change in state will result in some sort of rendering output, such as drawing a cylinder when the turtle moves forward. We have provided you with a few example functions to illustrate how to write your own functions to be called by renderSymbol; these functions are rotateTurtle, moveTurtle, moveForward, and makeCylinder. If you inspect the constructor of the Turtle class, you can see how to associate an operation with a grammar symbol.
+
+- Modify turtle.js to support operations associated with the symbols "[" and "]"
+    - When you parse "[" you need to store the current turtle state somewhere
+    - When you parse "]" you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given F[+F][-F], the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
+
+- In addition to operations for “[“ and “]”, you must invent operations for any three symbols of your choosing.
 
 
-# Developing Your Code
-All of the JavaScript code is living inside the `src` directory. The main file that gets executed when you load the page as you may have guessed is `main.js`. Here, you can make any changes you want, import functions from other files, etc. The reason that I highly suggest you build your project with `npm start` is that doing so will start a process that watches for any changes you make to your code. If it detects anything, it'll automagically rebuild your project and then refresh your browser window for you. Wow. That's cool. If you do it the other way, you'll need to run `npm build` and then refresh your page every time you want to test something.
+## Interactivity
 
-# Publishing Your Code
-We highly suggest that you put your code on GitHub. One of the reasons we chose to make this course using JavaScript is that the Web is highly accessible and making your awesome work public and visible can be a huge benefit when you're looking to score a job or internship. To aid you in this process, running `npm run deploy` will automatically build your project and push it to `gh-pages` where it will be visible at `username.github.io/repo-name`. NOTE: You MUST commit and push all changes to your master branch before doing this or you may lose your work.
+Using dat.GUI and the examples provided in the reference code, make some aspect of your demo an interactive variable. For example, you could modify:
 
-# What is Actually Happening?
-You can skip this part if you really want, but I highly suggest you read it.
+1. the axiom
+2. Your input grammer rules and their probability
+3. the angle of rotation of the turtle
+4. the size or color or material of the cylinder the turtle draws, etc!
 
-## npm install
-`npm install` will install all dependencies into a folder called `node_modules`. That's about it.
+## L-System Plants
 
-## package.json
+Design a grammar for a new procedural plant! As the preceding parts of this assignment are basic computer science tasks, this is where you should spend the bulk of your time on this assignment. Come up with new grammar rules and include screenshots of your plants in your README. For inspiration, take a look at Example 7: Fractal Plant in Wikipedia: https://en.wikipedia.org/wiki/L-system Your procedural plant must have the following features
 
-This is the important file that `npm` looks at. In it, you can see the commands it's using for the `start`, `build`, and `deploy` scripts mentioned above. You can also see all of the dependencies the project requires. I will briefly go through what each of these is.
- - dat-gui: Gives us a nice and simple GUI for modifying variables in our program
- 
- - gl-matrix: Useful library for linear algebra, much like glm
+1. Grow in 3D. Take advantage of three.js! 
+2. Have flowers or leaves that are added as a part of the grammar
+3. Variation. Different instances of your plant should look distinctly different!
+4. A twist. Broccoli trees are cool and all, but we hope to see sometime a little more surprising in your grammars
 
- - stats-js: Gives us a nice graph for timing things. We use it to report how long it takes to render each frame
+# Publishing Your code
 
- - three: Three.js is the main library we're using to draw stuff
-
- - three-orbit-controls: Handles mouse / touchscreen camera controls
-
- - babel-core, babel-loader, babel-preset-es2015: JavaScript is a a really fast moving language. It is constantly, constantly changing. Unfortunately, web browsers don't keep up nearly as quickly. Babel does the job of converting your code to a form that current browsers support. This allows us to use newer JavaScript features such as classes and imports without worrying about compatibility.
-
- - gh-pages-deploy: This is the library that automates publishing your code to Github
-
- - webpack: Webpack serves the role of packaging your project into a single file. Browsers don't actually support "importing" from other files, so without Webpack, to access data and functions in other files we would need to globally define EVERYTHING. This is an extremely bad idea. Webpack lets us use imports and develop code in separate files. Running `npm build` or `npm start` is what bundles all of your code together.
-
-- webpack-dev-server: This is an extremely useful tool for development. It essentially creates a file watcher and rebuilds your project whenever you make changes. It also injects code into your page that gets notified when these changes occur so it can automatically refresh your page.
-
- - webpack-glsl-loader: Webpack does much more than just JavaScript. We can use it to load glsl, css, images, etc. For whatever you want to import, somebody has probably made a webpack loader for it.
-
-## webpack.config.js
-
-This is the configuration file in webpack. The most important part is `entry` and `output`. These define the input and output for webpack. It will start from `entry`, explore all dependencies, and package them all into `output`. Here, the `output` is `bundle.js`. If you look in `index.html`, you can see that the page is loading `bundle.js`, not `main.js`.
-
-The other sections are just configuration settings for `webpack-dev-server` and setup for loading different types of files.
+Running `npm run deploy` will automatically build your project and push it to gh-pages where it will be visible at `username.github.io/repo-name`. NOTE: You MUST commit AND push all changes to your MASTER branch before doing this or you may lose your work.
