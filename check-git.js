@@ -1,6 +1,6 @@
 var colors = require('colors');
 var path = require('path');
-var git = require('simple-git')(path.join(__dirname, '..'));
+var git = require('simple-git')(__dirname);
 
 var success = 1;
 git.fetch('origin', 'master', function(err) {
