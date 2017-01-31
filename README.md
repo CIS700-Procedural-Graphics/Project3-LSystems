@@ -28,20 +28,20 @@ This is the parser, which will loop through your linked list of symbol nodes and
 
 Implement the following functions in L-System so that you can apply grammar rules to your axiom given some number of iterations. More details and implementation suggestions about  functions can be found in the TODO comments
 
-- stringToLinkedList(input_string)
-- linkedListToString(linkedList)
-- replaceNode(linkedList, node, replacementString)
-- doIterations(num)
+- `stringToLinkedList(input_string)`
+- `linkedListToString(linkedList)`
+- `replaceNode(linkedList, node, replacementString)`
+- `doIterations(num)`
 
 ## Turtle
 
 `turtle.js` has a function called renderSymbol that takes in a single node of a linked list and performs an operation to change the turtle’s state based on the symbol contained in the node. Usually, the turtle’s change in state will result in some sort of rendering output, such as drawing a cylinder when the turtle moves forward. We have provided you with a few example functions to illustrate how to write your own functions to be called by renderSymbol; these functions are rotateTurtle, moveTurtle, moveForward, and makeCylinder. If you inspect the constructor of the Turtle class, you can see how to associate an operation with a grammar symbol.
 
-- Modify turtle.js to support operations associated with the symbols "[" and "]"
-    - When you parse "[" you need to store the current turtle state somewhere
-    - When you parse "]" you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given F[+F][-F], the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
+- Modify turtle.js to support operations associated with the symbols `[` and `]`
+    - When you parse `[` you need to store the current turtle state somewhere
+    - When you parse `]` you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given `F[+F][-F]`, the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
 
-- In addition to operations for “[“ and “]”, you must invent operations for any three symbols of your choosing.
+- In addition to operations for `[` and `]`, you must invent operations for any three symbols of your choosing.
 
 
 ## Interactivity
