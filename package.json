@@ -2,7 +2,8 @@
   "scripts": {
     "start": "webpack-dev-server --hot --inline",
     "build": "webpack",
-    "deploy": "node deploy.js"
+    "deploy": "node deploy.js",
+    "tests": "babel src/tests.js src/lsystem.js -d compiled && node compiled/src/tests.js"
   },
   "gh-pages-deploy": {
     "prep": [
