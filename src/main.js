@@ -1,7 +1,8 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
+const _ = require('lodash');
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, { LinkedListToString } from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
@@ -22,8 +23,8 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(0, 0, 40);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
@@ -33,31 +34,74 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
-  gui.add(lsys, 'axiom').onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 12).step(1).onFinishChange(function(newVal) {
+    doLsystem(lsys, newVal, turtle);
+  });
+
+  gui.add(lsys, 'axiom').onFinishChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
-    clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
-  });
-}
+  _.each(lsys.grammar, (rules, char) => {
+    var i = 1;
+    var grammarFolder = gui.addFolder(char);
 
-// clears the scene by removing all geometries added by turtle.js
-function clearScene(turtle) {
-  var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
-      obj = turtle.scene.children[i];
-      turtle.scene.remove(obj);
-  }
+    _.each(rules, rule => {
+
+      grammarFolder.add(rule, 'probability').name('Rule ' + i + ' prob').onFinishChange(function(newVal) {
+        doLsystem(lsys, lsys.iterations, turtle);
+      });
+
+      grammarFolder.add(rule, 'successorString').name('Rule ' + i + ' replace').onFinishChange(function(newVal) {
+        doLsystem(lsys, lsys.iterations, turtle);
+      });
+
+      i++;
+    });
+  });
+
+
+  var turtleFolder = gui.addFolder('Turtle');
+
+  turtleFolder.add(turtle, 'rotY').name('Rotation Y').onFinishChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.add(turtle, 'rotZ').name('Rotation Z').onFinishChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.add(turtle, 'cylX').name('Cylinder width').onFinishChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.add(turtle, 'cylY').name('Cylinder height').onFinishChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.addColor(turtle, 'cylColor').name('Cylinder color').onChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.addColor(turtle, 'leafColor').name('Leaf color').onChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.addColor(turtle, 'flowerColor').name('Flower color').onChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  doLsystem(lsys, lsys.iterations, turtle);
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
-    turtle.clear();
-    turtle = new Turtle(turtle.scene);
-    turtle.renderSymbols(result);
+  var result = lsystem.DoIterations(iterations);
+
+  turtle.clear();
+  turtle.clearScene();
+  turtle.updateGrammar();
+  turtle.renderSymbols(result);
 }
 
 // called on frame updates
