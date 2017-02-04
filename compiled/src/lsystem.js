@@ -55,20 +55,55 @@ var LinkedList = (function () {
 			this.tail = node;
 		}
 	}, {
+		key: 'addFront',
+		value: function addFront(node) {
+			var n = this.head;
+
+			this.head = node;
+			node.next = n;
+			n.prev = node;
+		}
+	}, {
+		key: 'addBack',
+		value: function addBack(node) {
+			var n = this.tail;
+
+			this.tail = node;
+			n.next = node;
+			node.prev = n;
+		}
+	}, {
 		key: 'addAt',
 		value: function addAt(index, node) {
 			var n = this.head;
 			var i = 0;
+			var size = this.size();
+
+			if (index == 0) {
+				this.addFront(node);
+				return;
+			}
+
+			if (index == size) {
+				this.addBack(node);
+				return;
+			}
 
 			while (n) {
 				if (i == index) {
 					var prev = n.prev;
 					var next = n;
 
+					if (prev) {
+						prev.next = node;
+					}
+
 					node.prev = prev;
-					prev.next = node;
 					node.next = next;
-					next.prev = node;
+
+					if (next) {
+						next.prev = node;
+					}
 
 					return;
 				}
@@ -80,14 +115,36 @@ var LinkedList = (function () {
 			throw new Error('Unable to add node at this index');
 		}
 	}, {
+		key: 'removeFront',
+		value: function removeFront() {
+			var n = this.head;
+
+			this.head = n.next;
+			this.head.prev = null;
+		}
+	}, {
+		key: 'removeBack',
+		value: function removeBack() {
+			var n = this.tail;
+
+			this.tail = n.prev;
+			this.tail.next = null;
+		}
+	}, {
 		key: 'removeAt',
 		value: function removeAt(index) {
 			var n = this.head;
 			var i = 0;
+			var size = this.size();
 
 			if (index == 0) {
-				this.head = n.next;
-				n.prev = null;
+				this.removeFront();
+				return;
+			}
+
+			if (index == size) {
+				this.removeBack();
+				return;
 			}
 
 			while (n) {

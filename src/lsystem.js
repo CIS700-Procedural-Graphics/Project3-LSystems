@@ -1,8 +1,8 @@
 // A class that represents a symbol replacement rule to
 // be used when expanding an L-system grammar.
 function Rule(prob, str) {
-	this.probability = prob; // The probability that this Rule will be used when replacing a character in the grammar string
-	this.successorString = str; // The string that will replace the char that maps to this Rule
+	this.probability = prob;
+	this.successorString = str;
 }
 
 export class ListNode {
@@ -33,22 +33,52 @@ export class LinkedList {
 		this.tail = node;
 	}
 
+	addFront(node) {
+		let n = this.head;
+
+		this.head = node;
+		node.next = n;
+		n.prev = node;
+	}
+
+	addBack(node) {
+		let n = this.tail;
+
+		this.tail = node;
+		n.next = node;
+		node.prev = n;
+	}
+
 	addAt(index, node) {
 		let n = this.head;
 		let i = 0;
+		let size = this.size();
+
+		if (index == 0) {
+			this.addFront(node);
+			return;
+		}
+
+		if (index == size) {
+			this.addBack(node);
+			return;
+		}
 
 		while (n) {
 			if (i == index) {
 				let prev = n.prev;
 				let next = n;
 
-				node.prev = prev;
-				prev.next = node;
-				node.next = next;
-				next.prev = node;
+				if (prev) {
+					prev.next = node;
+				}
 
-				// TODO:
-				// Add to beginning and end
+				node.prev = prev;
+				node.next = next;
+
+				if (next) {
+					next.prev = node;
+				}
 
 				return;
 			}
@@ -60,13 +90,33 @@ export class LinkedList {
 		throw new Error('Unable to add node at this index');
 	}
 
+	removeFront() {
+		let n = this.head;
+
+		this.head = n.next;
+		this.head.prev = null;
+	}
+
+	removeBack() {
+		let n = this.tail;
+
+		this.tail = n.prev;
+		this.tail.next = null;
+	}
+
 	removeAt(index) {
 		let n = this.head;
 		let i = 0;
+		let size = this.size();
 
 		if (index == 0) {
-			this.head = n.next;
-			n.prev = null;
+			this.removeFront();
+			return;
+		}
+
+		if (index == size) {
+			this.removeBack();
+			return;
 		}
 
 		while (n) {
@@ -136,71 +186,167 @@ export class LinkedList {
 
 		return ret;
 	}
+
+	fromString(input) {
+		let arr = input.split('');
+
+		for (let i = 0; i < arr.length; i++) {
+			let n = new ListNode(arr[i]);
+			this.add(n);
+		}
+	}
+
+	toString() {
+		return this.print().join('');
+	}
 }
 
-// TODO: Turn the string into linked list
-export function stringToLinkedList(input_string) {
-	// ex. assuming input_string = "F+X"
-	// you should return a linked list where the head is
-	// at Node('F') and the tail is at Node('X')
+// Turn the string into linked list
+export function StringToLinkedList(input_string) {
 	var ll = new LinkedList();
+	ll.fromString(input_string);
+
 	return ll;
 }
 
-// TODO: Return a string form of the LinkedList
-export function linkedListToString(linkedList) {
-	// ex. Node1("F")->Node2("X") should be "FX"
-	var result = "";
+// Return a string form of the LinkedList
+export function LinkedListToString(linkedList) {
+	var result = linkedList.toString();
+
 	return result;
 }
 
-// TODO: Given the node to be replaced,
-// insert a sub-linked-list that represents replacementString
-function replaceNode(linkedList, node, replacementString) {
+// Replace node with the nodes generated from rules
+function replaceNode(linkedList, node, index, rules) {
+	var ranges = [];
+	var start = 0;
+
+	// Convert the probabilities to ranges
+	for (var i = 0; i < rules.length; i++) {
+		var rule = rules[i];
+		var prob = rule.probability;
+
+		var range = {
+			lo: start,
+			hi: start + prob
+		};
+
+		ranges.push(range);
+		start += prob;
+	}
+
+	var i = 0;
+	var rand = Math.random() * start;
+
+	// Choose a random number and select the corresponding range
+	for (var i = 0; i < ranges.length; i++) {
+		var range = ranges[i];
+
+		if (rand >= range.lo && rand < range.hi) {
+			break;
+		}
+	}
+
+	var replace = rules[i].successorString;
+	var arr = replace.split('');
+	var next = node.next;
+	var start = node;
+
+	// Based on our rule selection, make the replacement.
+	for (var i = 0; i < arr.length; i++) {
+		var a = arr[i];
+		var n = new ListNode(a);
+
+		node.next = n;
+		n.prev = node;
+
+		node = n;
+	}
+
+	if (next) {
+		node.next = next;
+		next.prev = node;
+	}
+
+	linkedList.removeAt(index);
+
+	return replace.length;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
-	// default LSystem
-	this.axiom = "FX";
+
+	// Default LSystem
+	this.axiom = 'X';
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
+		new Rule(1.0, 'F[-F+F]X')
 	];
-	this.iterations = 0;
+	this.iterations = 1;
 
-	// Set up the axiom string
-	if (typeof axiom !== "undefined") {
+	if (typeof axiom !== 'undefined') {
 		this.axiom = axiom;
 	}
 
-	// Set up the grammar as a dictionary that
-	// maps a single character (symbol) to a Rule.
-	if (typeof grammar !== "undefined") {
+	if (typeof grammar !== 'undefined') {
 		this.grammar = Object.assign({}, grammar);
 	}
 
+
 	// Set up iterations (the number of times you
 	// should expand the axiom in DoIterations)
-	if (typeof iterations !== "undefined") {
+	if (typeof iterations !== 'undefined') {
 		this.iterations = iterations;
 	}
 
 	// A function to alter the axiom string stored
 	// in the L-system
-	this.updateAxiom = function(axiom) {
-		// Setup axiom
-		if (typeof axiom !== "undefined") {
+	this.UpdateAxiom = function(axiom) {
+		if (typeof axiom !== 'undefined') {
 			this.axiom = axiom;
 		}
 	}
 
-	// TODO
+	this.UpdateGrammar = function(grammar) {
+		if (typeof grammar !== 'undefined') {
+			this.grammar = Object.assign({}, grammar);
+		}
+	}
+
 	// This function returns a linked list that is the result
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
-	this.doIterations = function(n) {
+	this.DoIterations = function(n) {
 		var lSystemLL = StringToLinkedList(this.axiom);
+		let i = 0;
+
+		// For each iteration
+	  while (i < this.iterations) {
+			let n = lSystemLL.head;
+			let next = n.next;
+			let index = 0;
+
+			// Iterate over every node in our linked list and replace
+			// it if there exists a replacement rule.
+			while (n) {
+				let data = n.data;
+				let rules = this.grammar[data];
+
+				next = n.next;
+
+				if (rules) {
+					var len = replaceNode(lSystemLL, n, index, rules);
+					index += (len - 1);
+				}
+
+				n = next;
+				index++;
+			}
+
+			i++;
+		}
+
+		console.log(lSystemLL.toString());
 		return lSystemLL;
 	}
 }
