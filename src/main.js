@@ -23,8 +23,8 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(0, 0, 10);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(0, 0, 40);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
@@ -64,7 +64,11 @@ function onLoad(framework) {
 
   var turtleFolder = gui.addFolder('Turtle');
 
-  turtleFolder.add(turtle, 'rot').name('Rotation').onFinishChange(function(newVal) {
+  turtleFolder.add(turtle, 'rotY').name('Rotation Y').onFinishChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.add(turtle, 'rotZ').name('Rotation Z').onFinishChange(function(newVal) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
@@ -81,6 +85,10 @@ function onLoad(framework) {
   });
 
   turtleFolder.addColor(turtle, 'leafColor').name('Leaf color').onChange(function(newVal) {
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  turtleFolder.addColor(turtle, 'flowerColor').name('Flower color').onChange(function(newVal) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 

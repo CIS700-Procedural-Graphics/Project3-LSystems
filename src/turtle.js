@@ -18,20 +18,23 @@ export default class Turtle {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.stack = [];
-        this.rot = 45;
+        this.rotZ = 45;
+        this.rotY = 45;
         this.cylY = 2;
         this.cylX = 0.1;
-        this.cylColor = 0x00cccc;
-        this.leafColor = 0x00ff00;
-        this.flowerColor = 0xffe000;
+        this.cylColor = 0x89c73c;
+        this.leafColor = 0xe1e241;
+        this.flowerColor = 0xff5b27;
 
         this.updateGrammar();
     }
 
     updateGrammar() {
         this.renderGrammar = {
-            '+': this.rotateTurtle.bind(this, 0, 0, this.rot),
-            '-': this.rotateTurtle.bind(this, 0, 0, -1 * this.rot),
+            '+': this.rotateTurtle.bind(this, 0, 0, this.rotZ),
+            '-': this.rotateTurtle.bind(this, 0, 0, -1 * this.rotZ),
+            '<': this.rotateTurtle.bind(this, this.rotY, this.rotY, 0),
+            '>': this.rotateTurtle.bind(this, -1 * this.rotY, -1 * this.rotY, 0),
             'F': this.makeCylinder.bind(this, this.cylY, this.cylX),
             '[': this.saveState.bind(this),
             ']': this.returnToState.bind(this),

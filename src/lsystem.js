@@ -276,12 +276,19 @@ function replaceNode(linkedList, node, index, rules) {
 export default function Lsystem(axiom, grammar, iterations) {
 
 	// Default LSystem
-	this.axiom = 'X';
+	this.axiom = 'FX';
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, 'F[-F+F]X')
+		new Rule(0.25, '[+F][>F<X>F<F]'),
+		new Rule(0.25, '[<F][-F+X-F+F]'),
+		new Rule(0.5, '[+F-X][-F]')
 	];
-	this.iterations = 1;
+	this.grammar['F'] = [
+		new Rule(0.2, 'FFX'),
+		new Rule(0.6, 'FLL'),
+		new Rule(0.2, 'FOL')
+	];
+	this.iterations = 8;
 
 	if (typeof axiom !== 'undefined') {
 		this.axiom = axiom;
@@ -316,12 +323,12 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
-	this.DoIterations = function(n) {
+	this.DoIterations = function(iterations) {
 		var lSystemLL = StringToLinkedList(this.axiom);
 		let i = 0;
 
 		// For each iteration
-	  while (i < this.iterations) {
+	  while (i < iterations) {
 			let n = lSystemLL.head;
 			let next = n.next;
 			let index = 0;
@@ -346,7 +353,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 			i++;
 		}
 
-		console.log(lSystemLL.toString());
 		return lSystemLL;
 	}
 }
