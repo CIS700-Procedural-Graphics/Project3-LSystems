@@ -22,25 +22,38 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(50, 0, 0);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
+  doLsystem(lsys, lsys.iterations, turtle);
 
-  gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
-    camera.updateProjectionMatrix();
-  });
+  // gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
+  //   camera.updateProjectionMatrix();
+  // });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 10).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
+  });
+  gui.add(turtle, 'angle', 0, 180).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+  gui.addColor(turtle, 'stem_color').onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+  gui.addColor(turtle, 'flower_color').onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, lsys.iterations, turtle);
   });
 }
 
@@ -54,9 +67,9 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    //turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
 }
 
