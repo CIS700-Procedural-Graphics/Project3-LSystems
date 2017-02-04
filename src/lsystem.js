@@ -5,6 +5,55 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
+function Node(){
+	this.symbol ='';
+	this.next = null;
+	this.prev = null;
+}
+
+function Node(symbol){
+	
+	if (typeof symbol !== "undefined"){
+		this.symbol = symbol;
+	}
+}
+
+function LinkedList(){
+	this.head = null;
+	this.tail = null;
+	this.size = 0;
+}
+
+//insert node_b after node_a
+function insertAfterLinkedList(linkedList, node_a, node_b){
+	node_b.next = node_a.next;
+	node_a.next = node_b;
+	node_b.prev = node_a;
+	linkedList.size ++;
+}
+
+function addLastLinkedList(linkedList, node){
+	if (linkedList.head ==  null){
+		linkedList.head = node;
+		linkedList.tail = node;
+		linkedList.size++;
+		return;
+	}
+	//if nonempty linkedlist, add to the end
+	linkedList.tail.next = node;
+	node.prev = linkedList.tail;
+	linkedList.tail = node; //update the tail
+	linkedList.size++;
+}
+
+export function testLinkedList(){
+
+	var ll = stringToLinkedList("ACA");
+	replaceNode(ll, new Node('A'), "9&^");
+	console.log(linkedListToString(ll));
+	console.log(ll.size);
+}
+
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
 
@@ -14,19 +63,69 @@ export function stringToLinkedList(input_string) {
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+	for (var i = 0; i < input_string.length; i++){
+		addLastLinkedList(ll, new Node(input_string[i]));
+	}
 	return ll;
 }
 
 // TODO: Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
+
 	var result = "";
+  	var tmp_node = linkedList.head;
+    while(tmp_node != null){
+    	result += tmp_node.symbol;
+        tmp_node = tmp_node.next;
+    }
 	return result;
+}
+
+function nodesEqual(node1, node2){
+	if (typeof node1 !== "undefined" &&
+		typeof node2 !== "undefined") {
+
+		return (node1.symbol == node2.symbol);
+	}else{
+		return false;
+	}
+
 }
 
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+
+	var tmp_node = linkedList.head;
+	while(tmp_node != null){
+        
+        if (tmp_node == null){return;}
+
+        if (nodesEqual(tmp_node, node)){
+        	var replacementLL = stringToLinkedList(replacementString);
+
+		    if (tmp_node.prev != null){
+		    	replacementLL.head.prev = tmp_node.prev;
+		    	tmp_node.prev.next = replacementLL.head;    	
+		    }else{
+		    	linkedList.head = replacementLL.head;
+		    }
+
+		    if (tmp_node.next != null){
+		    	tmp_node.next.prev = replacementLL.tail;
+		    	replacementLL.tail.next = tmp_node.next;
+		    }else{
+		    	linkedList.tail = replacementLL.tail;
+		    }
+
+		    linkedList.size += replacementLL.size - 1;
+        }
+
+    	tmp_node = tmp_node.next;
+
+    }
+
 }
 
 export default function Lsystem(axiom, grammar, iterations) {

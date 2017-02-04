@@ -1,7 +1,7 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {LinkedListToString, testLinkedList} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
@@ -24,6 +24,9 @@ function onLoad(framework) {
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
+
+  //test
+  testLinkedList();
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
