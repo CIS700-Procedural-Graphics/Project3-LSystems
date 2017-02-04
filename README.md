@@ -32,11 +32,11 @@ To be honest, I essentially just added and tweaked rules here and there until I 
 
 **Screenshots:**
 
-![Screenshot A](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![Screenshot A](https://raw.githubusercontent.com/zelliott/Project3-LSystems/master/images/plant_a.png)
 
-![Screenshot B](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![Screenshot B](https://raw.githubusercontent.com/zelliott/Project3-LSystems/master/images/plant_b.png)
 
-![Screenshot C](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![Screenshot C](https://raw.githubusercontent.com/zelliott/Project3-LSystems/master/images/plant_c.png)
 
 
 # L-System Parser
