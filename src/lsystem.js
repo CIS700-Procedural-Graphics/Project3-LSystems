@@ -5,8 +5,78 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
-// TODO: Implement a linked list class and its requisite functions
-// as described in the homework writeup
+// LSystemNode class: allows us to store additional information about each grammar symbol
+// and we avoid the overhead of creating/destroying strings (like in traditional LSystem implementations)
+
+class LSystemNode {
+		constructor() {
+			this.next = null;
+			this.prev = null;
+			this.grammarSymbol = null;
+		}
+		
+		//append a node to this one
+		appendNode(nextNode) {
+			this.next = nextNode;
+			if(nextNode !== null) {
+				nextNode.prev = this;
+			}
+		}
+		
+		//prepend a node to this one
+		prependNode(prevNode) {
+			this.prev = prevNode;
+			if(prevNode !== null) {
+				prevNode.next = this;
+			}
+		}
+		
+		//Replace this node with another linked list
+		replaceNode(replacementLinkedList) {
+			if(replacementLinkedList.length === 0) {
+				return;
+			} else { // Insert the replacement Linked List between this node and its previous
+				//Prepend this node with the head of the replacement list
+				replacementLinkedList.prependNode(this.prev);
+				prependNode(replacementLinkedList.head);
+				replacementLinkedList.appendNode(this.next);
+			}
+		}
+		
+	}
+
+
+//Linked List class that allows us to store LSystemNode
+class LinkedList {
+	constructor() {
+		this.length = 0;
+		this.head = null; //pointer to the first LSystemNode in this list
+		this.tail = null; //pointer to the last LSystemNode in this list
+	}
+	
+	appendNode(node) {
+		if(length === 0) {
+			this.head = node;
+			this.tail = node;
+		} else {
+			this.tail.appendNode(node);
+			this.tail = node;
+		}
+		length++;
+	}
+	
+	prependNode(node) {
+		if(length === 0) {
+			this.head = node;
+			this.tail = node;
+		} else {
+			this.head.prependNode(node);
+			this.head = node;
+		}
+		length++;
+	}
+}
+
 
 // TODO: Turn the string into linked list 
 export function stringToLinkedList(input_string) {
@@ -14,6 +84,13 @@ export function stringToLinkedList(input_string) {
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+	
+	// Traverse the string
+	for(var i = 0; i < input_string.length; i++) {
+		LSystemNode lSysNode = new LSystemNode();
+		lSysNode.grammarSymbol = input_string.charAt(i);
+		ll.appendNode();
+	}
 	return ll;
 }
 
