@@ -7,7 +7,6 @@ function Rule(prob, str) {
 
 // LSystemNode class: allows us to store additional information about each grammar symbol
 // and we avoid the overhead of creating/destroying strings (like in traditional LSystem implementations)
-
 class LSystemNode {
 		constructor() {
 			this.next = null;
@@ -76,7 +75,7 @@ class LinkedList {
 }
 
 
-// TODO: Turn the string into linked list 
+// Turn the string into linked list 
 export function stringToLinkedList(input_string) {
 	// ex. assuming input_string = "F+X"
 	// you should return a linked list where the head is 
@@ -92,7 +91,7 @@ export function stringToLinkedList(input_string) {
 	return ll;
 }
 
-// TODO: Return a string form of the LinkedList
+// Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
@@ -106,7 +105,7 @@ export function linkedListToString(linkedList) {
 	return result;
 }
 
-// TODO: Given the node to be replaced, 
+// Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
 	var replacementLinkedList = stringToLinkedList(replacementString);
@@ -148,7 +147,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 	
-	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
@@ -159,7 +157,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 			return lSystemLL;
 		} else {
 			//Apply a rule to each grammar symbol in the linked list
-			
 			for(var i = 0; i < n; i++) {
 				var currentNode = lSystemLL.head;
 				while(currentNode !== null) {
