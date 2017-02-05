@@ -117,19 +117,23 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FFB";
+	this.axiom = "MB";
 	this.grammar = {};
 	/*this.grammar['X'] = [
 		new Rule(1.0, '[-<FX][+<FX]')
 	];*/
 	this.grammar['X'] = [
-		new Rule(1.0, '[lFX][rFX]FX')
+		new Rule(0.1, '[lFX][rFX]>FX'),
+		new Rule(0.1, '[lFX][rFX]-FX'),
+		new Rule(0.1, 'X'),
+		new Rule(0.7, '[lFX][rFX]FX')
 	];
-	this.grammar['F'] = [
-		new Rule(1.0, 'F')
-	];
+
 	this.grammar['B'] = [
 		new Rule(1.0, '[++++X]<<<[++++X]<<<[++++X]<<<[++++X]FFB')
+	];
+	this.grammar['M'] = [
+		new Rule(1.0, 'MF')
 	];
 	this.iterations = 0; 
 	
@@ -173,8 +177,24 @@ export default function Lsystem(axiom, grammar, iterations) {
 				var symbol = current.symbol;
 				if (this.grammar[symbol] != undefined) {
 					// have replacement rule
+
+					// save position of next original node
 					var newNext = current.next;
-					replaceNode(lSystemLL, current, this.grammar[symbol][0].successorString);
+
+					// pick a random rule from the grammar
+					var r = Math.random();
+					var ruleset = this.grammar[symbol];
+					var nString = ruleset[0].successorString;
+					var totalProb = 0.0;
+					for (var i = 0; i < ruleset.length; i++) {
+						totalProb += ruleset[i].probability;
+						if (r <= totalProb) {
+							nString = ruleset[i].successorString;
+							break;
+						}
+					}
+
+					replaceNode(lSystemLL, current, nString);
 					current = newNext;
 				} else {
 					current = current.next;

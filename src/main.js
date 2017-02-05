@@ -62,6 +62,7 @@ function doLsystem(lsystem, iterations, turtle) {
 
 // called on frame updates
 function onUpdate(framework) {
+  if (turtle !== undefined) turtle.updateTime();
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

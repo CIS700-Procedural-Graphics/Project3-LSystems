@@ -1,8 +1,59 @@
 const THREE = require('three')
 
 
-var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
-var geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8);
+//var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+var baseTime = Date.now();
+
+// bounding box
+var bounds = {
+    xMin : -0.5,
+    xMax : 0.5,
+    yMin : 0.0,
+    yMax : 1.0,
+    zMin : -0.5,
+    zMax : 0.5
+};
+
+var sUniforms = {
+    image: { 
+        type: "t", 
+        value: THREE.ImageUtils.loadTexture('./multicolorfractal.png')
+    },
+    xMin : { type : "f", value : bounds.xMin},
+    yMin : { type : "f", value : bounds.yMin},
+    zMin : { type : "f", value : bounds.zMin},
+    xMax : { type : "f", value : bounds.xMax},
+    yMax : { type : "f", value : bounds.yMax},
+    zMax : { type : "f", value : bounds.zMax},
+    time : { type : "i", value : 0}
+};
+
+var material = new THREE.ShaderMaterial({
+    uniforms : sUniforms,
+    vertexShader: require('./shaders/lsystem_vert.glsl'),
+    fragmentShader: require('./shaders/lsystem_frag.glsl')
+});
+var geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 5);
+
+
+function updateBounds() {
+    sUniforms.xMin.value = bounds.xMin;
+    sUniforms.yMin.value = bounds.yMin;
+    sUniforms.zMin.value = bounds.zMin;
+    sUniforms.xMax.value = bounds.xMax;
+    sUniforms.yMax.value = bounds.yMax;
+    sUniforms.zMax.value = bounds.zMax;
+}
+
+function resetBounds() {
+    bounds.xMin = -0.5;
+    bounds.xMax = 0.5;
+    bounds.yMin = 0.0;
+    bounds.yMax = 1.0;
+    bounds.zMin = -0.5;
+    bounds.zMax = 0.5;
+    updateBounds();
+}
 
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
@@ -39,7 +90,7 @@ export default class Turtle {
                 'l' : this.rotateTurtle.bind(this, 0, 0, 30),
                 'r' : this.rotateTurtle.bind(this, 0, 0, -30),
                 'F' : this.makeCylinder.bind(this, 1.0, 1.0),
-                'G' : this.makeCylinder.bind(this, 1.0, 1.0),
+                'G' : this.makeCylinder.bind(this, 1.0, 0.5),
                 '[' : this.saveTurtle.bind(this),
                 ']' : this.loadTurtle.bind(this)
             };
@@ -53,7 +104,8 @@ export default class Turtle {
     clear() {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), 
             new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,1));
-        this.stateStack = [];        
+        this.stateStack = [];
+        resetBounds();      
     }
 
     // A function to help you debug your turtle functions
@@ -93,6 +145,17 @@ export default class Turtle {
     moveTurtle(x, y, z) {
 	    var new_vec = THREE.Vector3(x, y, z);
 	    this.state.pos.add(new_vec);
+        var p = this.state.pos;
+        // make tight bounds
+        if (p.x < bounds.xMin) bounds.xMin = p.x;
+        else if (p.x > bounds.xMax) bounds.xMax = p.x;
+        if (p.y < bounds.yMin) bounds.yMin = p.y;
+        else if (p.y > bounds.yMax) bounds.yMax = p.y;
+
+        if (p.z < bounds.zMin) bounds.zMin = p.z;
+        else if (p.z > bounds.zMax) bounds.zMax = p.z;
+
+        updateBounds();
     };
 
     // saves the state of the turtle on the stack
@@ -119,6 +182,16 @@ export default class Turtle {
     moveForward(dist) {
         var newVec = this.state.dir.multiplyScalar(dist);
         this.state.pos.add(newVec);
+        var p = this.state.pos;
+        if (p.x < bounds.xMin) bounds.xMin = p.x;
+        else if (p.x > bounds.xMax) bounds.xMax = p.x;
+        if (p.y < bounds.yMin) bounds.yMin = p.y;
+        else if (p.y > bounds.yMax) bounds.yMax = p.y;
+
+        if (p.z < bounds.zMin) bounds.zMin = p.z;
+        else if (p.z > bounds.zMax) bounds.zMax = p.z;
+
+        updateBounds();
     };
     
     // Make a cylinder of given length and width starting at turtle pos
@@ -140,7 +213,8 @@ export default class Turtle {
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * 2.0 * scaleLen));
+        var t = this.state.dir;
+        var trans = this.state.pos.add(t.multiplyScalar(0.5 * 2.0 * scaleLen));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
@@ -165,5 +239,10 @@ export default class Turtle {
         for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
             this.renderSymbol(currentNode);
         }
+    }
+
+
+    updateTime() {
+        sUniforms.time.value = (Date.now() - baseTime);
     }
 }
