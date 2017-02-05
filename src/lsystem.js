@@ -159,8 +159,9 @@ export default function Lsystem(axiom, grammar, iterations) {
 			return lSystemLL;
 		} else {
 			//Apply a rule to each grammar symbol in the linked list
-			var currentNode = lSystemLL.head;
+			
 			for(var i = 0; i < n; i++) {
+				var currentNode = lSystemLL.head;
 				while(currentNode !== null) {
 					
 					//Get the array of possible rules to apply to this grammar symbol
