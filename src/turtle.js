@@ -7,7 +7,8 @@ const THREE = require('three')
 var TurtleState = function(pos, dir) {
     return {
         pos: new THREE.Vector3(pos.x, pos.y, pos.z),
-        dir: new THREE.Vector3(dir.x, dir.y, dir.z)
+        dir: new THREE.Vector3(dir.x, dir.y, dir.z),
+
     }
 }
   
@@ -16,6 +17,8 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        // an array of Turtlestates saved in a stack
+        this.stateStack = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -23,7 +26,12 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                '<' : this.rotateTurtle.bind(this, 0, 30, 0),
+                '>' : this.rotateTurtle.bind(this, 0, -30, 0),
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                'G' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.saveTurtle.bind(this),
+                ']' : this.loadTurtle.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -33,7 +41,8 @@ export default class Turtle {
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
+        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+        this.stateStack = [];        
     }
 
     // A function to help you debug your turtle functions
@@ -58,6 +67,23 @@ export default class Turtle {
     moveTurtle(x, y, z) {
 	    var new_vec = THREE.Vector3(x, y, z);
 	    this.state.pos.add(new_vec);
+    };
+
+    // saves the state of the turtle on the stack
+    saveTurtle() {
+        
+        var aState = new TurtleState(this.state.pos, this.state.dir);
+        this.stateStack.push(aState);
+    };
+
+    // pops the state of the turtle off of the stack, if able
+    loadTurtle() {
+        
+        if (this.stateStack.length > 0) {
+            var aState = this.stateStack.pop();
+            this.state.pos = aState.pos;
+            this.state.dir = aState.dir;
+        }
     };
 
     // Translate the turtle along its _dir_ vector by the distance indicated
@@ -96,7 +122,8 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        //console.log(symbolNode);
+        var func = this.renderGrammar[symbolNode.symbol];
         if (func) {
             func();
         }
