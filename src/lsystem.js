@@ -15,7 +15,7 @@ class LSystemNode {
 			this.grammarSymbol = null;
 		}
 		
-		//append a node to this one
+		// Append a node to this one
 		appendNode(nextNode) {
 			this.next = nextNode;
 			if(nextNode !== null) {
@@ -23,7 +23,7 @@ class LSystemNode {
 			}
 		}
 		
-		//prepend a node to this one
+		// Prepend a node to this one
 		prependNode(prevNode) {
 			this.prev = prevNode;
 			if(prevNode !== null) {
@@ -31,14 +31,15 @@ class LSystemNode {
 			}
 		}
 		
-		//Replace this node with another linked list
+		// Replace this node with another linked list
 		replaceNode(replacementLinkedList) {
-			if(replacementLinkedList.length === 0) {
+			if(replacementLinkedList.head === null) {
 				return;
-			} else { // Insert the replacement Linked List between this node and its previous
-				//Prepend this node with the head of the replacement list
+			} else {
+				//Prepend the linked list with this node's previous
 				replacementLinkedList.prependNode(this.prev);
-				prependNode(replacementLinkedList.head);
+				
+				//Append the linked list with this node's next
 				replacementLinkedList.appendNode(this.next);
 			}
 		}
@@ -49,31 +50,28 @@ class LSystemNode {
 //Linked List class that allows us to store LSystemNode
 class LinkedList {
 	constructor() {
-		this.length = 0;
-		this.head = null; //pointer to the first LSystemNode in this list
-		this.tail = null; //pointer to the last LSystemNode in this list
+		this.head = null; // pointer to the first LSystemNode in this list
+		this.tail = null; // pointer to the last LSystemNode in this list
 	}
 	
 	appendNode(node) {
-		if(length === 0) {
+		if(this.head === null) {
 			this.head = node;
 			this.tail = node;
 		} else {
 			this.tail.appendNode(node);
 			this.tail = node;
 		}
-		length++;
 	}
 	
 	prependNode(node) {
-		if(length === 0) {
+		if(this.head === null) {
 			this.head = node;
 			this.tail = node;
 		} else {
 			this.head.prependNode(node);
 			this.head = node;
 		}
-		length++;
 	}
 }
 
@@ -87,9 +85,9 @@ export function stringToLinkedList(input_string) {
 	
 	// Traverse the string
 	for(var i = 0; i < input_string.length; i++) {
-		LSystemNode lSysNode = new LSystemNode();
+		var lSysNode = new LSystemNode();
 		lSysNode.grammarSymbol = input_string.charAt(i);
-		ll.appendNode();
+		ll.appendNode(lSysNode);
 	}
 	return ll;
 }
@@ -98,12 +96,21 @@ export function stringToLinkedList(input_string) {
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
+	
+	// Traverse the linked list
+	var currentNode = linkedlist.head;
+	while(currentNode !== null) {
+		result += currentNode.grammarSymbol;
+		currentNode = currentNode.next;
+	}
 	return result;
 }
 
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	var replacementLinkedList = stringToLinkedList(replacementString);
+	node.replaceNode(replacementLinkedList);
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -140,14 +147,44 @@ export default function Lsystem(axiom, grammar, iterations) {
 			this.axiom = axiom;
 		}
 	}
-
+	
 	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var lSystemLL = StringToLinkedList(this.axiom);
-		return lSystemLL;
+		var lSystemLL = stringToLinkedList(this.axiom);
+		if(n == 0) {
+			return lSystemLL;
+		} else {
+			//Apply a rule to each grammar symbol in the linked list
+			var currentNode = lSystemLL.head;
+			for(var i = 0; i < n; i++) {
+				while(currentNode !== null) {
+					
+					//Get the array of possible rules to apply to this grammar symbol
+					var rule = this.grammar[currentNode.grammarSymbol];
+					if(typeof rule !== "undefined") {
+						var ruleLL;
+						
+						//Randomly choose which rule to use
+						var randRuleNum = Math.random(); // returns a number [0, 1)
+						var runningProbability = 0; // add each successive rule's probablitity up and continually compare to randRuleNum
+						for(var r = 0; r < rule.length; r++) {
+							var currentRule = rule[r];
+							runningProbability += currentRule.probability - 0.001; // Offset slightly so the rand probability isn't considered equal to the current probability
+							if(randRuleNum < runningProbability) {
+								ruleLL = stringToLinkedList(currentRule.successorString);
+								break;
+							}
+						}
+						currentNode.replaceNode(ruleLL);
+					}
+					currentNode = currentNode.next;
+				}
+			}
+			return lSystemLL;
+		}
 	}
 }
