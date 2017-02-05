@@ -1,21 +1,29 @@
 const THREE = require('three')
 
+
+var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+var geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8);
+
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
-// You are free to add features to this state class,
-// such as color or whimiscality
-var TurtleState = function(pos, dir) {
+// pos: position in world space
+// dir: local y axis
+// lx: local x axis
+// lz: local z axis
+var TurtleState = function(pos, dir, lx, lz) {
     return {
         pos: new THREE.Vector3(pos.x, pos.y, pos.z),
         dir: new THREE.Vector3(dir.x, dir.y, dir.z),
-
+        lx: new THREE.Vector3(lx.x, lx.y, lx.z),
+        lz: new THREE.Vector3(lz.x, lz.y, lz.z)
     }
 }
   
 export default class Turtle {
     
     constructor(scene, grammar) {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), 
+            new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,1));
         this.scene = scene;
         // an array of Turtlestates saved in a stack
         this.stateStack = [];
@@ -28,8 +36,10 @@ export default class Turtle {
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
                 '<' : this.rotateTurtle.bind(this, 0, 30, 0),
                 '>' : this.rotateTurtle.bind(this, 0, -30, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1),
-                'G' : this.makeCylinder.bind(this, 2, 0.1),
+                'l' : this.rotateTurtle.bind(this, 0, 0, 30),
+                'r' : this.rotateTurtle.bind(this, 0, 0, -30),
+                'F' : this.makeCylinder.bind(this, 1.0, 1.0),
+                'G' : this.makeCylinder.bind(this, 1.0, 1.0),
                 '[' : this.saveTurtle.bind(this),
                 ']' : this.loadTurtle.bind(this)
             };
@@ -41,7 +51,8 @@ export default class Turtle {
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), 
+            new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,1));
         this.stateStack = [];        
     }
 
@@ -55,11 +66,26 @@ export default class Turtle {
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+        
+        // rotate using global euler functions
         var e = new THREE.Euler(
                 x * 3.14/180,
 				y * 3.14/180,
 				z * 3.14/180);
-        this.state.dir.applyEuler(e);
+        //this.state.dir.applyEuler(e);
+
+
+        // rotate about local axis
+        // local yaw
+        this.state.lx.applyAxisAngle(this.state.dir, y * 3.14159 / 180);
+        this.state.lz.applyAxisAngle(this.state.dir, y * 3.14159 / 180);
+        // local pitch
+        this.state.dir.applyAxisAngle(this.state.lx, x * 3.14159 / 180);
+        this.state.lz.applyAxisAngle(this.state.lx, x * 3.14159 / 180);
+        //local roll
+        this.state.dir.applyAxisAngle(this.state.lz, z * 3.14159 / 180);
+        this.state.lx.applyAxisAngle(this.state.lz, z * 3.14159 / 180);
+
     }
 
     // Translate the turtle along the input vector.
@@ -72,7 +98,8 @@ export default class Turtle {
     // saves the state of the turtle on the stack
     saveTurtle() {
         
-        var aState = new TurtleState(this.state.pos, this.state.dir);
+        var aState = new TurtleState(this.state.pos, this.state.dir, 
+            this.state.lx, this.state.lz);
         this.stateStack.push(aState);
     };
 
@@ -83,6 +110,8 @@ export default class Turtle {
             var aState = this.stateStack.pop();
             this.state.pos = aState.pos;
             this.state.dir = aState.dir;
+            this.state.lx = aState.lx;
+            this.state.lz = aState.lz;
         }
     };
 
@@ -94,10 +123,11 @@ export default class Turtle {
     
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
-    makeCylinder(len, width) {
-        var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+    makeCylinder(scaleRad, scaleLen) {
+        
+        
         var cylinder = new THREE.Mesh( geometry, material );
+        cylinder.scale.set(scaleRad, scaleLen, scaleRad);
         this.scene.add( cylinder );
 
         //Orient the cylinder to the turtle's current direction
@@ -110,12 +140,12 @@ export default class Turtle {
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * 2.0 * scaleLen));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        this.moveForward(2.0 * scaleLen/2);
     };
     
     // Call the function to which the input symbol is bound.
