@@ -69,6 +69,27 @@ export function LinkedListToString(linkedList) {
 function replaceNode(linkedList, node, replacementString) {
 }
 
+function pickRuleFromDistr(distribution) {
+	var rules = [];
+	var probs = [];
+	for (var i = 0; i < distribution.length; i++) {
+		rules.push(distribution[i].successorString);
+		probs.push(distribution[i].probability);
+	}
+	var minProb = Math.min.apply(null, probs);
+	var probs = probs.map(function(x) { return Math.round(x / minProb); });
+	var cmlProbs = [];
+	probs.reduce(function(a,b,i) { return cmlProbs[i] = a+b; }, 0);
+
+	var r = Math.random() * cmlProbs[cmlProbs.length-1]-0.0000001; // ensure always less than max
+	for (var i = 0; i < cmlProbs.length; i++) {
+		if (r < cmlProbs[i]) {
+			return rules[i];
+		}
+	}
+	console.log("No Rules to pick from!");
+}
+
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
 	this.axiom = "FX";
@@ -77,6 +98,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(1.0, '[-FX][+FX]')
 	];
 	this.iterations = 0;
+	this.expansions = {};
 
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {
@@ -106,6 +128,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 
 	this.UpdateRules = function(rules) {
 		this.grammar = {};
+		this.expansions = {};
 		for (var key in rules) {
 			var entry = rules[key];
 			var prob = entry.Prob;
@@ -125,6 +148,31 @@ export default function Lsystem(axiom, grammar, iterations) {
 		console.log(this.grammar);
 	}
 
+	this.DoExpansion = function(n) {
+		if (n < 0) {
+			throw 'Invalid number of expansions!';
+		}
+
+		if (n == 0) {
+			console.log("dis one");
+			this.expansions[0] = this.axiom;
+		} else if (!this.expansions[n]) {
+			var prev = this.DoExpansion(n-1);
+			var expsn = [];
+			for (var i = 0; i < prev.length; i++) {
+				var c = prev.charAt(i);
+				if (this.grammar[c] && this.grammar[c].length > 0) {
+					var r = pickRuleFromDistr(this.grammar[c]);
+					expsn.push(r);
+				} else {
+					expsn.push(c);
+				}
+			}
+			this.expansions[n] = expsn.join("");
+		}
+		return this.expansions[n];
+	}
+
 	// TODO
 	// This function returns a linked list that is the result
 	// of expanding the L-system's axiom n times.
@@ -132,7 +180,12 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// list of the axiom.
 	this.DoIterations = function(n) {
 		console.log("start iterations");
-		var lSystemLL = StringToLinkedList(this.axiom);
+		if (!this.expansions[n]) {
+			console.log("doing expansions");
+			this.DoExpansion(n);
+		}
+		console.log(this.expansions);
+		var lSystemLL = StringToLinkedList(this.expansions[n]);
 		console.log("end iterations");
 		return lSystemLL;
 	}
