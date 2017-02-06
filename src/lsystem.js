@@ -7,26 +7,99 @@ function Rule(prob, str) {
 
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
+export class Node {
+	constructor(character, prev, next){
+		this.character = character;
+		this.prev = prev;
+		this.next = next;
+	}
+}
 
+export class LinkedList {
+	constructor() {
+		this.head = null;
+	}
+	append( node ){
+		if( this.head === null ){
+			this.head = node;
+			return;
+		}
+		var n = this.head;
+		var done = false;
+		while( ! done ) {
+			if( n.next === null ){
+				n.next = node;
+				return;
+			}
+			n = n.next;
+		}
+	}
+}
+
+//Find the last node in a list of node, not necessarily
+// a LinkedList
+export function getLastNode( firstNode ) {
+	var lastNode = firstNode;
+	while( lastNode.next !== null )
+	  lastNode = lastNode.next;
+	return lastNode;
+}
+
+// Take a string and make linked nodes,
+// but not a full LinkedList.
+// Returns the first node
+export function stringToNodes(input_string){
+	var prev = null;
+	var first = null
+	for( var i=0; i < input_string.length; i++ ){
+		var node = new Node( input_string.charAt(i), prev, null );		
+		if( first === null )
+		  first = node;
+		else
+		  prev.next = node;
+		prev = node;
+	}
+	return first;
+}
 // TODO: Turn the string into linked list 
-export function stringToLinkedList(input_string) {
+export function StringToLinkedList(input_string) {
 	// ex. assuming input_string = "F+X"
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+	ll.head = stringToNodes(input_string);
 	return ll;
 }
 
 // TODO: Return a string form of the LinkedList
-export function linkedListToString(linkedList) {
+export function LinkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
+	var node = linkedList.head;
+	while( node !== null ){
+	  result += node.character;
+	  node = node.next;
+	}
 	return result;
 }
 
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	var firstNewNode = stringToNodes( replacementString );
+	firstNewNode.prev = node.prev;
+	var prevNext = null;
+	if( linkedList.head === node ){
+		prevNext = linkedList.head.next;
+		linkedList.head = firstNewNode;
+	} else {
+		prevNext = node.prev.next;
+		node.prev.next = firstNewNode;
+	}
+	//point to the old node's next node
+	var lastNewNode = getLastNode( firstNewNode );
+	lastNewNode.next = prevNext;
+	prevNext.prev = lastNewNode;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -71,6 +144,13 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// list of the axiom.
 	this.doIterations = function(n) {	
 		var lSystemLL = StringToLinkedList(this.axiom);
+		/*console.log('axiom: ', this.axiom);
+		console.log('lSystemLL ', lSystemLL );
+		console.log('head ', lSystemLL.head );
+		console.log('last ', getLastNode(lSystemLL.head) );*/
+		var str = LinkedListToString(lSystemLL);
+		//console.log('here');
+		//console.log('lsys ll to string: ', str );
 		return lSystemLL;
 	}
 }
