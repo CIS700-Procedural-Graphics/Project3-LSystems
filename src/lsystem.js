@@ -47,11 +47,31 @@ function addLastLinkedList(linkedList, node){
 }
 
 export function testLinkedList(){
+	
+	var gram = {};
+	gram['X'] = [
+		new Rule(1.0, '[-FX][+FX]')
+	];
+	var ls = new Lsystem("FX", gram, 1);
 
-	var ll = stringToLinkedList("ACA");
-	replaceNode(ll, new Node('A'), "9&^");
-	console.log(linkedListToString(ll));
-	console.log(ll.size);
+
+	// var ll = stringToLinkedList("[-FX][+FX]");
+	// console.log(ll);
+
+	// var ll = stringToLinkedList(ls.axiom);
+	// ll = ls.doIteration(ll);
+	// console.log(linkedListToString(ll));
+	// ll = ls.doIteration(ll);
+	// console.log(linkedListToString(ll));
+
+	//console.log(ll);
+	//console.log(ls.doIteration(ll));
+	console.log(linkedListToString(ls.doIterations(0)));
+	console.log(linkedListToString(ls.doIterations(1)));
+	console.log(linkedListToString(ls.doIterations(2)));
+	console.log(linkedListToString(ls.doIterations(3)));
+
+
 }
 
 // TODO: Implement a linked list class and its requisite functions
@@ -129,12 +149,14 @@ function replaceNode(linkedList, node, replacementString) {
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
+	
 	// default LSystem
 	this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['X'] = [
 		new Rule(1.0, '[-FX][+FX]')
 	];
+	
 	this.iterations = 0; 
 	
 	// Set up the axiom string
@@ -168,8 +190,41 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
+
+	this.doIteration = function(origLL){
+
+		var symbolsSeen = [];
+		var newLL = stringToLinkedList(linkedListToString(origLL));
+		var tmp_node = origLL.head;
+
+		while(tmp_node != null){//iterate through all nodes of ORIGINAL
+
+		var symbol = tmp_node.symbol;
+
+		//only replace the node if we haven't seen it and there's a rule
+		if (symbol in this.grammar && symbolsSeen.indexOf(symbol) == -1){
+			//replace the character if we have a rule in our grammer
+			var replacementString = this.grammar[symbol][0].successorString;
+			replaceNode(newLL, new Node(symbol), replacementString);
+			symbolsSeen.push(symbol);
+		}
+		
+		tmp_node = tmp_node.next;
+		
+		}
+
+		return newLL;
+	}
+
 	this.doIterations = function(n) {	
-		var lSystemLL = StringToLinkedList(this.axiom);
+		
+		var lSystemLL = stringToLinkedList(this.axiom);
+		
+		for (var i = 0; i < n; i ++){ //do the replacement n times
+
+			lSystemLL = this.doIteration(lSystemLL);
+		}
+		
 		return lSystemLL;
 	}
 }
