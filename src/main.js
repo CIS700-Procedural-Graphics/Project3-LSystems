@@ -81,6 +81,7 @@ function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.DoIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
+    console.log("new Render");
     turtle.renderSymbols(result);
 }
 

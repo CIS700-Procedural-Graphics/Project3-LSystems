@@ -139,6 +139,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
+
 	this.DoExpansion = function(n) {
 		if (n < 0) {
 			throw 'Invalid number of expansions!';

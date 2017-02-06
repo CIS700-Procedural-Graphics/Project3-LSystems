@@ -10,12 +10,13 @@ var TurtleState = function(pos, dir) {
         dir: new THREE.Vector3(dir.x, dir.y, dir.z)
     }
 }
-  
+
 export default class Turtle {
-    
+
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        this.stateStack = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -23,17 +24,27 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.saveState.bind(this),
+                ']' : this.restoreState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
         }
     }
 
+    saveState() {
+        this.stateStack.push(new TurtleState(this.state.pos, this.state.dir));
+    }
+
+    restoreState() {
+        this.state = this.stateStack.pop();
+    }
+
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
+        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
     }
 
     // A function to help you debug your turtle functions
@@ -43,7 +54,7 @@ export default class Turtle {
         console.log(this.state.dir)
     }
 
-    // Rotate the turtle's _dir_ vector by each of the 
+    // Rotate the turtle's _dir_ vector by each of the
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
         var e = new THREE.Euler(
@@ -65,7 +76,7 @@ export default class Turtle {
         var newVec = this.state.dir.multiplyScalar(dist);
         this.state.pos.add(newVec);
     };
-    
+
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
@@ -91,9 +102,9 @@ export default class Turtle {
         //Scoot the turtle forward by len units
         this.moveForward(len/2);
     };
-    
+
     // Call the function to which the input symbol is bound.
-    // Look in the Turtle's constructor for examples of how to bind 
+    // Look in the Turtle's constructor for examples of how to bind
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
         var func = this.renderGrammar[symbolNode.character];
