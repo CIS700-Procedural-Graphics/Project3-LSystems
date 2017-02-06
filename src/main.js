@@ -47,11 +47,17 @@ function onLoad(framework) {
   });
 
   var obj = { addRule:function(){
-      console.log("clicked");
       rules[numRules] = {
           Rule: "",
           Prob: 1.0
       };
+
+      var updateRules = function() {
+          lsys.UpdateRules(rules, i);
+          clearScene(turtle);
+          doLsystem(lsys, lsys.iterations, turtle);
+      };
+
       gui.add(rules[numRules], 'Rule').onChange(function() {
           lsys.UpdateRules(rules);
           clearScene(turtle);
