@@ -22,12 +22,18 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(1, 5, 5);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  var loader = new THREE.TextureLoader();
+  var background = new THREE.TextureLoader().load('gradient01.jpg');
+  scene.background = background;
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
+
+  doLsystem(lsys, lsys.iterations, turtle);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
@@ -42,6 +48,21 @@ function onLoad(framework) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+
+  gui.add(turtle, 'angle', 0, 90).step(1).onChange(function(newVal) {
+    turtle.updateAngle(newVal);
+    doLsystem(lsys, newVal, turtle);
+  });
+
+  gui.add(turtle, 'height', 0, 5).onChange(function(newVal) {
+    turtle.updateHeight(newVal);
+    doLsystem(lsys, newVal, turtle);
+  });
+
+  gui.add(turtle, 'width', 0, 2).onChange(function(newVal) {
+    turtle.updateWidth(newVal);
+    doLsystem(lsys, newVal, turtle);
+  });
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -54,7 +75,7 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
