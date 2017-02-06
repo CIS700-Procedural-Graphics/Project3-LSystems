@@ -5,6 +5,9 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var numRules = 0;
+var rules = {};
+var probs = {};
 
 // called after the scene loads
 function onLoad(framework) {
@@ -33,15 +36,32 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
+  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+     clearScene(turtle);
+     doLsystem(lsys, newVal, turtle);
+  });
+
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
-    clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
-  });
+  var obj = { addRule:function(){
+      console.log("clicked");
+      rules[numRules] = {
+          Rule: "",
+          Prob: 1.0
+      };
+      gui.add(rules[numRules], 'Rule').onChange(function() {
+          lsys.UpdateRules(rules);
+      });
+      gui.add(rules[numRules], 'Prob', 0.0, 1.0).onChange(function() {
+          lsys.UpdateRules(rules);
+      });
+      numRules++;
+  }};
+  gui.add(obj,'addRule');
+
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -55,6 +75,7 @@ function clearScene(turtle) {
 
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.DoIterations(iterations);
+    console.log(result);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
