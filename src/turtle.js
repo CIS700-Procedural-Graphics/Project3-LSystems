@@ -11,19 +11,25 @@ var TurtleState = function(pos, dir) {
     }
 }
   
+var stateStack = [];
 export default class Turtle {
     
-    constructor(scene, grammar) {
+    constructor(scene, grammar, angle) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
-
+        console.log("angle: " + angle);
+        if (angle) {
+            this.angle = angle;
+        }
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
-        if (typeof grammar === "undefined") {
+        if (!grammar) {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                '+' : this.rotateTurtle.bind(this, 1, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -1, 0, 0),
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.pushState.bind(this),
+                ']' : this.popState.bind(this),
             };
         } else {
             this.renderGrammar = grammar;
@@ -32,8 +38,10 @@ export default class Turtle {
 
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
+    // Clears the state stack
     clear() {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
+        stateStack = [];
     }
 
     // A function to help you debug your turtle functions
@@ -43,9 +51,21 @@ export default class Turtle {
         console.log(this.state.dir)
     }
 
+    pushState() {
+        stateStack.push(new TurtleState(this.state.pos, this.state.dir));
+        // console.log(stateStack[0].pos.y);
+    }
+
+    popState(){
+        var s = stateStack.pop();
+        this.state = new TurtleState(s.pos, s.dir);
+    }
+
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+        x = x * this.angle;
+        console.log(this.angle);
         var e = new THREE.Euler(
                 x * 3.14/180,
 				y * 3.14/180,
@@ -96,8 +116,8 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
-        if (func) {
+        var func = this.renderGrammar[symbolNode.symbol];
+        if (func) { 
             func();
         }
     };

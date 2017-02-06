@@ -1,3 +1,5 @@
+import { Node, LinkedList } from './linkedlist'
+
 // A class that represents a symbol replacement rule to
 // be used when expanding an L-system grammar.
 function Rule(prob, str) {
@@ -5,28 +7,67 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
-// TODO: Implement a linked list class and its requisite functions
-// as described in the homework writeup
 
-// TODO: Turn the string into linked list 
+// Turn the string into linked list 
 export function stringToLinkedList(input_string) {
-	// ex. assuming input_string = "F+X"
-	// you should return a linked list where the head is 
-	// at Node('F') and the tail is at Node('X')
-	var ll = new LinkedList();
-	return ll;
+	var list = new LinkedList();
+	var tokens = input_string.split('');
+	
+	var firstNode = new Node(tokens[0]);
+	list.addNode(firstNode);
+	var prev = firstNode;
+	for (var i = 1; i < tokens.length; i++) {
+		var curr = new Node(tokens[i]);
+		linkNodes(prev, curr);
+		list.addNode(curr);
+		prev = curr;
+	}
+
+	return list;
 }
 
-// TODO: Return a string form of the LinkedList
+// Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
-	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
+
+	if(linkedList.head) {
+		var n = linkedList.head;
+		while(n) {
+			result += n.symbol;
+			n = n.next;		
+		} 
+	}
+
 	return result;
 }
 
-// TODO: Given the node to be replaced, 
-// insert a sub-linked-list that represents replacementString
+// Symmetrically links nodeA and nodeB to each other
+// nodeA's next is nodeB, nodeB's prev is nodeA
+function linkNodes(nodeA, nodeB) {
+	nodeA.setNext(nodeB);
+	nodeB.setPrev(nodeA);
+}
+
+// Given the node to be replaced, 
+// Insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	var replacementList = stringToLinkedList(replacementString);
+
+	if (node.prev) {
+		linkNodes(node.prev, replacementList.head);
+	} else {
+		linkedList.head = replacementList.head;
+		linkedList.head.prev = null;
+	}
+
+	if (node.next) {
+		linkNodes(replacementList.tail, node.next);
+	} else {
+		linkedList.tail = replacementList.tail;
+		linkedList.tail.next = null;
+	}
+
+	return replacementList.tail;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -34,24 +75,25 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
+		new Rule(1.0, '[+FX][-FX]')
 	];
 	this.iterations = 0; 
+	this.angle = 30;
 	
 	// Set up the axiom string
-	if (typeof axiom !== "undefined") {
+	if (axiom) {
 		this.axiom = axiom;
 	}
 
 	// Set up the grammar as a dictionary that 
 	// maps a single character (symbol) to a Rule.
-	if (typeof grammar !== "undefined") {
+	if (grammar) {
 		this.grammar = Object.assign({}, grammar);
 	}
 	
 	// Set up iterations (the number of times you 
 	// should expand the axiom in DoIterations)
-	if (typeof iterations !== "undefined") {
+	if (iterations) {
 		this.iterations = iterations;
 	}
 
@@ -59,18 +101,32 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// in the L-system
 	this.updateAxiom = function(axiom) {
 		// Setup axiom
-		if (typeof axiom !== "undefined") {
+		if (axiom) {
 			this.axiom = axiom;
 		}
 	}
 
-	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
-	this.doIterations = function(n) {	
-		var lSystemLL = StringToLinkedList(this.axiom);
-		return lSystemLL;
+	this.doIterations = function(iterations) {	
+		var list = stringToLinkedList(this.axiom);
+
+		for(var i = 0; i < iterations; i++) {
+			var n = list.head;
+			while (n) {
+			 	var rules = this.grammar[n.symbol];
+			 	if (rules) {
+			 		for (var j = 0; j < rules.length; j++) {
+			 			var pr = rules[j].probability;
+			 			//TODO: implement probability
+			 			n = replaceNode(list, n, rules[j].successorString);
+			 		}
+			 	}
+			 	n = n.next;
+			}
+		}
+		return list;
 	}
 }

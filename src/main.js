@@ -1,10 +1,11 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+
 
 // called after the scene loads
 function onLoad(framework) {
@@ -27,20 +28,26 @@ function onLoad(framework) {
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
-  turtle = new Turtle(scene);
+  turtle = new Turtle(scene, null, 30);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
+  });
+
+  gui.add(lsys, 'angle', 0, 90).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    turtle = new Turtle(scene, null, newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
   });
 }
 
@@ -54,9 +61,9 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene, null, lsystem.angle);
     turtle.renderSymbols(result);
 }
 
