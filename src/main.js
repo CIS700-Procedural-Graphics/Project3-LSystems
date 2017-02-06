@@ -54,9 +54,13 @@ function onLoad(framework) {
       };
       gui.add(rules[numRules], 'Rule').onChange(function() {
           lsys.UpdateRules(rules);
+          clearScene(turtle);
+          doLsystem(lsys, lsys.iterations, turtle);
       });
       gui.add(rules[numRules], 'Prob', 0.0, 1.0).onChange(function() {
           lsys.UpdateRules(rules);
+          clearScene(turtle);
+          doLsystem(lsys, lsys.iterations, turtle);
       });
       numRules++;
   }};
@@ -75,7 +79,6 @@ function clearScene(turtle) {
 
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.DoIterations(iterations);
-    console.log(result);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
