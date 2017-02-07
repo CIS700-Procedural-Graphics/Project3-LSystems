@@ -47,8 +47,10 @@ function onLoad(framework) {
   // var lSystem = new LSystem("FX", "", 10);
   // lSystem.expand();
 
-  var lSystem = PlantLSystem();
+  var lSystem = new PlantLSystem();
   var expandedChain = lSystem.expand();
+
+  scene.add(lSystem.getLineDebugger());
 }
 
 // clears the scene by removing all geometries added by turtle.js

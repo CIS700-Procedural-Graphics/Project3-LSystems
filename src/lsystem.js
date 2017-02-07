@@ -14,7 +14,7 @@ class DummyInstruction extends LInstruction
 	symbol() { return this.dummySymbol; }
 
 	evaluate(context, stack) {
-		return context;
+		return null;
 	}
 }
 
@@ -24,8 +24,8 @@ class PushInstruction extends LInstruction
 	symbol() { return "["; }
 
 	evaluate(context, stack) {
-	stack.push(context);
-		return context;
+		stack.push(context);
+		return null;
 	}
 }
 
@@ -74,9 +74,14 @@ class LInstructionChain
     var stateArray = [context];
 
     this.evaluateInternal(function(node) {
-      context = node.value.evaluate(context, contextStack);
+      var c = node.value.evaluate(context, contextStack);
 
-      stateArray.push(context);
+      // Some instructions may not want to modify the context
+      if(c != null)
+      {
+      	context = c;
+      	stateArray.push(context);
+      }
     });
 
     return stateArray;
@@ -256,7 +261,7 @@ function LSystem(axiom, instructions, rules, iterations)
 		for(var i = 0; i < this.iterations; i++)
 		{
 			this.chain.expand(this.ruleMap);
-			console.log(this.chain.toString());
+			// console.log(this.chain.toString());
 		}
 
 		t = performance.now() - t;
@@ -283,18 +288,8 @@ function LSystem(axiom, instructions, rules, iterations)
 
 	for(var r = 0; r < rules.length; r++)
 		this.parseRule(rules[r].predecessor, rules[r].successor, rules[r].probability);
-	// this.registerInstruction(new ForwardInstruction());
-	// this.registerInstruction(new DummyInstruction("X"));
-	// this.registerInstruction(new RotateNegativeInstruction());
-	// this.registerInstruction(new RotatePositiveInstruction());
-	
+
 	this.updateAxiom(axiom);
-
-	// Parse rules given
-	// this.parseRule("X", "[-FX][+FX]", 1.0);
-	// this.parseRule("A", "AB", 1.0);
-	// this.parseRule("B", "A", 1.0);
-
 }
 
 export {LSystem, LRule, LInstruction, DummyInstruction}
