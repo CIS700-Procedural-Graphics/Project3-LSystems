@@ -8,6 +8,7 @@ function Rule(prob, str) {
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
 
+
 // TODO: Turn the string into linked list 
 export function stringToLinkedList(input_string) {
 	// ex. assuming input_string = "F+X"

@@ -6,6 +6,161 @@ import Turtle from './turtle.js'
 
 var turtle;
 
+class LInstruction
+{
+  constructor()
+  {    
+  }
+
+  symbol()
+  {
+    return "A";
+  }
+
+  evaluate(context, stack)
+  {
+    // Do stuff
+  }
+}
+
+// var PushInstruction = new LInstruction
+
+// A grammar chain is a doubly linked list of instructions
+// that can be modified by given rules
+class GrammarChain 
+{
+  constructor()
+  {
+    this.root = null;
+    this.last = null;
+  }
+
+  push(value) 
+  {
+    if(this.root == null)
+    {
+      this.root = { prev: null, next: null, value: value, new : false};
+      this.last = this.root;
+    }
+    else if(this.last != null)
+    {
+      var node = { prev: this.last, next: null, value: value, new : true};
+      this.last.next = node;
+      this.last = node;
+    }
+
+    return this.last;
+  }
+
+  // Evaluates a chain of instructions, both with a context and a stack
+  evaluate()
+  {    
+    contextStack = [];
+    context = { position: 0, angle : 0 };
+
+    this.evaluateInternal(function(node){
+      context = node.value.evaluate(context, contextStack);
+    });
+  }
+
+  evaluateInternal(evaluateFunc)
+  {
+    this.iterate(null, null, evaluateFunc);
+  }
+
+  // General purpose iteration function
+  iterate(condition, returnFunc, evaluateFunc = null)
+  {
+    var node = this.root;
+
+    while(node != null) {
+
+      if(evaluateFunc != null)
+        evaluateFunc(node);
+
+      if(returnFunc != null && condition != null && condition(node))
+        return returnFunc(node);
+
+      node = node.next;
+    }
+
+    return null;
+  }
+
+  toString() 
+  {
+    var result = "";
+    this.evaluateInternal(function(node) { result += node.value; } );
+    return result;
+  }
+
+  findAll(value) 
+  {
+    var nodes = [];
+    this.iterate(null, null, function(node) { if(node.value == value) nodes.push(node); });
+    return nodes;
+  }
+
+  find(value) 
+  {
+    return this.iterate(function(node){return node.value == value;}, function(node) { return node } );
+  }
+
+  // Because we're replacing in-place, we must be careful not to 
+  // replace recently added nodes that come from a previous replacement
+  // in the same expansion cycle.
+  expand(rules, clean)
+  {
+    if(clean)
+      this.iterate(null, null, function(node){node.new = false;});
+
+    for(var r = 0; r < rules.length; r++)
+    {
+      var nodes = this.findAll(rules[r].symbol);
+
+      for(var n = 0; n < rules.length; n++)
+        if(nodes[n].new == false)
+          this.replace(nodes[n], rules[r].resultSymbols)
+    }
+
+    this.iterate(null, null, function(node){node.new = false;});
+  }
+
+  // Now it only replaces one symbol. TODO context aware rules
+  replaceSymbol(v, values)
+  {
+    this.replace(this.find(v), values);
+  }
+
+  replace(node, values) 
+  {
+    if(node == null)
+      return;
+
+    var prevNode = node.prev;
+    this.last = prevNode;
+
+    if(this.root == node)
+      this.root = this.last;
+
+    for(var i = 0; i < values.length; i++)
+      this.push(values[i]);
+
+    // Reconnect the chain, while ignoring the replaced node
+    if(this.last != null)
+    {
+      this.last.next = node.next;
+
+      if(node.next != null)
+        node.next.prev = this.last;
+
+      // Make sure we update the last node
+      while(this.last.next != null)
+        this.last = this.last.next;
+    }
+  }
+}
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -42,6 +197,24 @@ function onLoad(framework) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+
+
+  var list = new GrammarChain();
+  list.push("A");
+  list.push("B");
+  list.push("C");
+  list.push("D");
+  list.push("E");
+  list.push("F");
+
+  list.replaceSymbol("B", ["Q", "Q", "Q"]);
+
+
+  list.push("H");
+
+  console.log(list.root);
+
+  console.log(list.toString());
 }
 
 // clears the scene by removing all geometries added by turtle.js
