@@ -79,6 +79,7 @@
 	  directionalLight.color.setHSL(0.1, 1, 0.95);
 	  directionalLight.position.set(1, 3, 2);
 	  directionalLight.position.multiplyScalar(10);
+	
 	  scene.add(directionalLight);
 	
 	  //var loader = new THREE.CubeTextureLoader();
@@ -93,8 +94,9 @@
 	  //scene.background = skymap;
 	
 	  // set camera position
-	  camera.position.set(1, 1, 2);
+	  camera.position.set(1, 1, 20);
 	  camera.lookAt(new THREE.Vector3(0, 0, 0));
+	  camera.updateProjectionMatrix();
 	
 	  // initialize LSystem and a Turtle to draw
 	  var lsystem = new _lsystem2.default.Lsystem();
@@ -134,6 +136,7 @@
 	  turtle.clear();
 	  var angle = turtle.angle;
 	  turtle = new _turtle2.default(turtle.scene);
+	  console.log(turtle);
 	  turtle.angle = angle;
 	  turtle.renderSymbols(result);
 	}
@@ -194,7 +197,7 @@
 	    var renderer = new THREE.WebGLRenderer({ antialias: true });
 	    renderer.setPixelRatio(window.devicePixelRatio);
 	    renderer.setSize(window.innerWidth, window.innerHeight);
-	    renderer.setClearColor(0x020202, 0);
+	    renderer.setClearColor(0xfcd1fa, 1);
 	
 	    var controls = new OrbitControls(camera, renderer.domElement);
 	    controls.enableDamping = true;
@@ -48436,9 +48439,9 @@
 		// default LSystem
 		this.axiom = "123";
 		this.grammar = {};
-		this.grammar['1'] = [new Rule(0.33333, 'FF[-2]3[+3]'), new Rule(0.33333, 'FF[W2]3[Q3]'), new Rule(0.33333, 'FF[R2]3[E3]')];
-		this.grammar['2'] = [new Rule(0.33333, 'FF+F-F-F[FF3][+3]-F-F3'), new Rule(0.33333, 'FFQFWFWF[FF3][Q3]WFWF3'), new Rule(0.33333, 'FFEFRFRF[FFF3][E3]RFRF3')];
-		this.grammar['3'] = [new Rule(0.33333, 'FF-F+F+F[2][-2]+F+F2'), new Rule(0.33333, 'FFWFQFQF[2][W2]QFQF2'), new Rule(0.33333, 'FFRFEFEF[2][R2]EFEF2')];
+		this.grammar['1'] = [new Rule(0.33333, 'FFA[-2]3[+3]'), new Rule(0.33333, 'FFA[W2]3[Q3]'), new Rule(0.33333, 'FFA[R2]3[E3]')];
+		this.grammar['2'] = [new Rule(0.33333, 'FAF+F-F-F[FF3][+3]-F-F3'), new Rule(0.33333, 'FAFQFWFWF[FF3][Q3]WFWF3'), new Rule(0.33333, 'FAFEFRFRF[FFF3][E3]RFRF3')];
+		this.grammar['3'] = [new Rule(0.33333, 'FF-F+F+F[2][-2]+F+FA2'), new Rule(0.33333, 'FFWFQFQF[2][W2]QFQFA2'), new Rule(0.33333, 'FFRFEFEF[2][R2]EFEFA2')];
 		this.iterations = 0;
 	
 		// Set up the axiom string
@@ -48514,6 +48517,14 @@
 	
 	var THREE = __webpack_require__(6);
 	
+	var objLoader = new THREE.OBJLoader();
+	var flowGeometry;
+	objLoader.load('lotus_OBJ_low.obj', function (obj) {
+	
+	    // LOOK: This function runs after the obj has finished loading
+	    flowGeometry = obj.children[0].geometry;
+	});
+	
 	// A class used to encapsulate the state of a turtle at a given moment.
 	// The Turtle class contains one TurtleState member variable.
 	// You are free to add features to this state class,
@@ -48529,7 +48540,7 @@
 	    function Turtle(scene, grammar) {
 	        _classCallCheck(this, Turtle);
 	
-	        this.state = new TurtleState(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0));
+	        this.state = new TurtleState(new THREE.Vector3(0, -5, -10), new THREE.Vector3(0, 1, 0));
 	        this.scene = scene;
 	        this.stack = [];
 	        this.angle = 15;
@@ -48546,7 +48557,8 @@
 	                'Q': this.rotateTurtle.bind(this, 0, 0, 0, 0, -1, 0),
 	                'W': this.rotateTurtle.bind(this, 0, 0, 0, 0, 1, 0),
 	                'E': this.rotateTurtle.bind(this, 0, 0, 0, 0, 0, -1),
-	                'R': this.rotateTurtle.bind(this, 0, 0, 0, 0, 0, 1)
+	                'R': this.rotateTurtle.bind(this, 0, 0, 0, 0, 0, 1),
+	                'A': this.drawFlower.bind(this, 2, 0.1)
 	            };
 	        } else {
 	            this.renderGrammar = grammar;
@@ -48554,6 +48566,27 @@
 	    }
 	
 	    _createClass(Turtle, [{
+	        key: 'drawFlower',
+	        value: function drawFlower(len, width) {
+	            //var tmp_turtle = this;
+	            if (this.iteration > 0) {
+	                //this.scene.add(mesh);
+	                //
+	                //var quat = new THREE.Quaternion();
+	                //quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+	                //var mat4 = new THREE.Matrix4();
+	                //mat4.makeRotationFromQuaternion(quat);
+	                //mesh.applyMatrix(mat4);
+	                //
+	                //var mat5 = new THREE.Matrix4();
+	                //var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+	                //mat5.makeTranslation(trans.x, trans.y, trans.z);
+	                //mesh.applyMatrix(mat5);
+	
+	                //this.moveForward(len/2);
+	            }
+	        }
+	    }, {
 	        key: 'saveState',
 	        value: function saveState() {
 	            var newPos = this.state.pos;
@@ -48620,22 +48653,15 @@
 	        // Make a cylinder of given length and width starting at turtle pos
 	        // Moves turtle pos ahead to end of the new cylinder
 	        value: function makeCylinder(len, width) {
-	            // 
-	            if (this.iteration > 1) {
-	                var objLoader = new THREE.OBJLoader();
-	                objLoader.load('lotus_OBJ_low.obj', function (obj) {
-	
-	                    // LOOK: This function runs after the obj has finished loading
-	                    var geo = obj.children[0].geometry;
-	                    var material = new THREE.MeshLambertMaterial({ color: 0x00ccff, side: THREE.DoubleSide });
-	                    var mesh = new THREE.Mesh(geo, lambertWhite);
-	                    this.scene.add(mesh);
-	                });
-	            }
 	            var geometry = new THREE.CylinderGeometry(1.5 / this.iteration, 1.5 / this.iteration, len);
 	            var material = new THREE.MeshLambertMaterial({ color: 0xba8964, side: THREE.DoubleSide });
 	            var cylinder = new THREE.Mesh(geometry, material);
+	            var materialBlue = new THREE.MeshLambertMaterial({ color: 0x00ccff, side: THREE.DoubleSide });
+	            var mesh = new THREE.Mesh(flowGeometry, materialBlue);
 	            this.scene.add(cylinder);
+	            if (Math.random() < 0.25 && this.iteration > 1) {
+	                this.scene.add(mesh);
+	            }
 	
 	            //Orient the cylinder to the turtle's current direction
 	            var quat = new THREE.Quaternion();
@@ -48643,13 +48669,14 @@
 	            var mat4 = new THREE.Matrix4();
 	            mat4.makeRotationFromQuaternion(quat);
 	            cylinder.applyMatrix(mat4);
+	            mesh.applyMatrix(mat4);
 	
 	            //Move the cylinder so its base rests at the turtle's current position
 	            var mat5 = new THREE.Matrix4();
 	            var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
 	            mat5.makeTranslation(trans.x, trans.y, trans.z);
 	            cylinder.applyMatrix(mat5);
-	
+	            mesh.applyMatrix(mat5);
 	            //Scoot the turtle forward by len units
 	            this.moveForward(len / 2);
 	        }
