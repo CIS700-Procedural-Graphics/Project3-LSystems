@@ -34,15 +34,62 @@ function onLoad(framework) {
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 5).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
-}
+
+  //call toonshader function with new offset
+  //call dolsystem
+
+  gui.add(lsys, 'randomVal', 0.1, 0.7).onChange(function(newVal) {
+    //make function in lsystem to change randomval
+    lsys.updateRandomVal(newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
+  })
+
+  gui.add(turtle, 'angle', 10, 80).onChange(function(newVal) {
+    //make function in lsystem to change randomval
+    //lsys.updateRandomVal(newVal);
+    turtle.updateAngle(newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
+  })
+
+  gui.add(turtle, 'cylinderWidth', 0.1, 0.6).onChange(function(newVal) {
+    //make function in lsystem to change randomval
+    //lsys.updateRandomVal(newVal);
+    turtle.updateCylinderWidth(newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
+  })
+
+
+  //SOMETHING IS UP WITH THE COLOR. HOW DO I INCORPORATE BOTH THE COLOR PICKER AND CHANGING COLOR IN TURTLE
+  // var colorChanger = function() {
+  //   this.branchColor = "#ffae23"; // CSS string
+  //   // this.color1 = [ 0, 128, 255 ]; // RGB array
+  //   // this.color2 = [ 0, 128, 255, 0.3 ]; // RGB with alpha
+  //   // this.color3 = { h: 350, s: 0.9, v: 0.3 }; // Hue, saturation, value
+  //
+  //   turtle.updateBranchColor(this.branchColor);
+  //   doLsystem(lsys, lsys.iterations, turtle);
+  // };
+  // var text = new colorChanger();
+  // gui.addColor(text, 'branchColor');
+  //
+  //
+  // gui.add(turtle, 'branchColor', 0x00cccc, 0xfff000).onChange(function(newVal) {
+  //   turtle.updateBranchColor(newVal);
+  //   doLsystem(lsys, lsys.iterations, turtle);
+  // })
+
+
+
+}//end onload function
+
 
 // clears the scene by removing all geometries added by turtle.js
 function clearScene(turtle) {
