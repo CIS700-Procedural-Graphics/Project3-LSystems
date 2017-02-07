@@ -120,25 +120,27 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "FA";
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(0.7, '[-FX][+FX]'),
-		new Rule(0.3, '[F-X+]'),
-		new Rule(0.0, '' )
+	this.grammar['A'] = [
+		new Rule(0.55, '[YY-CFA][YY+CFA]'),
+		new Rule(0.25, '[yyy--CFA][y++CFA]'),
+		new Rule(0.2, '[ZZcccA]' )
 	];
-	this.grammar['Y'] = [
-		new Rule(0.0, ''),
-		new Rule(0.0, ''),
-		new Rule(0.0, '' )
-	];
-	this.grammar['Z'] = [
+	this.grammar['B'] = [
 		new Rule(0.0, ''),
 		new Rule(0.0, ''),
 		new Rule(0.0, '' )
 	];
-	this.iterations = 0; 
+	this.grammar['C'] = [
+		new Rule(0.0, ''),
+		new Rule(0.0, ''),
+		new Rule(0.0, '' )
+	];
+	this.iterations = 10; 
 	this.prevIterations = -1;
+	
+	this.startingRotations = [10,0,0];
 	
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {
