@@ -1,5 +1,5 @@
 
-Here is the HW submission: [mccannd.github.io/Project3-LSystems](mccannd.github.io/Project3-LSystems)
+Here is the HW submission: [HERE](https://mccannd.github.io/Project3-LSystems/)
 
 Additions to the assignment:
 - Ramp shader ground plane
