@@ -31,11 +31,6 @@ class Node {
     setPrev(newPrev) {
         this.prevNode = newPrev;
     }
-    print() {
-        console.log("prevSymbol " + this.prevNode.getSymbol());
-        console.log("nodeSymbol " + this.getSymbol());
-        console.log("nextSymbol " + this.nextNode.getSymbol());
-    }
 }
 
 class LinkedList {
@@ -68,11 +63,20 @@ class LinkedList {
         this.length += 1;
     }
 
+    getStartNode() {
+        return this.startNode;
+    }
+
+    getLength() {
+        return this.length;
+    }
+
     deleteNode(nodeToDelete) {
         var prevNode = nodeToDelete.getPrev();
         var nextNode = nodeToDelete.getNext(); 
         prevNode.setNext(nextNode);
         nextNode.setPrev(prevNode);
+        this.length--;
     }
 
     linkNodes(nodeA, nodeB) {
@@ -96,23 +100,10 @@ class LinkedList {
                 if (i == replacementSymbols.length - 1) {
                     this.linkNodes(newNode, nextNode);
                 }
+                this.length++;
             }
         }
     }
-
-    print() {
-        var temp = this.startNode;
-        var count = 0; 
-        while (this.startNode.getNext() != null) {
-            console.log(count);
-            temp.print();
-            temp = temp.getNext();
-            count++;
-        }
-        count++;
-        console.log(count);
-        temp.print();
-    } 
 }
 
 
@@ -127,7 +118,6 @@ export function stringToLinkedList(input_string) {
         ll.addNodeWithSymbol(symbols[i]);
     }
     console.log(ll);
-    //ll.print();
     return ll;
 }
 
@@ -135,6 +125,11 @@ export function stringToLinkedList(input_string) {
 export function linkedListToString(linkedList) {
     // ex. Node1("F")->Node2("X") should be "FX"
     var result = "";
+    var temp = linkedList.getStartNode();
+    while (temp != null) {
+        result += temp.getSymbol();
+        temp = temp.getNext();
+    }
     return result;
 }
 

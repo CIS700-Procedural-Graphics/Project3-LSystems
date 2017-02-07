@@ -27,7 +27,8 @@ function onLoad(framework) {
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
-  stringToLinkedList("F+X[F]");
+  var ll = stringToLinkedList("F+X[F]");
+  console.log(linkedListToString(ll));
 
   turtle = new Turtle(scene);
 
