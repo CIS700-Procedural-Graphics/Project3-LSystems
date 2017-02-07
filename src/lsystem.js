@@ -7,28 +7,161 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
-// TODO: Implement a linked list class and its requisite functions
+// Implement a linked list class and its requisite functions
 // as described in the homework writeup
+// See linkedlist.js
 
-// TODO: Turn the string into linked list 
+// Turn the string into linked list 
 export function stringToLinkedList(input_string) {
 	// ex. assuming input_string = "F+X"
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+
+	for (var i = 0; i < input_string.length; i++) {
+		ll.push(input_string.charAt(i));
+	}
+
 	return ll;
 }
 
-// TODO: Return a string form of the LinkedList
+// Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
-	var result = "";
-	return result;
+	return linkedList.toString();
 }
 
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	if (linkedList === null || linkedList.head === null || node === null) {
+		// If LL doesn't exist or is empty just return
+		return;
+	}
+	
+	var curr = linkedList.head;
+
+	// Replacement string is empty
+	// Basically remove node at evey appearance
+	if (!replacementString || replacementString.length == 0) {
+		// Delete the node at every appearance
+		while (curr != null) {
+			if (linkedList.head == linkedList.tail) {
+				// 1 Element Case
+
+				if (linkedList.head.value == node.value) {
+					linkedList.pop(); // remove
+				}
+
+				return;
+			}
+
+
+			// Current is the head
+			else if (curr == linkedList.head) {
+				if (curr.value == node.value) {
+					linkedList.head = linkedList.head.next;
+					curr = linkedList.head;
+				}
+			}
+
+			// Current is the tail
+			else if (curr == linkedList.tail) {
+				if (curr.value == node.value) {
+					linkedList.tail = linkedList.tail.prev;
+				}
+
+				return;
+			}
+
+			// Current is a middle node
+			else if (curr.value == node.value) {
+				var before = curr.prev;
+				var after = curr.next;
+
+				// Drop reference to current node
+				before.next = after;
+				after.prev = before;
+
+				curr = after;
+			}
+
+			// Move on
+			else {
+				curr = curr.next;
+			}
+		}
+
+	// ReplacementString is not empty
+	} else {
+		// Create LL of replacementString
+		var rsll = stringToLinkedList(replacementString);
+
+		if (linkedList.head == linkedList.tail) {
+			// 1 Element Case
+			// Replace LL with RSLL
+			if (linkedList.head.value == node.value) {
+				linkedList = rsll;
+			}
+
+			return;
+		}
+
+
+		// 2+ Element cases
+		// Curr is currently equal to the head
+		if (curr.value == node.value) {
+			var copy = rsll.clone();
+
+			copy.tail.next = linkedList.head.next;
+			linkedList.head = copy.head;
+		}
+
+		// Loop through the LL
+		while(curr !== null) {
+
+			// Current is the tail
+			else if (curr == linkedList.tail) {
+				if (curr.value == node.value) {
+					linkedList.tail = linkedList.tail.prev;
+				}
+
+				return;
+			}
+
+			// Current is a middle node
+			else if (curr.value == node.value) {
+				var before = curr.prev;
+				var after = curr.next;
+
+				// Drop reference to current node
+				before.next = after;
+				after.prev = before;
+
+				curr = after;
+			}
+
+			if (curr.value == node.value) {
+				// Replace
+				var before = curr.prev;
+				var after = curr.next;
+
+				// Copy the replacementString LinkedList
+				var copy = rsll.clone();
+				copy.head.prev = before;
+				copy.tail.next = after;
+
+				before.next = copy.head;
+				after.prev = copy.tail;
+
+				// Update current
+				curr = after;
+			} else {
+				// Keep going otherwise
+				curr = curr.next;
+			}
+		}
+	}
 }
 
 export default function Lsystem(axiom, grammar, iterations) {

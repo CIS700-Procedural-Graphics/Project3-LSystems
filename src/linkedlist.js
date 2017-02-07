@@ -2,10 +2,10 @@ export default class LinkedList {
 	constructor() {
 		this.head = null;
 		this.tail = null;
-	}
+	};
 
 	// Pushes node with value into the LL
-	push() = function(value) {
+	push(value) {
 		var node = {
 			value: value,
 			next: null,
@@ -22,10 +22,10 @@ export default class LinkedList {
 			this.tail.next = node;
 			this.tail = node; // Update tail
 		}
-	}
+	};
 
 	// Pops node off of the LL
-	pop() = function() {
+	pop() {
 		// 0 Elements
 		if (this.head === null) {
 			return null;
@@ -49,10 +49,10 @@ export default class LinkedList {
 
 			return node;
 		}
-	}
+	};
 
 	// Returns a string version of the LL
-	toString() = function() {
+	toString() {
 		if (this.head === null) {
 			return '';
 		} else {
@@ -66,6 +66,11 @@ export default class LinkedList {
 
 			return result;
 		} 
-	}
+	};
+
+	// Clones the LL
+	clone() {
+		return JSON.parse(JSON.stringify(this));
+	};
 }
 
