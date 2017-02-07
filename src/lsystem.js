@@ -116,7 +116,7 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "!FFF[B]S[B]S[B][B]S[B]"; // Originally 'FX'
+	this.axiom = "!T[B]S[B]S[B][B]S[B]"; // Originally 'FX'
 	// this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['S'] = [

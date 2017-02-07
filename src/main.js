@@ -11,6 +11,11 @@ OBJLoader(THREE);
 var turtle;
 var leafGeometry;
 
+OBJLoader = new THREE.OBJLoader();
+OBJLoader.load('res/OBJs/leaf.obj', function(obj) {
+    leafGeometry = obj.children[0].geometry;
+});
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -67,7 +72,7 @@ function onLoad(framework) {
   // initialize the turtle to draw our l-system
   turtle = new Turtle(scene);
   
-  loadOBJ(leafGeometry);
+  // loadOBJ(leafGeometry);.
   
   // give the turtle to the global doLSys object
   doLSys.turtle = turtle;
@@ -86,13 +91,13 @@ function onLoad(framework) {
   
 }
 
-function loadOBJ(leafGeometry) {
-    OBJLoader = new THREE.OBJLoader();
-    OBJLoader.load('res/OBJs/leaf.obj', function(obj) {
-        leafGeometry = obj.children[0].geometry;
-    });
-    // console.log(this.leafGeometry); //undefined here
-}
+// function loadOBJ(leafGeometry) {
+//     OBJLoader = new THREE.OBJLoader();
+//     OBJLoader.load('res/OBJs/leaf.obj', function(obj) {
+//         leafGeometry = obj.children[0].geometry;
+//     });
+//     // console.log(this.leafGeometry); //undefined here
+// }
 
 function setTurtleOBJ(turtle) {
   turtle.leafGeometry = leafGeometry;

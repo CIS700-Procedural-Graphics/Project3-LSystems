@@ -27,7 +27,8 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeBranch.bind(this, 2, 0.1),
+                'F' : this.makeBranch.bind(this, 2, 0.1, 1, 1),
+                'T' : this.makeTrunk.bind(this),
                 'L' : this.makeLeaf.bind(this, 0.5, 0.01),
                 'A' : this.makeApple.bind(this, 0.1),
                 '[' : this.saveState.bind(this),
@@ -98,12 +99,12 @@ export default class Turtle {
     
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
-    makeBranch(len, width) {
+    makeBranch(len, width, topScale, bottomScale) {
         //Scale the radii of the cylinder to get skinnier over time
         var currScale = Math.pow(this.scaleFalloff, this.currentIteration);
         var prevScale = Math.pow(this.scaleFalloff, this.previousIteration);
         
-        var geometry = new THREE.CylinderGeometry(width * currScale, width * prevScale, len);
+        var geometry = new THREE.CylinderGeometry(width * currScale * topScale, width * prevScale * bottomScale, len);
         var material = new THREE.MeshLambertMaterial( {color: 0x2A1506} );
         var cylinder = new THREE.Mesh( geometry, material );
         cylinder.castShadow = true;
@@ -127,12 +128,18 @@ export default class Turtle {
         this.moveForward(0.5 * len);
     };
     
+    makeTrunk() {
+        this.makeBranch(2, 1, 0.7, 1);
+        this.makeBranch(2, 1, 0.4, 0.6);
+        this.makeBranch(2, 1, 0.1, 0.3);
+    }
+    
     makeLeaf(len, width) {
         // console.log(this.leafGeometry);
-        var geometry = new THREE.CylinderGeometry(width, width, len);
+        //var geometry = new THREE.CylinderGeometry(width, width, len);
         var material = new THREE.MeshLambertMaterial( {color: 0x228B22} );
-        var leaf = new THREE.Mesh( /*this.leafGeometry*/ geometry, material );
-        leaf.scale.set(10, 10, 10);
+        var leaf = new THREE.Mesh( this.leafGeometry /*geometry*/, material );
+        leaf.scale.set(1, 1, 1);
         leaf.castShadow = true;
         this.scene.add( leaf );
 
@@ -146,12 +153,12 @@ export default class Turtle {
 
         //Move the leaf so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.1));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         leaf.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(0.5);
+        this.moveForward(0.1);
     };
     
     makeApple(radius) {
