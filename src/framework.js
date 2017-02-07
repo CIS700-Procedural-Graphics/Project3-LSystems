@@ -1,6 +1,7 @@
 
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE)
+const OBJLoader = require('three-obj-loader')(THREE)
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
 
@@ -26,10 +27,10 @@ function init(callback, update) {
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    var renderer = new THREE.WebGLRenderer( { antialias: true } );
+    var renderer = new THREE.WebGLRenderer( { antialias: true} );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x020202, 0);
+    renderer.setClearColor(0xfcd1fa, 1);
 
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;

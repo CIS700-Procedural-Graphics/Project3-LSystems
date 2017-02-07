@@ -1,13 +1,14 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import lsys from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
 
 // called after the scene loads
 function onLoad(framework) {
+  
   var scene = framework.scene;
   var camera = framework.camera;
   var renderer = framework.renderer;
@@ -19,28 +20,46 @@ function onLoad(framework) {
   directionalLight.color.setHSL(0.1, 1, 0.95);
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
+
   scene.add(directionalLight);
 
+  //var loader = new THREE.CubeTextureLoader();
+  //var urlPrefix = '';
+  //
+  //var skymap = new THREE.CubeTextureLoader().load([
+  //    urlPrefix + 'px.jpg', urlPrefix + 'nx.jpg',
+  //    urlPrefix + 'py.jpg', urlPrefix + 'ny.jpg',
+  //    urlPrefix + 'pz.jpg', urlPrefix + 'nz.jpg'
+  //] );
+  //
+  //scene.background = skymap;
+
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, 20);
   camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.updateProjectionMatrix();
 
   // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
+  var lsystem = new lsys.Lsystem();
   turtle = new Turtle(scene);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
-  gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
-    doLsystem(lsys, lsys.iterations, turtle);
+  gui.add(lsystem, 'axiom').onChange(function(newVal) {
+    lsystem.updateAxiom(newVal);
+    doLsystem(lsystem, lsystem.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsystem, 'iterations', 0, 12).step(1).onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
+    doLsystem(lsystem, newVal, turtle);
+  });
+
+  gui.add(turtle, 'angle', 15, 120).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsystem, lsystem.iterations, turtle);
   });
 }
 
@@ -54,9 +73,12 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
+    var angle = turtle.angle;
     turtle = new Turtle(turtle.scene);
+    console.log(turtle);
+    turtle.angle = angle;
     turtle.renderSymbols(result);
 }
 
