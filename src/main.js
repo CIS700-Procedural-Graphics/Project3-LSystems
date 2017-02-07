@@ -42,28 +42,8 @@ function onLoad(framework) {
   //   doLsystem(lsys, newVal, turtle);
   // });
 
-  var lSystem = new LSystem("][][", "", 1);
-
-  console.log(lSystem.axiom);
-  console.log(lSystem.chain);
-  console.log(lSystem.chain.toString());
-  console.log(lSystem.instructionMap);
-
-  // var chain = new LInstructionChain();
-  // chain.push(new PushInstruction());
-  // chain.push(new PushInstruction());
-  // chain.push(new PullInstruction());
-  // chain.push(new PullInstruction());
-
-  // // chain.replaceSymbol("B", ["Q", "Q", "Q"]);
-
-
-  // chain.evaluate();
-  // // chain.push("H");
-
-  // console.log(chain.root);
-
-  // console.log(chain.toString());
+  var lSystem = new LSystem("FX", "", 10);
+  lSystem.expand();
 }
 
 // clears the scene by removing all geometries added by turtle.js
