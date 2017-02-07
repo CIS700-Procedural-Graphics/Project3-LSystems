@@ -123,14 +123,14 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(1.0, '[-<FX][+<FX]')
 	];*/
 	this.grammar['X'] = [
-		new Rule(0.1, '[lFX][rFX]>FX'),
-		new Rule(0.1, '[lFX][rFX]-FX'),
+		new Rule(0.1, '[lFFX][rFFX]>FFX'),
+		new Rule(0.1, '[lFFX][rFFX]-FFX'),
 		new Rule(0.1, 'X'),
-		new Rule(0.7, '[lFX][rFX]FX')
+		new Rule(0.7, '[lFFX][rFFX]FFX')
 	];
 
 	this.grammar['B'] = [
-		new Rule(1.0, '[++++X]<<<[++++X]<<<[++++X]<<<[++++X]FFB')
+		new Rule(1.0, '[++++X]<<<[++++X]<<<[++++X]<<<[++++X]<MB')
 	];
 	this.grammar['M'] = [
 		new Rule(1.0, 'MF')

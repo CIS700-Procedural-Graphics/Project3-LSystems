@@ -33,8 +33,8 @@ var material = new THREE.ShaderMaterial({
     vertexShader: require('./shaders/lsystem_vert.glsl'),
     fragmentShader: require('./shaders/lsystem_frag.glsl')
 });
-var geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 5);
-
+var geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 2);
+var hgeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 8, 3);
 
 function updateBounds() {
     sUniforms.xMin.value = bounds.xMin;
@@ -89,8 +89,9 @@ export default class Turtle {
                 '>' : this.rotateTurtle.bind(this, 0, -30, 0),
                 'l' : this.rotateTurtle.bind(this, 0, 0, 30),
                 'r' : this.rotateTurtle.bind(this, 0, 0, -30),
-                'F' : this.makeCylinder.bind(this, 1.0, 1.0),
+                'F' : this.makeCylinder.bind(this, 2.0, 1.0),
                 'G' : this.makeCylinder.bind(this, 1.0, 0.5),
+                'H' : this.makeCylinder.bind(this, 1.0, 0.5),
                 '[' : this.saveTurtle.bind(this),
                 ']' : this.loadTurtle.bind(this)
             };
@@ -180,14 +181,14 @@ export default class Turtle {
 
     // Translate the turtle along its _dir_ vector by the distance indicated
     moveForward(dist) {
-        var newVec = this.state.dir.multiplyScalar(dist);
+        var newVec = this.state.dir.multiplyScalar(1.0);
+        newVec = newVec.multiplyScalar(dist);
         this.state.pos.add(newVec);
         var p = this.state.pos;
         if (p.x < bounds.xMin) bounds.xMin = p.x;
         else if (p.x > bounds.xMax) bounds.xMax = p.x;
         if (p.y < bounds.yMin) bounds.yMin = p.y;
         else if (p.y > bounds.yMax) bounds.yMax = p.y;
-
         if (p.z < bounds.zMin) bounds.zMin = p.z;
         else if (p.z > bounds.zMax) bounds.zMax = p.z;
 
@@ -214,12 +215,42 @@ export default class Turtle {
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
         var t = this.state.dir;
-        var trans = this.state.pos.add(t.multiplyScalar(0.5 * 2.0 * scaleLen));
+        var p = this.state.pos;
+        //var trans = p.add(t.multiplyScalar(0.5 * 2.0 * scaleLen));
+        var trans = p.add(t);
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(2.0 * scaleLen/2);
+        this.moveForward(scaleLen);
+    };
+
+
+    makeSmallCylinder(scaleRad, scaleLen) {
+        
+        
+        var cylinder = new THREE.Mesh( hgeometry, material );
+        cylinder.scale.set(scaleRad, scaleLen, scaleRad);
+        this.scene.add( cylinder );
+
+        //Orient the cylinder to the turtle's current direction
+        var quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+        var mat4 = new THREE.Matrix4();
+        mat4.makeRotationFromQuaternion(quat);
+        cylinder.applyMatrix(mat4);
+
+
+        //Move the cylinder so its base rests at the turtle's current position
+        var mat5 = new THREE.Matrix4();
+        var t = this.state.dir;
+        var p = this.state.pos;
+        var trans = p.add(t.multiplyScalar(0.5 * 1.0 * scaleLen));
+        mat5.makeTranslation(trans.x, trans.y, trans.z);
+        cylinder.applyMatrix(mat5);
+
+        //Scoot the turtle forward by len units
+        this.moveForward(1.0 * scaleLen/2.0);
     };
     
     // Call the function to which the input symbol is bound.

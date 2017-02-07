@@ -25,6 +25,23 @@ function onLoad(framework) {
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
+  var sUniforms = {
+    ramp: { 
+        type: "t", 
+        value: THREE.ImageUtils.loadTexture('./groundRamp.png')
+    },
+  };
+
+  var planeMat = new THREE.ShaderMaterial({
+    uniforms : sUniforms,
+    vertexShader: require('./shaders/floor_vert.glsl'),
+    fragmentShader: require('./shaders/floor_frag.glsl')
+  });
+  var planeGeom = new THREE.PlaneGeometry(100, 100);
+  var planeObj = new THREE.Mesh(planeGeom, planeMat);
+  scene.add(planeObj);
+  planeObj.rotateX(-Math.PI / 2.0);
+
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
@@ -47,7 +64,7 @@ function onLoad(framework) {
 // clears the scene by removing all geometries added by turtle.js
 function clearScene(turtle) {
   var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
+  for( var i = turtle.scene.children.length - 1; i > 4; i--) {
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
   }
