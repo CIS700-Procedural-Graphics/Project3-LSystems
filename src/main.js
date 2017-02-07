@@ -47,6 +47,7 @@ function onLoad(framework) {
     turtle.clear();
     turtle.updateAngle(newVal);
     var result = lsys.doIterations(lsys.iterations);
+    turtle.iterations = lsys.iterations;
     turtle.renderSymbols(result);
 
     //doLsystem(lsys, lsys.iterations, turtle);
@@ -71,9 +72,9 @@ function clearScene(turtle) {
 
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
-    console.log(linkedListToString(result));
     turtle.clear();
     turtle = new Turtle(turtle.scene);
+    turtle.iterations = iterations;
     turtle.renderSymbols(result);
 }
 

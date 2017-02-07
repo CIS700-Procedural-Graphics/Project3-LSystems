@@ -216,9 +216,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 			if (symbol in this.grammar){
 				
 				var coinToss = Math.random() < this.grammar[symbol][0].probability;
-				console.log(Math.random());
-				console.log(this.grammar[symbol][0].probability);
-				console.log(coinToss);
 			
 				// coinToss = true;
 				if(coinToss){
@@ -250,8 +247,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		for (var i = 0; i < n; i ++){ //do the replacement n times
 
 			lSystemLL = this.doIteration(lSystemLL);
-			console.log("iteration " + i);
-			console.log(linkedListToString(lSystemLL));
+
 		}
 		
 		return lSystemLL;
