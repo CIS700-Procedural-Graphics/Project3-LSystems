@@ -16,6 +16,7 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        this.savedStates = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -23,7 +24,9 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.storeState.bind(this),
+                ']' : this.restoreState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -96,7 +99,7 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        var func = this.renderGrammar[symbolNode.symbol];
         if (func) {
             func();
         }
@@ -109,4 +112,16 @@ export default class Turtle {
             this.renderSymbol(currentNode);
         }
     }
+
+    storeState(){
+        this.savedStates.push(new TurtleState(this.state.pos, this.state.dir));
+        // console.log("SAVED");
+        // console.log(this.state.pos);
+    };
+
+    restoreState(){
+        this.state = this.savedStates.pop();
+        // console.log("RESTORED");
+        // console.log(this.state.pos);
+    };
 }

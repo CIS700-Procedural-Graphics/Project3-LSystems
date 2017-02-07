@@ -54,7 +54,6 @@ export function testLinkedList(){
 	];
 	var ls = new Lsystem("FX", gram, 1);
 
-
 	// var ll = stringToLinkedList("[-FX][+FX]");
 	// console.log(ll);
 
@@ -66,10 +65,10 @@ export function testLinkedList(){
 
 	//console.log(ll);
 	//console.log(ls.doIteration(ll));
-	console.log(linkedListToString(ls.doIterations(0)));
-	console.log(linkedListToString(ls.doIterations(1)));
-	console.log(linkedListToString(ls.doIterations(2)));
-	console.log(linkedListToString(ls.doIterations(3)));
+	// console.log(linkedListToString(ls.doIterations(0)));
+	// console.log(linkedListToString(ls.doIterations(1)));
+	// console.log(linkedListToString(ls.doIterations(2)));
+	// console.log(linkedListToString(ls.doIterations(3)));
 
 
 }
@@ -154,8 +153,16 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
+		// new Rule(1.0, '[-FX][+FX]')
+		new Rule(1.0, 'F−[[X]+X]+F[+FX]−X')
 	];
+	this.grammar['F'] = [
+		// new Rule(1.0, '[-FX][+FX]')
+		new Rule(1.0, 'FF')
+	];
+
+
+	this.angle = 30.0;
 	
 	this.iterations = 0; 
 	
