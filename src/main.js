@@ -3,8 +3,10 @@ const THREE = require('three'); // older modules are imported like this. You sho
 import Framework from './framework'
 import LSystem from './lsystem.js'
 import Turtle from './turtle.js'
+import PlantLSystem from './plants.js'
 
 var turtle;
+
 
 function onLoad(framework) {
   var scene = framework.scene;
@@ -42,8 +44,11 @@ function onLoad(framework) {
   //   doLsystem(lsys, newVal, turtle);
   // });
 
-  var lSystem = new LSystem("FX", "", 10);
-  lSystem.expand();
+  // var lSystem = new LSystem("FX", "", 10);
+  // lSystem.expand();
+
+  var lSystem = PlantLSystem();
+  var expandedChain = lSystem.expand();
 }
 
 // clears the scene by removing all geometries added by turtle.js

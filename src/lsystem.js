@@ -5,16 +5,8 @@ class LInstruction
 	evaluate(context, stack) { return context; }
 }
 
-class ForwardInstruction extends LInstruction 
-{  
-	symbol() { return "F"; }
-
-	evaluate(context, stack) {
-		return context;
-	}
-}
-
 // Dummy instructions can be anything, they are used for replacement
+// Generic instruction
 class DummyInstruction extends LInstruction 
 {
 	constructor(symbol) { super(); this.dummySymbol = symbol; }
@@ -26,6 +18,7 @@ class DummyInstruction extends LInstruction
 	}
 }
 
+// Generic instruction
 class PushInstruction extends LInstruction 
 {  
 	symbol() { return "["; }
@@ -36,30 +29,13 @@ class PushInstruction extends LInstruction
 	}
 }
 
+// Generic instruction
 class PullInstruction extends LInstruction
 {
 	symbol() { return "]"; }
 
 	evaluate(context, stack) {
 		return stack.pop(context);
-	}
-}
-
-class RotatePositiveInstruction extends LInstruction
-{
-	symbol() { return "+"; }
-
-	evaluate(context, stack) {
-		return context;
-	}
-}
-
-class RotateNegativeInstruction extends LInstruction
-{
-	symbol() { return "-"; }
-
-	evaluate(context, stack) {
-		return context;
 	}
 }
 
@@ -91,14 +67,19 @@ class LInstructionChain
   }
 
   // Evaluates a chain of instructions, both with a context and a stack
-  evaluate()
+  evaluate(initialState)
   {    
     var contextStack = [];
-    var context = { position: 0, angle : 0 };
+    var context = initialState;
+    var stateArray = [context];
 
     this.evaluateInternal(function(node) {
       context = node.value.evaluate(context, contextStack);
+
+      stateArray.push(context);
     });
+
+    return stateArray;
   }
 
   evaluateInternal(evaluateFunc)
@@ -146,8 +127,8 @@ class LInstructionChain
 
   // Because we're expanding in-place, we must be careful not to 
   // expand recently added nodes that come from a previous replacement
-  // in the same expansion cycle.
-  expand(rules, clean)
+  // in the same expansion cycle. This is why
+  expand(rules)
   {
 	var node = this.root;
 
@@ -214,7 +195,15 @@ class LInstructionChain
   }
 }
 
-export default function LSystem(axiom, grammar, iterations) 
+// Just an auxiliary container of strings
+function LRule(predecessor, successor, probability)
+{
+	this.predecessor = predecessor;
+	this.successor = successor;
+	this.probability = probability;
+}
+
+function LSystem(axiom, instructions, rules, iterations) 
 {
 	this.registerInstruction = function(instruction)
 	{
@@ -266,7 +255,7 @@ export default function LSystem(axiom, grammar, iterations)
 
 		for(var i = 0; i < this.iterations; i++)
 		{
-			this.chain.expand(this.ruleMap, i == 0);
+			this.chain.expand(this.ruleMap);
 			console.log(this.chain.toString());
 		}
 
@@ -275,9 +264,9 @@ export default function LSystem(axiom, grammar, iterations)
 		console.log("Expansion took " + t.toFixed(1) + "ms");
 	}
 
-	this.evaluate = function() 
+	this.evaluate = function(initialState) 
 	{
-		this.chain.evaluate();
+		return this.chain.evaluate(initialState);
 	}
 
 	this.iterations = iterations;
@@ -288,14 +277,24 @@ export default function LSystem(axiom, grammar, iterations)
 	// Register common instructions
 	this.registerInstruction(new PushInstruction());
 	this.registerInstruction(new PullInstruction());
-	this.registerInstruction(new ForwardInstruction());
-	this.registerInstruction(new DummyInstruction("X"));
-	this.registerInstruction(new RotateNegativeInstruction());
-	this.registerInstruction(new RotatePositiveInstruction());
+
+	for(var i = 0; i < instructions.length; i++)
+		this.registerInstruction(instructions[i]);
+
+	for(var r = 0; r < rules.length; r++)
+		this.parseRule(rules[r].predecessor, rules[r].successor, rules[r].probability);
+	// this.registerInstruction(new ForwardInstruction());
+	// this.registerInstruction(new DummyInstruction("X"));
+	// this.registerInstruction(new RotateNegativeInstruction());
+	// this.registerInstruction(new RotatePositiveInstruction());
 	
 	this.updateAxiom(axiom);
 
 	// Parse rules given
-	this.parseRule("X", "[-FX][+FX]", 1.0);
+	// this.parseRule("X", "[-FX][+FX]", 1.0);
+	// this.parseRule("A", "AB", 1.0);
+	// this.parseRule("B", "A", 1.0);
 
 }
+
+export {LSystem, LRule, LInstruction, DummyInstruction}
