@@ -172,12 +172,26 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
+		// If there isn't an axiom, then just return
+		if (this.axiom == null || this.axiom.length <= 0) {
+			return;
+		}
+
 		var lSystemLL = StringToLinkedList(this.axiom);
 
 		// Iterate n times
 		for (var i = 0; i < n; i++) {
-			// replaceNode(lSystemLL, node, replacementString);
-			// Go through each of the 
+			var curr = lSystemLL.head;
+
+			while (curr != null) {
+				var curr_grammar = this.grammer[curr.value];
+
+				if (curr_grammar) {
+					replaceNode(lSystemLL, curr, curr_grammar);
+				}
+
+				curr = curr.next;
+			}
 		}
 
 		return lSystemLL;
