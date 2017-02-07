@@ -5,6 +5,7 @@ import Lsystem, {LinkedListToString, testLinkedList} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var lsys;
 
 // called after the scene loads
 function onLoad(framework) {
@@ -29,7 +30,7 @@ function onLoad(framework) {
   testLinkedList();
 
   // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
+  lsys = new Lsystem();
   turtle = new Turtle(scene);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
@@ -41,10 +42,22 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
+  gui.add(turtle, 'angle', 0, 180).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    turtle.clear();
+    turtle.updateAngle(newVal);
+    var result = lsys.doIterations(lsys.iterations);
+    turtle.renderSymbols(result);
+
+    //doLsystem(lsys, lsys.iterations, turtle);
+  });
+
   gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+
+
 }
 
 // clears the scene by removing all geometries added by turtle.js

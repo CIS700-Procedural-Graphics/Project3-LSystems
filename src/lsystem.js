@@ -48,11 +48,13 @@ function addLastLinkedList(linkedList, node){
 
 export function testLinkedList(){
 	
-	var gram = {};
-	gram['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
-	];
-	var ls = new Lsystem("FX", gram, 1);
+	// var gram = {};
+	// gram['X'] = [
+	// 	//new Rule(1.0, '[-FX][+FX]')
+	// 	new Rule(1.0, '[UFVFX][VFX][JFX][KFX]')
+
+	// ];
+	// var ls = new Lsystem("FX", gram, 1);
 
 	// var ll = stringToLinkedList("[-FX][+FX]");
 	// console.log(ll);
@@ -112,6 +114,9 @@ function nodesEqual(node1, node2){
 
 }
 
+
+function
+
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
@@ -153,16 +158,15 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		// new Rule(1.0, '[-FX][+FX]')
-		new Rule(1.0, 'F−[[X]+X]+F[+FX]−X')
-	];
-	this.grammar['F'] = [
-		// new Rule(1.0, '[-FX][+FX]')
-		new Rule(1.0, 'FF')
-	];
+		new Rule(0.75, 'FX[+F--FX][-F++FX][UFVVFX][VFUUFX]')
+		//new Rule(1.0, '[--F++F++F++F++F+++F+++F++++FX]')
 
+	];
+	// this.grammar['F'] = [
+	// 	// new Rule(1.0, '[-FX][+FX]')
+	// 	new Rule(1.0, 'FF')
+	// ];
 
-	this.angle = 30.0;
 	
 	this.iterations = 0; 
 	
@@ -211,9 +215,20 @@ export default function Lsystem(axiom, grammar, iterations) {
 		//only replace the node if we haven't seen it and there's a rule
 		if (symbol in this.grammar && symbolsSeen.indexOf(symbol) == -1){
 			//replace the character if we have a rule in our grammer
-			var replacementString = this.grammar[symbol][0].successorString;
-			replaceNode(newLL, new Node(symbol), replacementString);
-			symbolsSeen.push(symbol);
+			var coinToss = Math.random() < this.grammar[symbol][0].probability;
+			console.log(coinToss);
+			
+			if(coinToss){
+				var replacementString = this.grammar[symbol][0].successorString;
+				replaceNode(newLL, new Node(symbol), replacementString);
+				symbolsSeen.push(symbol);
+
+			}else{
+			    replaceNode(newLL, new Node(symbol), "F");
+
+			}
+
+
 		}
 		
 		tmp_node = tmp_node.next;

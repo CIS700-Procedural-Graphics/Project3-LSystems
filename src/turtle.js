@@ -17,14 +17,20 @@ export default class Turtle {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.savedStates = [];
+        this.angle = 30.0;
+        //this.angle = 30.0;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '+' : this.rotateTurtle.bind(this, 1.0, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -1.0, 0, 0),
+                'U' : this.rotateTurtle.bind(this, 0.0, 0, 1.0),
+                'V' : this.rotateTurtle.bind(this, 0.0, 0, -1.0),
+                'J' : this.rotateTurtle.bind(this, 0.0, 1.0, 0),
+                'K' : this.rotateTurtle.bind(this, 0.0, -1.0, 0.0),
+                'F' : this.makeCylinder.bind(this, 2, 0.05),
                 '[' : this.storeState.bind(this),
                 ']' : this.restoreState.bind(this)
             };
@@ -49,10 +55,16 @@ export default class Turtle {
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+
+        // if(x > 0){
+        //     x = this.angle;
+        // }else{
+        //     x = -this.angle;
+        // }
         var e = new THREE.Euler(
-                x * 3.14/180,
-				y * 3.14/180,
-				z * 3.14/180);
+                x * this.angle * 3.14/180,
+				y * this.angle * 3.14/180,
+				z * this.angle * 3.14/180);
         this.state.dir.applyEuler(e);
     }
 
@@ -124,4 +136,8 @@ export default class Turtle {
         // console.log("RESTORED");
         // console.log(this.state.pos);
     };
+
+    updateAngle(newAngle){
+        this.angle = newAngle;
+    }
 }
