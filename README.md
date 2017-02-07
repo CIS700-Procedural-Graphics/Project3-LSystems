@@ -1,4 +1,28 @@
 
+
+# Stauffer Notes
+
+Sorry, I didn't leave time for the readme. I added these turtle rendering symbols:
+
+                '+' : this.rotateTurtle.bind(this, 1),
+                '-' : this.rotateTurtle.bind(this, -1),
+                'X' : this.rotateChange.bind(this, [this.rotStep,0,0]), //increment rotation in X
+                'x' : this.rotateChange.bind(this, [-this.rotStep,0,0]), //decrement rotation in X
+                'Y' : this.rotateChange.bind(this, [0,this.rotStep,0]),
+                'y' : this.rotateChange.bind(this, [0,-this.rotStep,0]),
+                'Z' : this.rotateChange.bind(this, [0,0,this.rotStep]),
+                'z' : this.rotateChange.bind(this, [0,0,-this.rotStep]),
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.pushState.bind(this),
+                ']' : this.popState.bind(this),
+                'C' : this.changeColor.bind(this, 0.8), //increment color along color ramp
+                'c' : this.changeColor.bind(this, -0.8),
+
+I'll try to update this README after class tonight
+
+================================================================================
+
+
 The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
 
 # L-System Parser
