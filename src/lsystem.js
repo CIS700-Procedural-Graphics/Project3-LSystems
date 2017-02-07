@@ -41,7 +41,6 @@ class Node {
 class LinkedList {
     constructor() {
         this.startNode = new Node();
-        //this.endNode = startNode;
         this.length = 0; 
         // an object mapping symbols to an array of other symbols
         this.grammarDictionary = {};
@@ -67,7 +66,6 @@ class LinkedList {
             temp.setNext(newNode);
         } 
         this.length += 1;
-        //this.endNode = newNode;
     }
 
     deleteNode(nodeToDelete) {
