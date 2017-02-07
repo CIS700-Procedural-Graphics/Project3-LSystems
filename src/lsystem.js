@@ -115,40 +115,38 @@ function nodesEqual(node1, node2){
 }
 
 
-function
-
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
 
-	var tmp_node = linkedList.head;
-	while(tmp_node != null){
+	// var tmp_node = linkedList.head;
+	// while(tmp_node != null){
         
-        if (tmp_node == null){return;}
+        // if (tmp_node == null){return;}
 
-        if (nodesEqual(tmp_node, node)){
+        // if (nodesEqual(tmp_node, node)){
         	var replacementLL = stringToLinkedList(replacementString);
 
-		    if (tmp_node.prev != null){
-		    	replacementLL.head.prev = tmp_node.prev;
-		    	tmp_node.prev.next = replacementLL.head;    	
+		    if (node.prev != null){
+		    	replacementLL.head.prev = node.prev;
+		    	node.prev.next = replacementLL.head;    	
 		    }else{
 		    	linkedList.head = replacementLL.head;
 		    }
 
-		    if (tmp_node.next != null){
-		    	tmp_node.next.prev = replacementLL.tail;
-		    	replacementLL.tail.next = tmp_node.next;
+		    if (node.next != null){
+		    	node.next.prev = replacementLL.tail;
+		    	replacementLL.tail.next = node.next;
 		    }else{
 		    	linkedList.tail = replacementLL.tail;
 		    }
 
 		    linkedList.size += replacementLL.size - 1;
-        }
+        // }
 
-    	tmp_node = tmp_node.next;
+    	// tmp_node = tmp_node.next;
 
-    }
+    // }
 
 }
 
@@ -205,7 +203,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.doIteration = function(origLL){
 
 		var symbolsSeen = [];
-		var newLL = stringToLinkedList(linkedListToString(origLL));
+		//var newLL = stringToLinkedList(linkedListToString(origLL));
 		var tmp_node = origLL.head;
 
 		while(tmp_node != null){//iterate through all nodes of ORIGINAL
@@ -213,29 +211,36 @@ export default function Lsystem(axiom, grammar, iterations) {
 		var symbol = tmp_node.symbol;
 
 		//only replace the node if we haven't seen it and there's a rule
-		if (symbol in this.grammar && symbolsSeen.indexOf(symbol) == -1){
+		// if (symbol in this.grammar && symbolsSeen.indexOf(symbol) == -1){
 			//replace the character if we have a rule in our grammer
-			var coinToss = Math.random() < this.grammar[symbol][0].probability;
-			console.log(coinToss);
+			if (symbol in this.grammar){
+				
+				var coinToss = Math.random() < this.grammar[symbol][0].probability;
+				console.log(Math.random());
+				console.log(this.grammar[symbol][0].probability);
+				console.log(coinToss);
 			
-			if(coinToss){
-				var replacementString = this.grammar[symbol][0].successorString;
-				replaceNode(newLL, new Node(symbol), replacementString);
-				symbolsSeen.push(symbol);
+				// coinToss = true;
+				if(coinToss){
+					var replacementString = this.grammar[symbol][0].successorString;
+					replaceNode(origLL, tmp_node, replacementString);
+					symbolsSeen.push(symbol);
 
-			}else{
-			    replaceNode(newLL, new Node(symbol), "F");
+				}else{
+			    	replaceNode(origLL, tmp_node, "FX");
 
+				}	
 			}
 
 
-		}
+
+		// }
 		
 		tmp_node = tmp_node.next;
 		
 		}
 
-		return newLL;
+		return origLL;
 	}
 
 	this.doIterations = function(n) {	
@@ -245,6 +250,8 @@ export default function Lsystem(axiom, grammar, iterations) {
 		for (var i = 0; i < n; i ++){ //do the replacement n times
 
 			lSystemLL = this.doIteration(lSystemLL);
+			console.log("iteration " + i);
+			console.log(linkedListToString(lSystemLL));
 		}
 		
 		return lSystemLL;
