@@ -8,10 +8,10 @@ function Rule(prob, str) {
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
 class Node {
-    constructor(prevNode, nextNode, symbol) {
-        this.prevNode = prevNode;
-        this.nextNode = nextNode;
-        this.symbol = symbol;
+    constructor() {
+        this.prevNode = null;
+        this.nextNode = null;
+        this.symbol = '';
     }
     getSymbol() {
         return this.symbol;
@@ -39,21 +39,34 @@ class Node {
 }
 
 class LinkedList {
-    constructor(startNode, grammarDictionary) {
-        this.startNode = startNode;
+    constructor() {
+        this.startNode = new Node();
         //this.endNode = startNode;
-        this.length = 1; 
+        this.length = 0; 
         // an object mapping symbols to an array of other symbols
-        this.grammarDictionary = grammarDictionary;
+        this.grammarDictionary = {};
     }
+
     // adds a node to the end of the linked list
-    addNode(nodeSymbol) {
-        var temp = this.startNode;
-        while (this.startNode.getNext() != null) {
-            temp = temp.getNext();
-        }
-        var newNode = Node(temp, null, nodeSymbol);
-        temp.setNext(newNode);
+    addNodeWithSymbol(nodeSymbol) {
+        console.log("adding node");
+        console.log("length is currently" + this.length);
+        if (this.length == 0) {
+            var newNode = new Node();
+            newNode.setSymbol(nodeSymbol);
+            this.startNode = newNode;
+        } else {
+            var temp = this.startNode;
+            console.log(this.startNode);
+            while (temp.getNext() != null) {
+                temp = temp.getNext();
+            }
+            var newNode = new Node();
+            newNode.setSymbol(nodeSymbol);
+            newNode.setPrev(temp);
+            temp.setNext(newNode);
+        } 
+        this.length += 1;
         //this.endNode = newNode;
     }
 
@@ -73,12 +86,13 @@ class LinkedList {
         var symbol = nodeToExpand.getSymbol();
         var replacementSymbols = this.grammarDictionary[symbol];
         if (replacementSymbols.length > 0) {
-            var nullNode = Node(null, null, '');
+            var nullNode = new Node();
             var prevNode = nodeToExpand.getPrev();
             var nextNode = nodeToExpand.getNext();
             this.deleteNode(nodeToExpand);
             for (var i = 0; i < replacementSymbols.length; i++) {
-                var newNode = Node(nullNode, nullNode, replacementSymbols[i]);
+                var newNode = new Node();
+                newNode.setSymbol(replacementSymbols[i]);
                 this.linkNodes(prevNode, newNode);
                 prevNode = newNode;
                 if (i == replacementSymbols.length - 1) {
@@ -109,7 +123,13 @@ export function stringToLinkedList(input_string) {
     // ex. assuming input_string = "F+X"
     // you should return a linked list where the head is 
     // at Node('F') and the tail is at Node('X')
+    var symbols = input_string.split("");
     var ll = new LinkedList();
+    for (var i = 0; i < symbols.length; i++) {
+        ll.addNodeWithSymbol(symbols[i]);
+    }
+    console.log(ll);
+    //ll.print();
     return ll;
 }
 
