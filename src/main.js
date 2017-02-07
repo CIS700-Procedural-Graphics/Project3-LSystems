@@ -13,7 +13,7 @@ var turn = {
 var grammar = {
     A: '−FX−A',
     X: 'X+AF+',
-    F: 'F-', 
+    F: 'F[-F]F[+F][F]', 
     Prob_F: 0.5,
     Prob_X: 0.5,
     Prob_A: 0.5
