@@ -3,6 +3,11 @@ The objective of this assignment is to create an L System parser and generate in
 
 # Final Results
 
+Raining Christmas (with all these falling apples, we'll have more Newtons poppin' up in no time!):
+
+![alt text](https://github.com/MegSesh/Project3-LSystems/blob/master/final_results/9.png "Image 1")
+
+
 1. Image 1:
 ![alt text](https://github.com/MegSesh/Project3-LSystems/blob/master/final_results/1.png "Image 1")
 
