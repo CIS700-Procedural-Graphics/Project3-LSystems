@@ -1,6 +1,7 @@
 
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE)
+const OBJLoader = require('three-obj-loader')(THREE)
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
 
@@ -29,7 +30,7 @@ function init(callback, update) {
     var renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x020202, 0);
+    renderer.setClearColor(0xFFEEDD, 1);
 
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;

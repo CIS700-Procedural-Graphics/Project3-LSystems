@@ -5,12 +5,11 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
-//TODO: Implement a linked list class and its requisite functions
-// as described in the homework writeup
 function Node(symbol){
 	this.prev = null;
 	this.next = null;
 	this.symbol = symbol;
+	this.age = 0;
 }
 
 export class LinkedList {
@@ -24,13 +23,42 @@ export class LinkedList {
 	//ADDS B NEXT TO A
 	addNext(A,B) {
     //var node = new Node(value);
-		if(this.length==1)
+		 //console.log(A.symbol);
+		 //console.log(B.symbol);
+		if(this.length===1)
 			insertEnd(B);
 		else {
 			B.prev=A;
 			B.next=A.next;
-			A.next.prev=B;
+			if(A.next !== null)
+				A.next.prev=B;
 			A.next=B;
+			this.length++;
+		}
+	}
+
+	deleteNode(N)
+	{
+		if(this.length!==0)
+		{
+			if(this.length===1)
+			{
+				this.head = null;
+				this.tail = null;
+				this.length = 0;
+			}
+			else
+			{
+				if(N.prev!== null)
+				{
+					N.prev.next=N.next;
+				}
+				if(N.next!== null)
+				{
+					N.next.prev=N.prev;
+				}
+				this.length--;
+			}
 		}
 	}
 
@@ -40,7 +68,7 @@ export class LinkedList {
 		//console.log(node.symbol);
     if (this.length!=0) {
         this.tail.next = node;
-        node.previous = this.tail;
+        node.prev = this.tail;
         this.tail = node;
     } else {
         this.head = node;
@@ -51,41 +79,68 @@ export class LinkedList {
 
 	// expands node N
 	expand(N,grammar){
-		//N.symbol
-		var ran=Math.random();
-		console.log(grammar[N.symbol]);
 		if(grammar[N.symbol]!=undefined)
 		{
-			if(grammar[N.symbol].Rule.probability>=ran)
+			//console.log(grammar.X[0].successorString);
+			if(N.symbol==='F')
 			{
-				var str = grammar[N.symbol][0][1];
-				replaceNode(this,N,str);
-				console.log("expanded");
+				var ran=Math.random();
+				for(var i=0; grammar.F[i]!==undefined; i++)
+				{
+					if(grammar.F[i].probability>=ran)
+						replaceNode(this,N,grammar.F[i].successorString);
+					else
+						ran-=grammar.F[i].probability;
+				}
 			}
-			else{
-				console.log("skipped");
+			else if(N.symbol==='X')
+			{
+				var ran=Math.random();
+				for(var i=0; grammar.X[i]!==undefined; i++)
+				{
+					if(grammar.X[i].probability>=ran)
+						replaceNode(this,N,grammar.X[i].successorString);
+					else
+						ran-=grammar.X[i].probability;
+				}
+			}
+			else if(N.symbol==='A')
+			{
+				var ran=Math.random();
+				for(var i=0; grammar.A[i]!==undefined; i++)
+				{
+					if(grammar.B[i].probability>=ran)
+						replaceNode(this,N,grammar.A[i].successorString);
+					else
+						ran-=grammar.A[i].probability;
+				}
+			}
+			else if(N.symbol==='B')
+			{
+				var ran=Math.random();
+				for(var i=0; grammar.B[i]!==undefined; i++)
+				{
+					if(grammar.B[i].probability>=ran)
+						replaceNode(this,N,grammar.B[i].successorString);
+					else
+						ran-=grammar.B[i].probability;
+				}
 			}
 		}
 	}
 }
 
-// DONE - UNTESTED
-// TODO: Turn the string into linked list
 export function stringToLinkedList(input_string) {
-	// ex. assuming input_string = "F+X"
-	// you should return a linked list where the head is
-	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+	//console.log(input_string);
 	for(var i=0; i<input_string.length; i++)
 	{
 		ll.insertEnd(input_string.slice(i,i+1));
-		// console.log(ll.tail.symbol);
+		 //console.log(ll.tail.symbol);
 	}
 	return ll;
 }
 
-// DONE - UNTESTED
-// TODO: Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var nextnode = linkedList.head;
@@ -95,36 +150,61 @@ export function linkedListToString(linkedList) {
 		result+=nextnode.symbol;
 		nextnode=nextnode.next;
 	}
+	//console.log(result);
 	return result;
 }
 
-// PSEUDOCODE DONE
-// TODO: Given the node to be replaced,
-// insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	//  console.log("------------------------------");
+	//  console.log(linkedListToString(linkedList));
+	//  console.log(replacementString);
+	//  console.log(node.symbol);
+
 	var newlist = stringToLinkedList(replacementString);
-	var addnext=newlist.head;
-	var addnextnext=null;
-	for(var i=0; i<replacementString.length; i++)
+
+
+	if(node.next!==null)
 	{
-		addnextnext=addnext.next;
-		addNext(node,addnext);
-		addnext=addnextnext;
+		node.next.prev=newlist.tail;
+		if(newlist.tail!==null)
+			newlist.tail.next=node.next;
 	}
-	//loop
-	//delete node;
-	node.prev.next=node.next;
-	node.next.prev=node.prev;
-	//delete node;
+	else {
+		linkedList.tail=newlist.tail;
+	}
+
+	node.next=newlist.head;
+	if(newlist.head!==null)
+		newlist.head.prev=node;
+
+	linkedList.length+=newlist.length;
+
+	linkedList.deleteNode(node);
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "F";
+	this.F='FF-A[-AF+AF+AF]+A[+AF-AF-AF]B';//'FF-B[-AF+AF+AF]+A[+AF-AF-AF]-A[-AF+AF+AF]';
+	this.X='X';
+	this.A='A';
+	this.B='-A[-AF+AF+AF]';
+	this.ProbabilityA=1.0;
+	this.ProbabilityB=0.1;
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
-	];
+
+	this.grammar['F'] = [ new Rule(1.0, this.F) ];
+	this.grammar['X'] = [ new Rule(1.0, this.X) ]; // default: '[-FX][+FX]'.. wikipedia: 'F−[[X]+X]+F[+FX]−X'
+	//this.grammar['A'] = [ new Rule(0.1, '[BA]') ];
+	this.grammar['A'] = [ new Rule(this.ProbabilityA, this.A) ];
+	this.grammar['B'] = [ new Rule(this.ProbabilityB, this.B) ];
+
+	// this.grammar['F'] = [ new Rule(1.0, 'FXFX') ];
+	// this.grammar['X'] = [ new Rule(1.0, 'F−A[[X]+AX]+AF[+AFX]−AX') ]; // default: '[-FX][+FX]'.. wikipedia: 'F−[[X]+X]+F[+FX]−X'
+	// //this.grammar['A'] = [ new Rule(0.1, '[BA]') ];
+	// this.grammar['A'] = [ new Rule(0.3, '[AB]') ];
+	// this.grammar['B'] = [ new Rule(0.1, 'B[[F]A[F]A[F]A[F]A[F]A[F]A]') ];
+
 	this.iterations = 0;
 
 	// Set up the axiom string
@@ -154,6 +234,48 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
+	this.updateGramF = function(gram) {
+		// Setup axiom
+		if (typeof gram !== "undefined") {
+			this.grammar.F[0].successorString = gram;
+		}
+	}
+
+	this.updateGramX = function(gram) {
+		// Setup axiom
+		if (typeof gram !== "undefined") {
+			this.grammar.X[0].successorString = gram;
+		}
+	}
+
+	this.updateGramA = function(gram) {
+		// Setup axiom
+		if (typeof gram !== "undefined") {
+			this.grammar.A[0].successorString = gram;
+		}
+	}
+
+	this.updateGramB = function(gram) {
+		// Setup axiom
+		if (typeof gram !== "undefined") {
+			this.grammar.B[0].successorString = gram;
+		}
+	}
+
+	this.updateProbA = function(num) {
+		// Setup axiom
+		if (typeof num !== "undefined") {
+			this.grammar.A[0].probability = num;
+		}
+	}
+
+	this.updateProbB = function(num) {
+		// Setup axiom
+		if (typeof num !== "undefined") {
+			this.grammar.B[0].probability = num;
+		}
+	}
+
 	// TODO
 	// This function returns a linked list that is the result
 	// of expanding the L-system's axiom n times.
@@ -162,18 +284,21 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.doIterations = function(n) {
 		var lSystemLL = stringToLinkedList(this.axiom);
 		//console.log("hi doit");
-		for(var i=0; i<2; i++)
+		for(var i=0; i<n; i++)
 		{
+			//console.log(i);
 			var nextnode = lSystemLL.head;
 			while(nextnode!==null)
 			{
+				nextnode.age++;
 				var updatenext = nextnode.next;
 				lSystemLL.expand(nextnode,this.grammar);
 					//console.log("hi doit");
 				nextnode = updatenext;
 			}
+
 		}
-		console.log(linkedListToString(lSystemLL));
+//console.log(linkedListToString(lSystemLL));
 		return lSystemLL;
 	}
 }
