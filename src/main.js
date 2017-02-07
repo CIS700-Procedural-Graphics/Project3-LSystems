@@ -38,7 +38,7 @@ function onLoad(framework) {
   
   // set skybox
   var loader = new THREE.CubeTextureLoader();
-  var urlPrefix = '/res/images/skymap/';
+  var urlPrefix = './res/images/skymap/';
 
   var skymap = new THREE.CubeTextureLoader().load([
       urlPrefix + 'px.jpg', urlPrefix + 'nx.jpg',
@@ -88,7 +88,7 @@ function onLoad(framework) {
 
 function loadOBJ(leafGeometry) {
     OBJLoader = new THREE.OBJLoader();
-    OBJLoader.load('/res/OBJs/leaf.obj', function(obj) {
+    OBJLoader.load('./res/OBJs/leaf.obj', function(obj) {
         leafGeometry = obj.children[0].geometry;
     });
     // console.log(this.leafGeometry); //undefined here
