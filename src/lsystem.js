@@ -1,3 +1,5 @@
+import LinkedList from './linkedlist.js'
+
 // A class that represents a symbol replacement rule to
 // be used when expanding an L-system grammar.
 function Rule(prob, str) {
