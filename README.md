@@ -6,7 +6,7 @@ I have implemented an L-system parser as well as a grammar to create a cherry bl
 ![](./progShots/final02.PNG)
 ![](./progShots/final03.PNG)
 
-**Grammar**
+## Grammar
 
 I started with the axiom "FFFFFX" so that there would be a tall trunk before the tree began branching. I basically had two different letters that had rules so that they branched in different ways. "X" creates longer and more spread out branches with respect to their root, whereas "B" creates shorter branches that point in mostly the same directions, similarly to the way branches expand when you get to smaller parts of the tree, farther away from the initial trunk. The rules for "X" gava a high probability that more "X" branchings would occur and a low probability that "B" branchings would occur. Thus, the tree should usually do a lot of long and varied branching before starting to do smaller and pointed branches. However, since there is a small probability that on the first iteration a "B" branch will occur, the results of the L-system can vary widely. Here is the difference between an "X" branching occurring at the first iteration and a "B" branching occurring at the first iteration, respectively:
 
@@ -24,7 +24,7 @@ Again, even in later iterations, the result is very different if the first itera
 
 ![](./progShots/FourthIterBtree.PNG)
 
-**Some Additions**
+## Some Additions
 
 After getting the grammar the way I wanted it, I added a few things to make the result look more like a tree. 
 
@@ -40,11 +40,8 @@ Finally, I felt like the constant pink of the flowers so a bit off-putting so I 
 
 ![](./progShots/shadedFlowers.PNG)
 
-A last small detail was adding in the petals which come across the screen on a routine. I randomly offset starting positions for about 30 flower petals from a grid above the tree offscreen. I then had their x and y positions move a little every time the tick() function was called so they would float across the screen. I also randomly rotated them to make the wind look more realistic. 
-
 **Interactivity**
 
 The GUI includes modifiers to change the axiom of the L-system, the number of iterations that the grammar should be parsed, the probabiltiy that x branching vs b branching will occur, and the width of the branches. Here are some shots of different results after changing the width values:
 
 ![](./progShots/lowWidth.PNG) ![](./progShots/highWidth.PNG) 
-
