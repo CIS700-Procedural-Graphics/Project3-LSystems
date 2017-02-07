@@ -1,9 +1,5 @@
 const THREE = require('three')
 
-//OBJ Loading
-var OBJLoader = require('three-obj-loader');
-OBJLoader(THREE);
-
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
 // You are free to add features to this state class,
@@ -26,8 +22,6 @@ export default class Turtle {
         this.previousIteration = 0;
         this.leafGeometry = undefined;
         
-        //this.loadOBJ();
-        
         // Grammar rules!
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
@@ -47,14 +41,6 @@ export default class Turtle {
         } else {
             this.renderGrammar = grammar;
         }
-    }
-    
-    loadOBJ() {
-        OBJLoader = new THREE.OBJLoader();
-        OBJLoader.load('/res/OBJs/leaf.obj', function(obj) {
-            this.leafGeometry = obj.children[0].geometry;
-        });
-        console.log(this.leafGeometry); //undefined here
     }
     
     // Resets the turtle's position to the origin
@@ -142,9 +128,10 @@ export default class Turtle {
     };
     
     makeLeaf(len, width) {
-        var geometry = /*this.leafGeometry*/new THREE.CylinderGeometry(width, width, len);
+        // console.log(this.leafGeometry);
+        var geometry = new THREE.CylinderGeometry(width, width, len);
         var material = new THREE.MeshLambertMaterial( {color: 0x228B22} );
-        var leaf = new THREE.Mesh( geometry, material );
+        var leaf = new THREE.Mesh( /*this.leafGeometry*/ geometry, material );
         leaf.scale.set(10, 10, 10);
         leaf.castShadow = true;
         this.scene.add( leaf );
@@ -159,12 +146,12 @@ export default class Turtle {
 
         //Move the leaf so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         leaf.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(0.5 * len);
+        this.moveForward(0.5);
     };
     
     makeApple(radius) {

@@ -4,7 +4,12 @@ import Framework from './framework'
 import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
+//OBJ Loading
+var OBJLoader = require('three-obj-loader');
+OBJLoader(THREE);
+
 var turtle;
+var leafGeometry;
 
 // called after the scene loads
 function onLoad(framework) {
@@ -46,8 +51,6 @@ function onLoad(framework) {
   var planeGeometry = new THREE.PlaneGeometry(750, 750);
   var planeMaterial = new THREE.MeshPhongMaterial( {color: 0x778899, side: THREE.DoubleSide} );
   planeMaterial.shininess = 5; //default 30
-  // planeMaterial.reflectivity = 0;
-  // planeMaterial.clearCoatRoughness = 1;
   var planeMesh = new THREE.Mesh( planeGeometry, planeMaterial );
   planeMesh.rotateX(90 * Math.PI / 180);
   planeMesh.position.set(0, -0.01, 0);
@@ -63,7 +66,9 @@ function onLoad(framework) {
   
   // initialize the turtle to draw our l-system
   turtle = new Turtle(scene);
-    
+  
+  loadOBJ(leafGeometry);
+  
   // give the turtle to the global doLSys object
   doLSys.turtle = turtle;
     
@@ -73,13 +78,24 @@ function onLoad(framework) {
 
   gui.add(doLSys.lsystem, 'axiom').onChange(function(newVal) {
     doLSys.lsystem.updateAxiom(newVal);
-    //doLsystem(doLSys.lsystem, doLSys.lsystem.iterations, turtle);
   });
   
   gui.add(doLSys, 'iterations', 0, 12).step(1);
   
   gui.add(doLSys, 'doLSystem').name('Do L-System');
   
+}
+
+function loadOBJ(leafGeometry) {
+    OBJLoader = new THREE.OBJLoader();
+    OBJLoader.load('/res/OBJs/leaf.obj', function(obj) {
+        leafGeometry = obj.children[0].geometry;
+    });
+    // console.log(this.leafGeometry); //undefined here
+}
+
+function setTurtleOBJ(turtle) {
+  turtle.leafGeometry = leafGeometry;
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -100,6 +116,7 @@ var doLSys = {
     		var result = this.lsystem.doIterations(this.iterations);
     		this.turtle.clear();
     		this.turtle = new Turtle(this.turtle.scene);
+        setTurtleOBJ(this.turtle);
     		this.turtle.renderSymbols(result);
 		}
 };
