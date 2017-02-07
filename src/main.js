@@ -1,10 +1,20 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var lsys;
+
+var guiMake = {
+  make : function() {
+        var result = lsys.doIterations(lsys.iterations);
+        turtle.clear();
+        //turtle = new Turtle(turtle.scene);
+        turtle.renderSymbols(result);
+  }
+};
 
 // called after the scene loads
 function onLoad(framework) {
@@ -22,11 +32,23 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(50, 0, 0);
+  camera.position.set(40, 0, 0);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
+      // set skybox
+    var loader = new THREE.CubeTextureLoader();
+    var urlPrefix = 'images/skymap/';
+
+    var skymap = new THREE.CubeTextureLoader().load([
+        urlPrefix + 'px.jpg', urlPrefix + 'nx.jpg',
+        urlPrefix + 'py.jpg', urlPrefix + 'ny.jpg',
+        urlPrefix + 'pz.jpg', urlPrefix + 'nz.jpg'
+    ] );
+
+    scene.background = skymap;
+
   // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
+  lsys = new Lsystem();
   turtle = new Turtle(scene);
   doLsystem(lsys, lsys.iterations, turtle);
 
@@ -39,21 +61,29 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 10).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 20).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
   gui.add(turtle, 'angle', 0, 180).onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, lsys.iterations, turtle);
+    turtle.clear();
+    turtle.renderSymbols(lsys.result);
   });
   gui.addColor(turtle, 'stem_color').onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, lsys.iterations, turtle);
+    turtle.clear();
+    turtle.renderSymbols(lsys.result);
+  });
+  gui.addColor(turtle, 'leaf_color').onChange(function(newVal) {
+    clearScene(turtle);
+    turtle.clear();
+    turtle.renderSymbols(lsys.result);
   });
   gui.addColor(turtle, 'flower_color').onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, lsys.iterations, turtle);
+    turtle.clear();
+    turtle.renderSymbols(lsys.result);
   });
 }
 
@@ -69,6 +99,7 @@ function clearScene(turtle) {
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
+    console.log(linkedListToString(result));
     //turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
 }

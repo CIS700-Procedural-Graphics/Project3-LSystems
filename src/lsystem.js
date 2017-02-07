@@ -97,15 +97,19 @@ function replaceNode(linkedList, node, replacementString, iter) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "X";
+	this.axiom = 'AX';
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(1.0, 'F-[[X*]+X*]+F[+FX*]−X*')
-	];
-	this.grammar['F'] = [
-		new Rule(1.0, 'FF')
-	];
-	this.iterations = 0; 
+	this.grammar['X'] = [new Rule(1.0, 'BY')];
+	this.grammar['Y'] = [new Rule(1.0, 'CZ')];
+	this.grammar['Z'] = [new Rule(1.0, 'DU')];
+	this.grammar['U'] = [new Rule(0.25, '[FQ*]>FU'),
+							new Rule(0.25, '[FQ]<FU'),
+							new Rule(0.25, '[(FU][)FQ*]'),
+							new Rule(0.25, 'FQ')];
+	this.grammar['Q'] = [new Rule(0.25, '^FU'), 
+							new Rule(0.75, 'vF#U')];
+	this.iterations = 3; 
+	this.result = new LinkedList();
 	
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {
@@ -146,7 +150,8 @@ export default function Lsystem(axiom, grammar, iterations) {
 		var i = 0;
 		var sum = this.grammar[str][i].probability;
 		while (x > sum) {
-			i ++;
+			i = i +1;
+			var rule = this.grammar[str][i];
 			sum += this.grammar[str][i].probability;
 		}
 		return this.grammar[str][i].successorString;
@@ -166,13 +171,13 @@ export default function Lsystem(axiom, grammar, iterations) {
 				if (this.grammar[nod.sym] != null) {
 
 					var new_str = this.selectRule(nod.sym);
-					replaceNode(lSystemLL, nod, new_str, i);
+					replaceNode(lSystemLL, nod, new_str, i + 1);
 
 				}
 				nod = nod.next;
 			}
-
 		}
+		this.result = lSystemLL;
 		return lSystemLL;
 	}
 }
