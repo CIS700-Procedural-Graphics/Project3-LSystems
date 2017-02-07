@@ -1,8 +1,9 @@
 export class Node {
-	constructor(symbol) {
+	constructor(symbol, iter) {
 		this.symbol = symbol;
 		this.prev = null;
 		this.next = null;
+		this.iteration = iter;
 	}
 
 	setPrev(prev) {
@@ -11,6 +12,10 @@ export class Node {
 
 	setNext(next) {
 		this.next = next;
+	}
+
+	setIteration(iter) {
+		this.iter = iter;
 	}
 }
 

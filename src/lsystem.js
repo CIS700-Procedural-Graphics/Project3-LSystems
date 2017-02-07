@@ -9,11 +9,11 @@ function Rule(prob, str) {
 
 
 // Turn the string into linked list 
-export function stringToLinkedList(input_string) {
+export function stringToLinkedList(input_string, iter) {
 	var list = new LinkedList();
 	var tokens = input_string.split('');
 	
-	var firstNode = new Node(tokens[0]);
+	var firstNode = new Node(tokens[0], iter);
 	list.addNode(firstNode);
 	var prev = firstNode;
 	for (var i = 1; i < tokens.length; i++) {
@@ -50,8 +50,8 @@ function linkNodes(nodeA, nodeB) {
 
 // Given the node to be replaced, 
 // Insert a sub-linked-list that represents replacementString
-function replaceNode(linkedList, node, replacementString) {
-	var replacementList = stringToLinkedList(replacementString);
+function replaceNode(linkedList, node, replacementString, iter) {
+	var replacementList = stringToLinkedList(replacementString, iter);
 
 	if (node.prev) {
 		linkNodes(node.prev, replacementList.head);
@@ -72,10 +72,13 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "FFFFX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, '[+FX][-FX]')
+		new Rule(0.2, '[+FFFFX*][-FFFF&][--FFFFX]'),
+		new Rule(0.2, '[+FFFFX*][-FFFF&][--FFFFX]'),
+		new Rule(0.3, '[+FFFFX*][-FFFF&][--FFFFX]'),
+		new Rule(0.3, '[-F#X][+F#X][F#X]')
 	];
 	this.iterations = 0; 
 	this.angle = 30;
@@ -118,10 +121,22 @@ export default function Lsystem(axiom, grammar, iterations) {
 			while (n) {
 			 	var rules = this.grammar[n.symbol];
 			 	if (rules) {
+			 		var rand = Math.random(); 
+			 		var loBound, hiBound;
+			 		
 			 		for (var j = 0; j < rules.length; j++) {
 			 			var pr = rules[j].probability;
-			 			//TODO: implement probability
-			 			n = replaceNode(list, n, rules[j].successorString);
+			 			if (j === 0) {
+			 				loBound = 0;
+			 				hiBound = pr;
+			 			} else {
+			 				loBound = hiBound;
+			 				hiBound += pr;
+			 			}
+			 			
+			 			if (rand >= loBound && rand <= hiBound) {
+			 				n = replaceNode(list, n, rules[j].successorString, i);
+			 			}	
 			 		}
 			 	}
 			 	n = n.next;
