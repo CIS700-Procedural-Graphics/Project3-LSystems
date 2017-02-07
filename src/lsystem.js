@@ -17,7 +17,7 @@ export function stringToLinkedList(input_string, iter) {
 	list.addNode(firstNode);
 	var prev = firstNode;
 	for (var i = 1; i < tokens.length; i++) {
-		var curr = new Node(tokens[i]);
+		var curr = new Node(tokens[i], iter);
 		linkNodes(prev, curr);
 		list.addNode(curr);
 		prev = curr;
@@ -72,13 +72,13 @@ function replaceNode(linkedList, node, replacementString, iter) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FFFFX";
+	this.axiom = "FFFX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(0.2, '[+FFFFX*][-FFFF&][--FFFFX]'),
-		new Rule(0.2, '[+FFFFX*][-FFFF&][--FFFFX]'),
-		new Rule(0.3, '[+FFFFX*][-FFFF&][--FFFFX]'),
-		new Rule(0.3, '[-F#X][+F#X][F#X]')
+		new Rule(0, '[+FFFFX*][-FFFF&][--FFFFX]'),
+		new Rule(0, '[+FFFFX*][-FFFF&][--FFFFX]'),
+		new Rule(0, '[-F&X][+F&X][--F[+++FX]&X]'),
+		new Rule(1, '[-F+X][+FX-F]')
 	];
 	this.iterations = 0; 
 	this.angle = 30;
@@ -114,7 +114,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(iterations) {	
-		var list = stringToLinkedList(this.axiom);
+		var list = stringToLinkedList(this.axiom, 0);
 
 		for(var i = 0; i < iterations; i++) {
 			var n = list.head;
@@ -123,7 +123,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 			 	if (rules) {
 			 		var rand = Math.random(); 
 			 		var loBound, hiBound;
-			 		
+
 			 		for (var j = 0; j < rules.length; j++) {
 			 			var pr = rules[j].probability;
 			 			if (j === 0) {

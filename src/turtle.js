@@ -21,16 +21,17 @@ export default class Turtle {
         if (angle) {
             this.angle = angle;
         }
-        // TODO: Start by adding rules for '[' and ']' then more!
+
+        // Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (!grammar) {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 1, 1, 1),
-                '-' : this.rotateTurtle.bind(this, -1, -1, -1),
-                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '-' : this.rotateTurtle.bind(this, -1, 1, -1),
+                'F' : this.makeCylinder.bind(this, 2),
                 '[' : this.pushState.bind(this),
                 ']' : this.popState.bind(this),
-                '#' : this.makeBlock.bind(this, 1, 1),
+                '#' : this.makeBlock.bind(this, 0.7, 0.7),
                 '&' : this.makeLeaf.bind(this, 0.1, 0.5),
                 '*' : this.makeBuilding.bind(this, 1.5,1.5,5), 
             };
@@ -56,7 +57,6 @@ export default class Turtle {
 
     pushState() {
         stateStack.push(new TurtleState(this.state.pos, this.state.dir));
-        // console.log(stateStack[0].pos.y);
     }
 
     popState(){
@@ -68,7 +68,7 @@ export default class Turtle {
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
         x = x * this.angle;
-        y = y * this.angle;
+        y = 90;//y * this.angle;
         z = z * this.angle;
         var e = new THREE.Euler(
                 x * 3.14/180,
@@ -92,7 +92,9 @@ export default class Turtle {
     
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
-    makeCylinder(len, width) {
+    makeCylinder(len) {
+        var width = this.trunkWidth;
+
         var geometry = new THREE.CylinderGeometry(width, width, len);
         var material = new THREE.MeshBasicMaterial( {color: 0xddcc11} );
         var cylinder = new THREE.Mesh( geometry, material );
@@ -113,7 +115,7 @@ export default class Turtle {
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        this.moveForward(len / 2);
     };
 
     makeBlock(len, width) {
@@ -193,15 +195,19 @@ export default class Turtle {
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
         var func = this.renderGrammar[symbolNode.symbol];
+
         if (func) { 
             func();
-        }
+        } 
     };
 
     // Invoke renderSymbol for every node in a linked list of grammar symbols.
     renderSymbols(linkedList) {
         var currentNode;
         for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
+
+            this.trunkWidth = 0.3 / (0.5*(currentNode.iteration + 1));
+
             this.renderSymbol(currentNode);
         }
     }

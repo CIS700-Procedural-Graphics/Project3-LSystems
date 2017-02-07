@@ -3,7 +3,13 @@ export class Node {
 		this.symbol = symbol;
 		this.prev = null;
 		this.next = null;
-		this.iteration = iter;
+		
+		if(iter) {
+			this.iteration = iter;
+			// console.log("iter " + iter);
+		} else {
+			this.iteration = 0;
+		}
 	}
 
 	setPrev(prev) {
