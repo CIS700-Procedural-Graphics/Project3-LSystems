@@ -47,6 +47,15 @@ function onLoad(framework) {
 
     scene.background = skymap;
 
+    var plane = new THREE.PlaneGeometry(100,1000, 32);
+        plane.rotateX(3.14159/2);
+        plane.rotateZ(3.14159);
+        plane.translate(0,-10,0)
+        var material = new THREE.MeshLambertMaterial( {color: 0x005c09, emissive: 0x000000} );
+        var ground = new THREE.Mesh(plane, material );
+        // leaf.scale.set(100,100,100);
+        scene.add(ground);
+
   // initialize LSystem and a Turtle to draw
   lsys = new Lsystem();
   turtle = new Turtle(scene);
@@ -85,6 +94,7 @@ function onLoad(framework) {
     turtle.clear();
     turtle.renderSymbols(lsys.result);
   });
+  gui.add(turtle, 'grow');
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -99,13 +109,23 @@ function clearScene(turtle) {
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
-    console.log(linkedListToString(result));
     //turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
 }
 
 // called on frame updates
 function onUpdate(framework) {
+  if (turtle !== undefined) {
+    if (turtle.grow) {
+      var date = new Date();
+    turtle.angle = date.getSeconds();
+    clearScene(turtle);
+    turtle.clear();
+    turtle.renderSymbols(lsys.result);
+    }
+    
+  }
+  
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

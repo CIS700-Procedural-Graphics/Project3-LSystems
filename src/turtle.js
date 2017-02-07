@@ -12,6 +12,11 @@ var TurtleState = function(pos, dir, c) {
         iter: 0
     }
 }
+
+var points = [];
+for (var i = 0; i < 10; i ++) {
+    points.push(new THREE.Vector2(Math.sin(i * 0.2) * 10 + 5, (i - 5) * 2));
+}
   
 export default class Turtle {
     
@@ -21,9 +26,10 @@ export default class Turtle {
         this.stack = [];
         this.flower_color = 0xff1111;
         this.leaf_color = 0x167400;
-        this.stem_color = 0x49311c;
+        this.stem_color = 0x361900;
         this.angle = 30;
         this.tree = new LinkedList();
+        this.grow = false;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -136,12 +142,18 @@ export default class Turtle {
     };
 
     makeFlower(scale) {
-        var geometry = new THREE.SphereGeometry(0.5,20,20);
-        // geometry.scale(0.05, 0.05, 0.05);
+        var geometry = new THREE.LatheGeometry(points);
+        geometry.scale(0.05, 0.05, 0.05);
         var material = new THREE.MeshLambertMaterial( {color: 0xcccccc, emissive: this.flower_color} );
         var flower = new THREE.Mesh( geometry, material );
 
         this.scene.add(flower);
+
+        var quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+        var mat4 = new THREE.Matrix4();
+        mat4.makeRotationFromQuaternion(quat);
+        flower.applyMatrix(mat4);
 
         var mat5 = new THREE.Matrix4();
         var trans = this.state.pos;
