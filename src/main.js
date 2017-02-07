@@ -4,10 +4,6 @@ import Framework from './framework'
 import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
-//OBJ Loading
-var OBJLoader = require('three-obj-loader');
-OBJLoader(THREE);
-
 var turtle;
 
 // called after the scene loads
@@ -19,16 +15,16 @@ function onLoad(framework) {
   var stats = framework.stats;
 
   // initialize a simple box and material
-  var spotlight = new THREE.SpotLight( 0xffffff, 2, 100, 1, 0.5, 1.75 );
+  var spotlight = new THREE.SpotLight( 0xffffff, 1, 500, Math.PI / 3, 0.5, 1.75 );
   spotlight.color.setHSL(0.1, 1, 0.95);
-  spotlight.position.set(1, 6, 2);
-  spotlight.position.multiplyScalar(5);
+  spotlight.position.set(1 * 20, 2 * 20, 2 * 20);
   spotlight.castShadow = true;
   
-  //Set up shadow properties
-  spotlight.shadow.mapSize.width = 2048;
-  spotlight.shadow.mapSize.height = 2048;
+  //Set up shadow and shadow camera properties
+  spotlight.shadow.mapSize.width = 4096 * 2;
+  spotlight.shadow.mapSize.height = 4096 * 2;
   spotlight.shadow.camera.near = 1;
+  spotlight.shadow.camera. far = 200;
   
   scene.add(spotlight);
   
@@ -48,7 +44,10 @@ function onLoad(framework) {
   
   //Add the ground plane
   var planeGeometry = new THREE.PlaneGeometry(750, 750);
-  var planeMaterial = new THREE.MeshStandardMaterial( {color: 0x778899, side: THREE.DoubleSide} );
+  var planeMaterial = new THREE.MeshPhongMaterial( {color: 0x778899, side: THREE.DoubleSide} );
+  planeMaterial.shininess = 5; //default 30
+  // planeMaterial.reflectivity = 0;
+  // planeMaterial.clearCoatRoughness = 1;
   var planeMesh = new THREE.Mesh( planeGeometry, planeMaterial );
   planeMesh.rotateX(90 * Math.PI / 180);
   planeMesh.position.set(0, -0.01, 0);
@@ -61,16 +60,9 @@ function onLoad(framework) {
   
   // set the global doLSys object with this lsystem
   doLSys.lsystem = new Lsystem;
-  var leafGeometry;
   
-  // Load in the OBJ(s)
-  OBJLoader = new THREE.OBJLoader();
-  OBJLoader.load('/res/OBJs/leaf.obj', function(obj) {
-      leafGeometry = obj.children[0].geometry;
-  });
-  // console.log(leafGeometry); //undefined here
   // initialize the turtle to draw our l-system
-  turtle = new Turtle(scene, leafGeometry);
+  turtle = new Turtle(scene);
     
   // give the turtle to the global doLSys object
   doLSys.turtle = turtle;
@@ -81,7 +73,7 @@ function onLoad(framework) {
 
   gui.add(doLSys.lsystem, 'axiom').onChange(function(newVal) {
     doLSys.lsystem.updateAxiom(newVal);
-    doLsystem(doLSys.lsystem, doLSys.lsystem.iterations, turtle);
+    //doLsystem(doLSys.lsystem, doLSys.lsystem.iterations, turtle);
   });
   
   gui.add(doLSys, 'iterations', 0, 12).step(1);

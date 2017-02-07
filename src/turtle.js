@@ -1,5 +1,9 @@
 const THREE = require('three')
 
+//OBJ Loading
+var OBJLoader = require('three-obj-loader');
+OBJLoader(THREE);
+
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
 // You are free to add features to this state class,
@@ -13,15 +17,17 @@ var TurtleState = function(pos, dir) {
   
 export default class Turtle {
     
-    constructor(scene, grammar, leafGeometry) {
+    constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
-        this.leafGeometry = leafGeometry;
         this.stateStack = new Array();
         this.scaleFalloff = 1; // For each subsequent iteration, scale the geometry drawn by this number ^(currentInteration)
         this.currentIteration = 0; // During which iteration the symbol that is currently being rendered was added to the linkedlist
         this.previousIteration = 0;
-
+        this.leafGeometry = undefined;
+        
+        //this.loadOBJ();
+        
         // Grammar rules!
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
@@ -42,7 +48,15 @@ export default class Turtle {
             this.renderGrammar = grammar;
         }
     }
-
+    
+    loadOBJ() {
+        OBJLoader = new THREE.OBJLoader();
+        OBJLoader.load('/res/OBJs/leaf.obj', function(obj) {
+            this.leafGeometry = obj.children[0].geometry;
+        });
+        console.log(this.leafGeometry); //undefined here
+    }
+    
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
