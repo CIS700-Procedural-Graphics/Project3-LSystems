@@ -31,136 +31,103 @@ export function linkedListToString(linkedList) {
 	return linkedList.toString();
 }
 
-// TODO: Given the node to be replaced, 
+// Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
+// WASN'T SUPPOSED TO GO THROUGH THE ENTIRE LOOP I THINK.
+// WHAT HAVE YOU DONE ELLEN LMAO.
 function replaceNode(linkedList, node, replacementString) {
 	if (linkedList === null || linkedList.head === null || node === null) {
 		// If LL doesn't exist or is empty just return
 		return;
 	}
-	
-	var curr = linkedList.head;
 
 	// Replacement string is empty
 	// Basically remove node at evey appearance
 	if (!replacementString || replacementString.length == 0) {
 		// Delete the node at every appearance
-		while (curr != null) {
-			if (linkedList.head == linkedList.tail) {
-				// 1 Element Case
-
-				if (linkedList.head.value == node.value) {
-					linkedList.pop(); // remove
-				}
-
-				return;
-			}
-
-
-			// Current is the head
-			else if (curr == linkedList.head) {
-				if (curr.value == node.value) {
-					linkedList.head = linkedList.head.next;
-					curr = linkedList.head;
-				}
-			}
-
-			// Current is the tail
-			else if (curr == linkedList.tail) {
-				if (curr.value == node.value) {
-					linkedList.tail = linkedList.tail.prev;
-				}
-
-				return;
-			}
-
-			// Current is a middle node
-			else if (curr.value == node.value) {
-				var before = curr.prev;
-				var after = curr.next;
-
-				// Drop reference to current node
-				before.next = after;
-				after.prev = before;
-
-				curr = after;
-			}
-
-			// Move on
-			else {
-				curr = curr.next;
-			}
+		
+		// 1 Element Case
+		if (linkedList.head == linkedList.tail && linkedList.head == node) {
+			linkedList.pop(); // remove
 		}
 
+		// Node is the head
+		else if (node == linkedList.head) {
+			linkedList.head = linkedList.head.next;
+			linkedList.head.prev = null;
+		}
+
+		// Node is the tail
+		else if (node == linkedList.tail) {
+			linkedList.tail = linkedList.tail.prev;
+			linkedList.next =  null;
+		}
+
+		// Node is a middle node
+		// Or doesn't exist in the linked list, but well hopefully the function
+		// is used properly. And I mean, I'm going to used it properly...
+		else {
+			var before = node.prev;
+			var after = node.next;
+
+			// Drop reference to node
+			before.next = after;
+			after.prev = before;
+		}
 	// ReplacementString is not empty
 	} else {
 		// Create LL of replacementString
 		var rsll = stringToLinkedList(replacementString);
 
-		if (linkedList.head == linkedList.tail) {
-			// 1 Element Case
+		// 1 Element Case
+		if (linkedList.head == linkedList.tail && linkedList.head == node) {
 			// Replace LL with RSLL
-			if (linkedList.head.value == node.value) {
-				linkedList = rsll;
-			}
-
+			linkedList = rsll;
 			return;
 		}
 
 
 		// 2+ Element cases
-		// Curr is currently equal to the head
-		if (curr.value == node.value) {
-			var copy = rsll.clone();
+		// If node is the head
+		if (node == linkedList.head) {
+			var after = linkedList.head.next;
 
-			copy.tail.next = linkedList.head.next;
-			linkedList.head = copy.head;
+			// Attach copied RSLL, skipping head
+			rsll.tail.next = after;
+			after.prev = rsll.tail; // update prev
+
+			// Update LL head
+			linkedList.head = rsll.head; // prev is already null
+		} 
+
+		// If node is the tail
+		else if (node == linkedList.tail) {
+			var before = linkedList.tail.prev;
+
+			// remove node (which is the tail) and add pointer to next
+			before.next = rsll.head;
+			rsll.head.prev = before; 
+
+			// Update tail pointer
+			linkedList.tail = rsll.tail;
 		}
 
-		// Loop through the LL
-		while(curr !== null) {
+		// Node is a middle node
+		// Or doesn't exist in the linked list, but well hopefully the function
+		// is used properly. And I mean, I'm going to used it properly...
+		else {
+			// Replace
+			var before = node.prev;
+			var after = node.next;
 
-			// Current is the tail
-			else if (curr == linkedList.tail) {
-				if (curr.value == node.value) {
-					linkedList.tail = linkedList.tail.prev;
-				}
+			// rsll the replacementString LinkedList
+			rsll.head.prev = before;
+			rsll.tail.next = after;
 
-				return;
-			}
-
-			// Current is a middle node
-			else if (curr.value == node.value) {
-				var before = curr.prev;
-				var after = curr.next;
-
-				// Drop reference to current node
-				before.next = after;
-				after.prev = before;
-
-				curr = after;
-			}
-
-			if (curr.value == node.value) {
-				// Replace
-				var before = curr.prev;
-				var after = curr.next;
-
-				// Copy the replacementString LinkedList
-				var copy = rsll.clone();
-				copy.head.prev = before;
-				copy.tail.next = after;
-
-				before.next = copy.head;
-				after.prev = copy.tail;
-
-				// Update current
-				curr = after;
-			} else {
-				// Keep going otherwise
-				curr = curr.next;
-			}
-		}
+			// update the pointers in the linked list
+			before.next = rsll.head;
+			after.prev = rsll.tail;
+		} 
 	}
 }
 
@@ -206,6 +173,13 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// list of the axiom.
 	this.doIterations = function(n) {	
 		var lSystemLL = StringToLinkedList(this.axiom);
+
+		// Iterate n times
+		for (var i = 0; i < n; i++) {
+			// replaceNode(lSystemLL, node, replacementString);
+			// Go through each of the 
+		}
+
 		return lSystemLL;
 	}
 }
