@@ -54,7 +54,7 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
