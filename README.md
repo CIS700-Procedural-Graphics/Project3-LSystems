@@ -14,7 +14,7 @@ I started with the axiom "FFFFFX" so that there would be a tall trunk before the
 
 Another difference in features between "X" and "B" branches is that "B" branches include many more instances of flowers and pointed branches, given by the letters "C" and "P", respectively. I created a model for a flower petal in Maya and imported it using an OBJ loader. I then chose a random number between 1 and 6 to dictate how many petals would be on a particular flower. I then rotated the petals such that they would be layered in a similar way to cherry blossoms. For the pointed branches, I placed cones, rather than cylinders. Here is a close-up of some pointed branches and flowers: 
 
-![](./progShots/flowersAndPointsCloseUp.PNG) 
+![](./progShots/flowersAndPointsCloseUpNew.PNG) 
 
 Here is a front and top view of the completed grammar at the fourth iteration. (Note: the fourth iteration is normally the msot realistic one):
 
