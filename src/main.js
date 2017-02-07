@@ -37,12 +37,29 @@ function onLoad(framework) {
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.updateAxiom(newVal);
+    clearScene(turtle);
+    console.log('in gui onChange axiom');
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+	if( lsys.prevIterations == lsys.iterations )
+		return; //avoid running this twice per gui change. don't know why it happens.
     clearScene(turtle);
+    console.log('in gui onChange iterations');
     doLsystem(lsys, newVal, turtle);
+    lsys.prevIterations = lsys.iterations;
+  });
+  
+  var rules=['X','Y','Z'];
+  rules.forEach( function(el) {
+  	var ruleArr = lsys.grammar[el];
+  	var f = gui.addFolder('Rule '+el);
+  	for( var i=0; i < ruleArr.length; i++ ){
+  		var name = 'Sub '+i;
+	  	f.add(ruleArr[i], 'successorString').name(name);
+	  	f.add(ruleArr[i], 'probability', 0.0, 1.0).step(0.1).name(name+' prob');
+	}
   });
 }
 
@@ -56,6 +73,7 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
+	console.log('=========== doLsystem ============ ');
     var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
