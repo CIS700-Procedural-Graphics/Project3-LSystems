@@ -11,7 +11,7 @@ Rather than representing our symbols as a string like in many L-system implement
 
 - The next node in the linked list
 - The previous node in the linked list
-- The grammar symbol at theis point in the overal string
+- The grammar symbol at this point in the overal string
 
 We also recommend that you write the following functions to interact with your linked list:
 

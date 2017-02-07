@@ -16,20 +16,81 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
-
+        this.stack = [];
+        this.angle = 30;
+        this.scale = 0.1;
+        
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                '+' : this.rotateTurtle.bind(this, this.angle, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -this.angle, 0, 0),
+                'F' : this.makeCylinder.bind(this, 2, this.scale),
+                '[' : this.storeTurtlePosition.bind(this),
+                ']' : this.restoreTurtlePosition.bind(this),
+                'X' : this.XrotateTurtle.bind(this, 0, 90, 0),
+                'A' : this.Adostuff.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
         }
     }
 
+    //turtle set angle
+    setAngle(angle_in)
+    {
+//        if (typeof this.angle !== "undefined") {
+//			this.angle = angle_in;
+//		}   
+//        var a = angle_in;
+//        this.angle = angle_in;
+//        console.log(this.angle);
+    }
+    
+    Adostuff()
+    {
+//        var i = new TurtleState(this.state.pos, this.state.dir);
+//        console.log(i.pos);
+        // load a simple obj mesh
+        //console.log("Adostuff");
+        var fruit = this.scene.getObjectByName("fruit");
+        if(fruit != undefined)
+            {
+                //console.log()
+                fruit.position.x = this.state.pos[0];
+                fruit.position.y = this.state.pos[1];
+                fruit.position.z = this.state.pos[2];
+                console.log(fruit.position)
+            }
+    
+    }
+                   
+    XrotateTurtle(x, y, z) {
+        
+        //console.log(this.angle);
+        
+        var e = new THREE.Euler(
+                x * 3.14/180,
+				y * 3.14/180,
+				z * 3.14/180);
+        this.state.dir.applyEuler(e);
+    }
+
+    
+    
+    //stores the position of the turtle in a stack
+    storeTurtlePosition()
+    {
+        var i = new TurtleState(this.state.pos, this.state.dir);
+        this.stack.push(i);
+    }
+    
+    restoreTurtlePosition()
+    {
+        this.state = this.stack.pop();
+    }
+    
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
@@ -46,6 +107,9 @@ export default class Turtle {
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+        
+        //console.log("Rotating");
+        
         var e = new THREE.Euler(
                 x * 3.14/180,
 				y * 3.14/180,
@@ -69,8 +133,11 @@ export default class Turtle {
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
+        //console.log("Moving forward");
+        //console.log(width);
+        
         var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+        var material = new THREE.MeshBasicMaterial( {color: 0x7D4900} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
 
@@ -96,7 +163,9 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        //this.scale = symbolNode.it/10;
+        //console.log("scale " + this.scale);
+        var func = this.renderGrammar[symbolNode.value];
         if (func) {
             func();
         }
