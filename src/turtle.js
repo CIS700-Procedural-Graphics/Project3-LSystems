@@ -16,6 +16,7 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        this.stack = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -23,7 +24,9 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.pushState.bind(this),
+                ']' : this.popState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -34,6 +37,18 @@ export default class Turtle {
     // and its orientation to the Y axis
     clear() {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
+    }
+
+    pushState() {
+        //make sure this is NEW TurtleState or else this state is never saved into heap
+        //also make sure to use NEW THREE.Vector3
+        //and use this.state.pos, do not take in an argument into this function, will cause delay
+        var newState = new TurtleState(new THREE.Vector3(this.state.pos.x, this.state.pos.y, this.state.pos.z), new THREE.Vector3(this.state.dir.x, this.state.dir.y, this.state.dir.z));
+        this.stack.push(newState);
+    }
+
+    popState() {
+        this.state = this.stack.pop();
     }
 
     // A function to help you debug your turtle functions
@@ -96,7 +111,7 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        var func = this.renderGrammar[symbolNode.symbol];
         if (func) {
             func();
         }
