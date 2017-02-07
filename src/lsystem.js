@@ -12,6 +12,7 @@ class LSystemNode {
 			this.next = null;
 			this.prev = null;
 			this.grammarSymbol = null;
+			this.iterationAdded = 0;
 		}
 		
 		// Append a node to this one
@@ -76,7 +77,7 @@ class LinkedList {
 
 
 // Turn the string into linked list 
-export function stringToLinkedList(input_string) {
+export function stringToLinkedList(input_string, currentIteration) {
 	// ex. assuming input_string = "F+X"
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
@@ -85,6 +86,7 @@ export function stringToLinkedList(input_string) {
 	// Traverse the string
 	for(var i = 0; i < input_string.length; i++) {
 		var lSysNode = new LSystemNode();
+		lSysNode.iterationAdded = currentIteration;
 		lSysNode.grammarSymbol = input_string.charAt(i);
 		ll.appendNode(lSysNode);
 	}
@@ -114,12 +116,37 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "!FFF[B]S[B]S[B][B]S[B]"; // Originally 'FX'
+	// this.axiom = "FX";
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
+	this.grammar['S'] = [
+		new Rule(0.4, 'F'),
+		new Rule(0.4, 'FF'),
+		new Rule(0.2, 'B')
 	];
-	this.iterations = 0; 
+	this.grammar['B'] = [
+		new Rule(0.05, '[-<FBB[-<L]B[-<L]B]'),
+		new Rule(0.05, '[+<FB[-<L]B[+>L]B]'),
+		new Rule(0.05, '[+>FB[->L]B[-<L]B]'),
+		new Rule(0.05, '[->FB[->L]B[+>L]B]'),
+		new Rule(0.05, '[+>`FB[+`L]B[-`L]B]'),
+		new Rule(0.05, '[-<`FB[+`L]B[-,L]B]'),
+		new Rule(0.05, '[+>FB[+>L]B[->L]A]'),
+		new Rule(0.05, '[+>F[+>L]B[+>L]B[+>L]B]'),
+		new Rule(0.05, '[,-FBB[,-L]BA]'),
+		new Rule(0.05, '[`-FB[,-L]B[`-L]B[`+>L]]'),
+		new Rule(0.05, '[-`FB[-`L]B]'),
+		new Rule(0.05, '[-`F[-`L]B[-`L]B]'),
+		new Rule(0.05, '[,+>FBB[-<,A][>>>-``A]A]'),
+		new Rule(0.05, '[,+>FB[,+>L]B[,+>L]A]'),
+		new Rule(0.05, '[+,<FB[--,L]BA]'),
+		new Rule(0.05, '[--,<F[--,L]B[++<,L]B[<,L]A]'),
+		new Rule(0.05, '[-`>FB[-`>L]B[+>A][-->A][-`>>A]A]'),
+		new Rule(0.05, '[-`>FB[-`>L]B[-`>L]]'),
+		new Rule(0.05, '[`+`<FB[`+`<L]B[--<,A]A]'),
+		new Rule(0.05, '[`+`<F[`+`<L][`+`<L]B[`+`<L][<<-,A]A]')
+	];
+	this.iterations = 0;
 	
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {
@@ -152,7 +179,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var lSystemLL = stringToLinkedList(this.axiom);
+		var lSystemLL = stringToLinkedList(this.axiom, 0);
 		if(n == 0) {
 			return lSystemLL;
 		} else {
@@ -164,7 +191,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 					//Get the array of possible rules to apply to this grammar symbol
 					var rule = this.grammar[currentNode.grammarSymbol];
 					if(typeof rule !== "undefined") {
-						var ruleLL;
+						var ruleLL = null;
 						
 						//Randomly choose which rule to use
 						var randRuleNum = Math.random(); // returns a number [0, 1)
@@ -173,11 +200,11 @@ export default function Lsystem(axiom, grammar, iterations) {
 							var currentRule = rule[r];
 							runningProbability += currentRule.probability - 0.001; // Offset slightly so the rand probability isn't considered equal to the current probability
 							if(randRuleNum < runningProbability) {
-								ruleLL = stringToLinkedList(currentRule.successorString);
+								ruleLL = stringToLinkedList(currentRule.successorString, i + 1);
+								currentNode.replaceNode(ruleLL);
 								break;
 							}
 						}
-						currentNode.replaceNode(ruleLL);
 					}
 					currentNode = currentNode.next;
 				}
