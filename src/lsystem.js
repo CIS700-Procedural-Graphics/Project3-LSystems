@@ -96,11 +96,13 @@ function replaceNode(linkedList, node, replacementString) {
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
 	this.axiom = "TFFFFX";
+	this.xBranchProb = 0.7;
+	this.bBranchProb = 0.3;
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(0.4, '[--<<F[+<C]<FX][->>FX][++<<F[->C]>FX][+<FX]'),
+		new Rule(this.xBranchProb-0.3, '[--<<F[+<C]<FX][->>FX][++<<F[->C]>FX][+<FX]'),
 		new Rule(0.3, '[++<F<FX][+>>FX][-->>F[+>C]<FX]'),
-		new Rule(0.3, '[<F[+<C]B][->FB][+>>FB]')
+		new Rule(this.bBranchProb, '[<F[+<C]B][->FB][+>>FB]')
 	];
 	this.grammar['B'] = [
 		new Rule(0.4, '[->F>FB][+<FB[->C]][--<<FB]'),
@@ -142,10 +144,10 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var lSystemLL = stringToLinkedList(this.axiom, n);
+		this.lSystemLL = stringToLinkedList(this.axiom, n);
 		for(var i = n-1; i >= 0; i--)
 		{
-			var currNode = lSystemLL.firstNode;
+			var currNode = this.lSystemLL.firstNode;
 			while(currNode != null)
 			{
 				var rules = this.grammar[currNode.symbol];
@@ -159,11 +161,11 @@ export default function Lsystem(axiom, grammar, iterations) {
 						lastProb += rules[index].probability;
 						index++;
 					}
-					replaceNode(lSystemLL, currNode, stringToLinkedList(rules[index].successorString, i));
+					replaceNode(this.lSystemLL, currNode, stringToLinkedList(rules[index].successorString, i));
 				}				
 				currNode = currNode.next;
 			}
 		}
-		return lSystemLL;
+		return this.lSystemLL;
 	}
 }

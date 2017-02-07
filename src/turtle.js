@@ -2,7 +2,9 @@ const THREE = require('three')
 var OBJLoader = require('three-obj-loader');
 OBJLoader(THREE);
 
-var flowerGeo;
+var flowerGeoOne;
+var flowerGeoTwo;
+var flowerGeoFour;
 
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
@@ -61,8 +63,20 @@ function loadFlower()
         objLoader.load('flowerPetal.obj', function(obj){
 
             // LOOK: This function runs after the obj has finished loading
-            flowerGeo =  obj.children[0].geometry;
-            flowerGeo.scale(0.3, 0.15, 0.3);
+            flowerGeoOne =  obj.children[0].geometry;
+            flowerGeoOne.scale(0.2, 0.1, 0.2);
+        });
+        objLoader.load('twoPetals.obj', function(obj){
+
+            // LOOK: This function runs after the obj has finished loading
+            flowerGeoTwo =  obj.children[0].geometry;
+            flowerGeoTwo.scale(0.2, 0.1, 0.2);
+        });
+        objLoader.load('fourPetals.obj', function(obj){
+
+            // LOOK: This function runs after the obj has finished loading
+            flowerGeoFour =  obj.children[0].geometry;
+            flowerGeoFour.scale(0.2, 0.1, 0.2);
         });
 }
   
@@ -103,7 +117,9 @@ export default class Turtle {
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));        
+        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+        this.stateStack.firstNode = null;
+        this.stateStack.lastNode = null;        
     }
 
     // A function to help you debug your turtle functions
@@ -154,12 +170,12 @@ export default class Turtle {
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * this.height));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        this.moveForward(this.height/2);
     };
 
     makeCone(len, width, iter) {
@@ -178,12 +194,12 @@ export default class Turtle {
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * this.height));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        this.moveForward(this.height/2);
     };
 
     makeFlower(len) {
@@ -198,28 +214,39 @@ export default class Turtle {
             //using my own shaders to create white pink gradient
             vertexShader: require('./shaders/flower-vert.glsl'),
             fragmentShader: require('./shaders/flower-frag.glsl')
-        });        
+        });
 
-        var rando = Math.floor(Math.random() * 5 + 2); //number of petals on this flower, between 1 and 6
-        for(var i = 0; i < rando; i++)
+        var flower;
+        var rando = Math.floor(Math.random() * 3 + 1); //number of petals on this flower, between 1 and 6
+
+        if(rando == 1)
         {
-            flowerGeo.rotateY(360/rando);
-            var flower = new THREE.Mesh( flowerGeo, flowerColor );
-            this.scene.add( flower );
-
-            //Orient the cylinder to the turtle's current direction
-            var quat = new THREE.Quaternion();
-            quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-            var mat4 = new THREE.Matrix4();
-            mat4.makeRotationFromQuaternion(quat);
-            flower.applyMatrix(mat4);
-
-            //Move the cylinder so its base rests at the turtle's current position
-            var mat5 = new THREE.Matrix4();
-            var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
-            mat5.makeTranslation(trans.x, trans.y, trans.z);
-            flower.applyMatrix(mat5);
+            flower = new THREE.Mesh( flowerGeoOne, flowerColor );
         }
+        else if(rando == 2)
+        {
+            flower = new THREE.Mesh( flowerGeoTwo, flowerColor );
+        }
+        else
+        {
+            flower = new THREE.Mesh( flowerGeoFour, flowerColor );
+        }
+        flower.castShadow = true;
+        flower.receiveShadow = true;
+        this.scene.add( flower );
+
+        //Orient the cylinder to the turtle's current direction
+        var quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+        var mat4 = new THREE.Matrix4();
+        mat4.makeRotationFromQuaternion(quat);
+        flower.applyMatrix(mat4);
+
+        //Move the cylinder so its base rests at the turtle's current position
+        var mat5 = new THREE.Matrix4();
+        var trans = this.state.pos;//.add(this.state.dir.multiplyScalar(0.5 * this.height));
+        mat5.makeTranslation(trans.x, trans.y, trans.z);
+        flower.applyMatrix(mat5);
     };
 
     makeTrunk(len, width, iter) {
@@ -239,11 +266,11 @@ export default class Turtle {
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * this.height));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
 
-        this.moveForward(len/2);
+        this.moveForward(this.height/2);
     };
 
     startNewState(stack) {
@@ -295,10 +322,6 @@ export default class Turtle {
         for(currentNode = linkedList.firstNode; currentNode != null; currentNode = currentNode.next) {
             this.renderSymbol(currentNode);
         }
-    }
-
-    updateAngle(newAngle){
-        this.angle = newAngle;
     }
 
     updateHeight(newVal){
