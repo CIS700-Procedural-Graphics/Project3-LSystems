@@ -1,7 +1,7 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {stringToLinkedList, linkedListToString} from './lsystem.js'
+import Lsystem, {stringToLinkedList, linkedListToString, replaceNode} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
@@ -29,6 +29,8 @@ function onLoad(framework) {
   var lsys = new Lsystem();
   var ll = stringToLinkedList("F+X[F]");
   console.log(linkedListToString(ll));
+  lsys.doIterations(1);
+
 
   turtle = new Turtle(scene);
 

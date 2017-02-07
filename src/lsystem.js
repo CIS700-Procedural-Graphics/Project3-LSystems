@@ -37,21 +37,16 @@ class LinkedList {
     constructor() {
         this.startNode = new Node();
         this.length = 0; 
-        // an object mapping symbols to an array of other symbols
-        this.grammarDictionary = {};
     }
 
     // adds a node to the end of the linked list
     addNodeWithSymbol(nodeSymbol) {
-        console.log("adding node");
-        console.log("length is currently" + this.length);
         if (this.length == 0) {
             var newNode = new Node();
             newNode.setSymbol(nodeSymbol);
             this.startNode = newNode;
         } else {
             var temp = this.startNode;
-            console.log(this.startNode);
             while (temp.getNext() != null) {
                 temp = temp.getNext();
             }
@@ -74,19 +69,27 @@ class LinkedList {
     deleteNode(nodeToDelete) {
         var prevNode = nodeToDelete.getPrev();
         var nextNode = nodeToDelete.getNext(); 
-        prevNode.setNext(nextNode);
-        nextNode.setPrev(prevNode);
+        if (prevNode != null) {
+            prevNode.setNext(nextNode);
+        } 
+        if (nextNode != null) {
+            nextNode.setPrev(prevNode);
+        }
         this.length--;
     }
 
     linkNodes(nodeA, nodeB) {
-        nodeA.setNext(nodeB);
-        nodeB.setPrev(nodeA);
+        if (nodeA != null) {
+            nodeA.setNext(nodeB);
+        } 
+        if (nodeB != null) {
+            nodeB.setPrev(nodeA);
+        }
     }
 
-    expandNode(nodeToExpand) {
+    // given the desired node to replace and an array of replacement symbols
+    expandNode(nodeToExpand, replacementSymbols) {
         var symbol = nodeToExpand.getSymbol();
-        var replacementSymbols = this.grammarDictionary[symbol];
         if (replacementSymbols.length > 0) {
             var nullNode = new Node();
             var prevNode = nodeToExpand.getPrev();
@@ -136,6 +139,8 @@ export function linkedListToString(linkedList) {
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+    var replacementStringArray = replacementString.split("");
+    linkedList.expandNode(node, replacementStringArray);
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -179,7 +184,24 @@ export default function Lsystem(axiom, grammar, iterations) {
     // The implementation we have provided you just returns a linked
     // list of the axiom.
     this.doIterations = function(n) {   
-        var lSystemLL = StringToLinkedList(this.axiom);
+        var lSystemLL = stringToLinkedList(this.axiom);
+        console.log("do " + n + " iterations ");
+        console.log(linkedListToString(lSystemLL));
+        var temp = lSystemLL.getStartNode();
+        for (var i = 0; i <= n; i++) {
+            var lSystemLength = lSystemLL.getLength();
+            for (var j = 0; j < lSystemLength; j++) {
+                if (temp == null) break;
+                var grammarRuleArray = this.grammar[temp.getSymbol()];
+                if (grammarRuleArray != null) {
+                    var replacementString = grammarRuleArray[0].successorString;
+                    replaceNode(lSystemLL,temp, replacementString);
+                } 
+                temp = temp.getNext(); 
+            }
+        }
+        console.log("after replacement");
+        console.log(linkedListToString(lSystemLL));
         return lSystemLL;
     }
 }
