@@ -34,7 +34,7 @@ function onLoad(framework) {
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
@@ -42,6 +42,13 @@ function onLoad(framework) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+	
+  gui.add(lsys, 'rotation', 0, 90).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+	lsys.updateRotation(newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+	
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -54,7 +61,7 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
