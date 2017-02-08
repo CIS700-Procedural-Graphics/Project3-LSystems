@@ -7,6 +7,30 @@ function Rule(prob, str) {
 
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
+var Node = {
+	symbol : '',
+	nextNode : null,
+	prevNode : null
+};
+
+function LinkedList(){
+	this.head = null;
+	this.tail = null;
+	this.push = function(val) {
+		if (!this.head) {
+			this.head = {symbol: val, nextNode: null, prevNode: null};
+			this.tail = this.head;
+		} else if (this.head == this.tail) {
+			var newNode = {symbol: val, nextNode: null, prevNode: this.head};
+			this.head.nextNode = newNode;
+			this.tail = newNode;
+		} else {
+			var newNode = {symbol: val, nextNode: null, prevNode: this.tail};
+			this.tail.nextNode = newNode;
+			this.tail = newNode;
+		}
+	};
+};
 
 // TODO: Turn the string into linked list 
 export function stringToLinkedList(input_string) {
@@ -14,19 +38,59 @@ export function stringToLinkedList(input_string) {
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
 	var ll = new LinkedList();
+	for (var i = 0; i < input_string.length; i++) {
+		ll.push(input_string.charAt(i));
+	}
+	// var thisNode = ll.head;
+	// for (var i = 0; i < input_string.length; i++) {
+	// 	console.log(thisNode.symbol);
+	// 	if (thisNode.nextNode){
+	// 		thisNode = thisNode.nextNode;
+	// 	}
+	// }
 	return ll;
 }
 
 // TODO: Return a string form of the LinkedList
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
-	var result = "";
+	var node = linkedList.head;
+	var result = node.symbol;
+	
+	while (node.next) {
+		node = node.next;
+		result += node.symbol;
+	}
 	return result;
 }
 
 // TODO: Given the node to be replaced, 
 // insert a sub-linked-list that represents replacementString
 function replaceNode(linkedList, node, replacementString) {
+	var replacementList = stringToLinkedList(replacementString);
+	if (linkedList.head == linkedList.tail == node) {
+		linkedList = replacementList;
+	}
+	else if (linkedList.head == node) {
+		var next = node.next;
+		linkedList.head = replacementList.head;
+		next.prevNode = replacementList.tail;
+		replacementList.tail.next = next;
+	} 
+	else if (linkedList.tail == node) {
+		var prev = node.prevNode;
+		linkedList.tail = replacementList.tail;
+		prev.nextNode = replacementList.head;
+		replacementList.head.prevNode = prev;
+	} else {
+		var next = node.nextNode;
+		var prev = node.prevNode;
+		next.prevNode = replacementList.tail;
+		replacementList.tail.nextNode = next;
+
+		prev.nextNode = replacementList.head;
+		replacementList.head.nextNode = prev;
+	}
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -70,7 +134,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var lSystemLL = StringToLinkedList(this.axiom);
+		var lSystemLL = stringToLinkedList(this.axiom);
 		return lSystemLL;
 	}
 }
