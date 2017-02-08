@@ -85,7 +85,7 @@ function onLoad(framework) {
 3, 1 => [++HK][++HK][++HK][++HK][++HK][++HK][++HK]
 4, 1 => [++HO][++HO][++HO][++HO][++HO][++HO][++HO]
 5, 1 => [++HD][++HD][++HD][++HD][++HD][++HD][++HD][HW][HW][HW][HW][%%%%%%%D]
-T, 1 => Grrrrrrrrrbbbbbbbb
+T, 1 => ggrrrrrbbbbb
 X, 1 => FW
 X, 1 => FFW
 X, 1 => FFFW

@@ -25,10 +25,11 @@ objLoader.load('bud.obj', function(obj) {
   window.dankAfSystem = obj;
 });
 
-let TurtleState = function(pos, dir, scale) {
+let TurtleState = function(pos, dir, color, scale) {
     return {
         pos: new THREE.Vector3(pos.x, pos.y, pos.z),
         dir: new THREE.Vector3(dir.x, dir.y, dir.z),
+        color: color,
         scale: scale,
     };
 };
@@ -37,19 +38,17 @@ export default class Turtle {
 
     constructor(scene, grammar) {
         window.t = this;
-        this.state = new TurtleState(new THREE.Vector3(0,-5,0), new THREE.Vector3(0,1,0), 0);
         this.storedStates = [];
-        this.color = {
+        let color = {
           r: 127,
           g: 127,
           b: 127
         };
+        this.state = new TurtleState(new THREE.Vector3(0,-5,0), new THREE.Vector3(0,1,0), color, 0);
         this.scene = scene;
         this.cylinderLen = 2.0;
         this.cylinderWidth = 0.1;
 
-        // TODO: Start by adding rules for '[' and ']' then more!
-        // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
@@ -70,8 +69,8 @@ export default class Turtle {
                 'b' : this.addColor.bind(this, 0, 0, -0.1),
                 '%' : this.addScale.bind(this, 0.1),
                 '$' : this.addScale.bind(this, -0.1),
-                'C' : this.addLen.bind(this, 0.5),
-                'c' : this.addLen.bind(this, -0.5),
+                // 'C' : this.addLen.bind(this, 0.5), deprecated
+                // 'c' : this.addLen.bind(this, -0.5),
                 'V' : this.addWidth.bind(this, 0.1),
                 'v' : this.addWidth.bind(this, -0.1),
                 '[' : this.saveState.bind(this),
@@ -86,15 +85,22 @@ export default class Turtle {
     // Resets the turtle's position to the origin
     // and its orientation to the Y axis
     clear() {
-        this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+      let color = {
+        r: 127,
+        g: 127,
+        b: 127
+      };
+      this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), color, 1);
     }
 
     saveState() {
       let pos = this.state.pos;
       let dir = this.state.dir;
+      let color = this.state.color;
       let newPos = new THREE.Vector3(pos.x, pos.y, pos.z);
       let newDir = new THREE.Vector3(dir.x, dir.y, dir.z);
-      let newState = new TurtleState(newPos, newDir, this.state.scale);
+      let newColor = {r: color.r, g: color.g, b: color.b};
+      let newState = new TurtleState(newPos, newDir, newColor, this.state.scale);
       this.storedStates.push(newState);
     }
 
@@ -106,10 +112,10 @@ export default class Turtle {
       let clamp = (min, val, max) => {
         return Math.min(Math.max(val, min), max);
       };
-      this.color = {
-        r: clamp(0, r * 255 + this.color.r, 255),
-        g: clamp(0, g * 255 + this.color.g, 255),
-        b: clamp(0, b * 255 + this.color.b, 255)
+      this.state.color = {
+        r: clamp(0, r * 255 + this.state.color.r, 255),
+        g: clamp(0, g * 255 + this.state.color.g, 255),
+        b: clamp(0, b * 255 + this.state.color.b, 255)
       };
     }
 
@@ -239,7 +245,7 @@ export default class Turtle {
     };
 
     getColor() {
-      return (this.color.r << 16) + (this.color.g << 8) + this.color.b;
+      return (this.state.color.r << 16) + (this.state.color.g << 8) + this.state.color.b;
     }
 
     // Call the function to which the input symbol is bound.
