@@ -96,7 +96,7 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        var func = this.renderGrammar[symbolNode.value];
         if (func) {
             func();
         }

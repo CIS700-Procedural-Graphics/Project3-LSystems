@@ -35,8 +35,9 @@ export function linkedListToString(linkedList) {
 // insert a sub-linked-list that represents replacementString
 // WASN'T SUPPOSED TO GO THROUGH THE ENTIRE LOOP I THINK.
 // WHAT HAVE YOU DONE ELLEN LMAO.
+// Returns the next node to work on
 function replaceNode(linkedList, node, replacementString) {
-	if (linkedList === null || linkedList.head === null || node === null) {
+	if (linkedList === null || node === null) {
 		// If LL doesn't exist or is empty just return
 		return;
 	}
@@ -49,18 +50,21 @@ function replaceNode(linkedList, node, replacementString) {
 		// 1 Element Case
 		if (linkedList.head == linkedList.tail && linkedList.head == node) {
 			linkedList.pop(); // remove
+			return linkedList.head;
 		}
 
 		// Node is the head
 		else if (node == linkedList.head) {
 			linkedList.head = linkedList.head.next;
 			linkedList.head.prev = null;
+			return linkedList.head;
 		}
 
 		// Node is the tail
 		else if (node == linkedList.tail) {
 			linkedList.tail = linkedList.tail.prev;
 			linkedList.next =  null;
+			return null;
 		}
 
 		// Node is a middle node
@@ -73,6 +77,8 @@ function replaceNode(linkedList, node, replacementString) {
 			// Drop reference to node
 			before.next = after;
 			after.prev = before;
+
+			return after;
 		}
 	// ReplacementString is not empty
 	} else {
@@ -82,8 +88,9 @@ function replaceNode(linkedList, node, replacementString) {
 		// 1 Element Case
 		if (linkedList.head == linkedList.tail && linkedList.head == node) {
 			// Replace LL with RSLL
-			linkedList = rsll;
-			return;
+			linkedList.head = rsll.head;
+			linkedList.tail = rsll.tail;
+			return null;
 		}
 
 
@@ -98,6 +105,8 @@ function replaceNode(linkedList, node, replacementString) {
 
 			// Update LL head
 			linkedList.head = rsll.head; // prev is already null
+
+			return after;
 		} 
 
 		// If node is the tail
@@ -110,6 +119,8 @@ function replaceNode(linkedList, node, replacementString) {
 
 			// Update tail pointer
 			linkedList.tail = rsll.tail;
+
+			return null;
 		}
 
 		// Node is a middle node
@@ -127,17 +138,22 @@ function replaceNode(linkedList, node, replacementString) {
 			// update the pointers in the linked list
 			before.next = rsll.head;
 			after.prev = rsll.tail;
+
+			return after;
 		} 
 	}
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "F";
 	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
-	];
+	// this.grammar['X'] = [
+	// 	new Rule(1.0, '[-FX][+FX]')
+	// ];
+	this.grammar['F'] = [
+	 	new Rule(1.0, 'FF')
+	 ];
 	this.iterations = 0; 
 	
 	// Set up the axiom string
@@ -166,7 +182,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
-	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
@@ -177,23 +192,24 @@ export default function Lsystem(axiom, grammar, iterations) {
 			return;
 		}
 
-		var lSystemLL = StringToLinkedList(this.axiom);
+		var lSystemLL = stringToLinkedList(this.axiom);
 
 		// Iterate n times
 		for (var i = 0; i < n; i++) {
 			var curr = lSystemLL.head;
 
 			while (curr != null) {
-				var curr_grammar = this.grammer[curr.value];
+				var curr_grammar = this.grammar[curr.value][0];
 
-				if (curr_grammar) {
-					replaceNode(lSystemLL, curr, curr_grammar);
+				if (curr_grammar && Math.random() <= curr_grammar.probability) {
+					curr = replaceNode(lSystemLL, curr, curr_grammar.successorString);
+				} else {
+					curr = curr.next;
 				}
-
-				curr = curr.next;
 			}
 		}
 
+		console.log(lSystemLL.toString());
 		return lSystemLL;
 	}
 }
