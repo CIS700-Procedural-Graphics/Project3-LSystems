@@ -13,7 +13,7 @@ var turn = {
 var grammar = {
     A: '−FX−A',
     X: 'X+AF+',
-    F: 'F[-F]F[+F][F]', 
+    F: 'F[-F[-FA]]F[+FA][F]', 
     Prob_F: 0.5,
     Prob_X: 0.5,
     Prob_A: 0.5
@@ -28,14 +28,16 @@ function onLoad(framework) {
   var stats = framework.stats;
 
     //load obj
-    var leafMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-    var objLoader = new THREE.OBJLoader();
-    objLoader.load('/geo/fruit.obj', function(obj) {
-        var featherGeo = obj.children[0].geometry;
-        var new_fm = new THREE.Mesh(featherGeo, leafMaterial);
-        new_fm.name = "fruit";
-        scene.add(obj);
-    });
+//    var leafMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+//    var objLoader = new THREE.OBJLoader();
+////    debugger;
+//    objLoader.load('/geo/fruit.obj', function(obj) {
+//        var featherGeo = obj.children[0].geometry;
+//        var new_fm = new THREE.Mesh(featherGeo, leafMaterial);
+////        debugger;
+//        new_fm.name = "fruit";
+//        scene.add(new_fm);
+//    });
     
     
   // initialize a simple box and material

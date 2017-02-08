@@ -54,16 +54,22 @@ export default class Turtle {
 //        console.log(i.pos);
         // load a simple obj mesh
         //console.log("Adostuff");
-        var fruit = this.scene.getObjectByName("fruit");
-        if(fruit != undefined)
-            {
-                //console.log()
-                fruit.position.x = this.state.pos[0];
-                fruit.position.y = this.state.pos[1];
-                fruit.position.z = this.state.pos[2];
-                console.log(fruit.position)
-            }
+//        var fruit = this.scene.getObjectByName("fruit");
+//        if(typeof fruit !== 'undefined')
+//            {
+//                //console.log()
+//                fruit.position.set(this.state.pos.x, this.state.pos.y-0.4, this.state.pos.z);
+//                //fruit.rotate(5,0,0);
+//                console.log(fruit.position)
+//            }
     
+        var geometry = new THREE.SphereGeometry( 0.2, 10, 10 );
+        var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+        var sphere = new THREE.Mesh( geometry, material );
+        this.scene.add( sphere );
+        
+        sphere.position.set(this.state.pos.x, this.state.pos.y, this.state.pos.z);
+        
     }
                    
     XrotateTurtle(x, y, z) {
