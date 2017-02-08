@@ -6,7 +6,7 @@ window.xd = new THREE.Vector3(0.3, -0.54, -0.62).normalize();
 window.f = (a, b, c) => {
   window.xd = new three.Vector3(a, b, c).normalize();
 }
-let objLoader = new THREE.OBJLoader();
+window.objLoader = new THREE.OBJLoader();
 
 objLoader.load('feather.obj', function(obj) {
   let lambertGreen = new THREE.MeshLambertMaterial({color: 0x66FF66, side: THREE.DoubleSide});
@@ -23,6 +23,7 @@ objLoader.load('blazeit.obj', function(obj) {
       }
   });
   window.XXX420blazeItYoloSwagNoScopeXXX = obj;
+  window.blazed = true;
 });
 
 objLoader.load('bud.obj', function(obj) {

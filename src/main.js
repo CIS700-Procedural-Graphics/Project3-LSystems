@@ -49,22 +49,52 @@ function onLoad(framework) {
 
   window.snoopDogg = () => {
     for (let i = 0; i < 40; i++) {
-      let leaf = XXX420blazeItYoloSwagNoScopeXXX.clone(true);
-      framework.leaves.push(leaf);
-      scene.add(leaf);
+      if (!window.blazed) {
+        objLoader.load('blazeit.obj', function(obj) {
+          let cannabis = new THREE.MeshLambertMaterial({color: 0x106601, side: THREE.DoubleSide});
+          let fiveStarMagicalLeaf = obj.children[0].geometry;
+          obj.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.material = cannabis;
+            }
+          });
+          window.XXX420blazeItYoloSwagNoScopeXXX = obj;
+          window.blazed = true;
+          let leaf = XXX420blazeItYoloSwagNoScopeXXX.clone(true);
+          framework.leaves.push(leaf);
+          scene.add(leaf);
 
-      leaf.dy = Math.random() * 0.4 + 0.1;
-      leaf.dr = Math.random() * 0.03 + 0.005;
+          leaf.dy = Math.random() * 0.4 + 0.1;
+          leaf.dr = Math.random() * 0.03 + 0.005;
 
-      let quat = new THREE.Quaternion();
-      quat.setFromUnitVectors(sceneState.rot, new THREE.Vector3(0,1,0));
-      let mat4 = new THREE.Matrix4();
-      mat4.makeRotationFromQuaternion(quat);
-      leaf.applyMatrix(mat4);
+          let quat = new THREE.Quaternion();
+          quat.setFromUnitVectors(sceneState.rot, new THREE.Vector3(0,1,0));
+          let mat4 = new THREE.Matrix4();
+          mat4.makeRotationFromQuaternion(quat);
+          leaf.applyMatrix(mat4);
 
-      let transMat4 = new THREE.Matrix4();
-      transMat4.makeTranslation(Math.random() * 200 - 100, 40 + Math.random() * 40, Math.random() * 200 - 100);
-      leaf.applyMatrix(transMat4);
+          let transMat4 = new THREE.Matrix4();
+          transMat4.makeTranslation(Math.random() * 200 - 100, 40 + Math.random() * 40, Math.random() * 200 - 100);
+          leaf.applyMatrix(transMat4);
+        });
+      } else {
+        let leaf = XXX420blazeItYoloSwagNoScopeXXX.clone(true);
+        framework.leaves.push(leaf);
+        scene.add(leaf);
+
+        leaf.dy = Math.random() * 0.4 + 0.1;
+        leaf.dr = Math.random() * 0.03 + 0.005;
+
+        let quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(sceneState.rot, new THREE.Vector3(0,1,0));
+        let mat4 = new THREE.Matrix4();
+        mat4.makeRotationFromQuaternion(quat);
+        leaf.applyMatrix(mat4);
+
+        let transMat4 = new THREE.Matrix4();
+        transMat4.makeTranslation(Math.random() * 200 - 100, 40 + Math.random() * 40, Math.random() * 200 - 100);
+        leaf.applyMatrix(transMat4);
+      }
     }
   }
   snoopDogg();
