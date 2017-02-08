@@ -26,7 +26,7 @@ var LinkedList = function(){
 	 //The actual data held by linked list elements; used for push pop and remove but we actually return the variable LL
 			var Node = function(value){
       this.grammar = value;
-			this.flag_replace = false;
+			// this.flag_replace = false;
       this.next = null; // next is initially just an empty object
 			this.previous = null;
    };
@@ -35,7 +35,8 @@ var LinkedList = function(){
       var node = new Node(value);
       if(this.first == null)
 			{
-         this.first = this.last = node;
+         this.first = node;
+				 this.last = node;
       }
 			else
 			{
@@ -44,6 +45,7 @@ var LinkedList = function(){
 				node.previous = this.last;
         this.last = node;
       }
+			return node;
    };
 
    this.pop = function(){
@@ -90,6 +92,7 @@ function replaceNode(linkedList, node, replacementString)
 	var ll = StringToLinkedList(replacementString);
 	if(node == linkedList.first)
 	{
+		console.log("replace first");
 		linkedList.first = ll.first;
 
 		node.next.previous = ll.last;
@@ -114,13 +117,22 @@ function replaceNode(linkedList, node, replacementString)
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "FFF+T";
 	this.grammar = {};
 
 	//All the grammar rules
 	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]'),
-		new Rule(1.0, '[+FX][-FX]')
+		// new Rule(0.8, '[-FT][+FT]')
+		new Rule(0.5, 'F-[[X]+X]+F[+FX]-X'),
+		new Rule(0.6, 'LA'),
+		new Rule(0.6, 'L'),
+		new Rule(0.5, 'F+[[X]-X]-F[-FX]+X')
+	];
+	this.grammar['F'] = [
+		new Rule(0.3, 'F')
+	];
+	this.grammar['T'] = [
+		new Rule(0.6, '[FX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX]')
 	];
 	this.iterations = 0;
 
@@ -156,43 +168,48 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.DoIterations = function(n) {
+		var grammar_replacement_rule_index = 0;
+		var count_x = 0;
 		var lSystemLL = StringToLinkedList(this.axiom);
 		for(var i =0; i < n; i++)
 		{
 			//call replace node on every character in the string
-			var temp_string = linkedListToString(lSystemLL);
 
-			// console.log("iteration " +i);
-			for(var j =0; j < temp_string.length; j++)
-			{
-				var grammar_symbol = temp_string[j];
-				if((grammar_symbol == "X"))
+			var temp = lSystemLL.first;
+
+			while(temp) {
+				var tempNext = temp.next;
+
+				var grammar_symbol = temp.grammar;
+				if((i >=2))
 				{
-					var grammar_replacement_rule_index = 0;
-					var grammar_replacement_rule = this.grammar[grammar_symbol][grammar_replacement_rule_index];
+					if((grammar_symbol == "X"))
+					{
+						grammar_replacement_rule_index++;
+						var grammar_replacement_rule = this.grammar[grammar_symbol][grammar_replacement_rule_index%3];
+						var grammar_replacement = grammar_replacement_rule.successorString;
+						grammar_symbol = grammar_replacement;
+					}
+					else if((grammar_symbol == "T") || (grammar_symbol == "F"))
+					{
+						var grammar_replacement_rule = this.grammar[grammar_symbol][0];
+						var grammar_replacement = grammar_replacement_rule.successorString;
+						grammar_symbol = grammar_replacement;
+					}
+
+				}
+				else if((grammar_symbol == "X") || (grammar_symbol == "T") || (grammar_symbol == "F"))
+				{
+					var grammar_replacement_rule = this.grammar[grammar_symbol][0];
 					var grammar_replacement = grammar_replacement_rule.successorString;
 					grammar_symbol = grammar_replacement;
 				}
-				var temp = lSystemLL.first;
-
-				for(var k=0; k<j;k++)
-				{
-					temp = temp.next;
-				}
 
 				replaceNode(lSystemLL, temp, grammar_symbol);
+
+				temp = tempNext;
 			}
 		}
-
-		temp = lSystemLL.first;
-		var err = "";
-		while(temp)
-		{
-			err = err + temp.grammar
-			temp = temp.next;
-		}
-		console.log(err);
-
 		return lSystemLL;
 	}
 }

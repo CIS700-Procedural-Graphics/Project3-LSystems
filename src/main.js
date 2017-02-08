@@ -3,7 +3,19 @@ import Framework from './framework'
 import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
+var myTurtle = require('./turtle.js');
+
+// name is a member of myModule due to the export above
+// var BranchMaterial = myTurtle.BranchMaterial;
+// var LeafMaterial = myTurtle.LeafMaterial;
+// var FruitMaterial = myTurtle.FruitMaterial;
+
 var turtle;
+var guiParameters = {
+    BranchColor: new THREE.Color(0x46271A),// [23,50,138],
+    LeafColor: [216,42,42],
+    FruitColor: [17,191,52],
+}
 
 // called after the scene loads
 function onLoad(framework) {
@@ -21,12 +33,19 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, 20);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
+
+  gui.addColor(guiParameters, 'BranchColor').onChange(function(newVal)
+  {
+    guiParameters.BranchColor = (new THREE.Color(newVal)).getHex();
+    // console.log(guiParameters.BranchColor);
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
@@ -37,7 +56,12 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  // gui.add(lsys, 'Angle').onChange(function(newVal) {
+  //   lsys.UpdateAxiom(newVal);
+  //   doLsystem(lsys, lsys.iterations, turtle);
+  // });
+
+  gui.add(lsys, 'iterations', 0, 6).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
@@ -56,12 +80,13 @@ function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.DoIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
+    turtle.branchcolor = guiParameters.BranchColor;
     turtle.renderSymbols(result);
 }
 
 // called on frame updates
-function onUpdate(framework) {
-}
+function onUpdate(framework)
+{}
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 Framework.init(onLoad, onUpdate);

@@ -17,14 +17,22 @@ export default class Turtle {
         this.scene = scene;
         this.SaveStack = [];
         this.index = 0;
+        this.angle_g = 0.0;
+        this.branchcolor = new THREE.Vector3( 0x8B4513 );
+        // this.leafcolor = new THREE.Vector3( 0x32CD32 );
+        // this.fruitcolor = new THREE.Vector3( 0x990000 );
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
+                '+' : this.rotateTurtle.bind(this, 30, 0, 30),
+                '-' : this.rotateTurtle.bind(this, -30, 0, -30),
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
+                'X' : this.makeCylinder.bind(this, 2, 0.1), //branch
+                'A' : this.makeFruit.bind(this, 0.2), //leaf
+                'L' : this.makeLeaf.bind(this, 0.1, 0.2), //fruit
+                'a' : this.radialrotate.bind(this), //radial growth
                 '[' : this.saveState.bind(this),
                 ']' : this.respawnAtState.bind(this)
             };
@@ -58,6 +66,15 @@ export default class Turtle {
         this.state.dir.applyEuler(e);
     }
 
+    radialrotate()
+    {
+        var axis = new THREE.Vector3( 0, 1, 0 );
+        var angle = (this.angle_g) * 3.14/180;
+        this.state.dir.applyAxisAngle( axis, angle );
+        // console.log(this.angle_g);
+        this.angle_g += 45;
+    }
+
     // Translate the turtle along the input vector.
     // Does NOT change the turtle's _dir_ vector
     moveTurtle(x, y, z) {
@@ -75,8 +92,8 @@ export default class Turtle {
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
         var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
-        var cylinder = new THREE.Mesh( geometry, material );
+        var Bmaterial = new THREE.MeshBasicMaterial( {color: this.branchcolor} );
+        var cylinder = new THREE.Mesh( geometry, Bmaterial );
         this.scene.add( cylinder );
 
         //Orient the cylinder to the turtle's current direction
@@ -96,16 +113,62 @@ export default class Turtle {
         this.moveForward(len/2);
     };
 
+    makeFruit(radius) {
+        var sphereGeom = new THREE.IcosahedronGeometry(radius, 3);
+        var Fmaterial = new THREE.MeshBasicMaterial( {color: 0x990000} );
+        var sphere = new THREE.Mesh( sphereGeom, Fmaterial );
+        // sphere.position.set(this.state.pos);
+        // sphere.scale.set(0.1,0.1,0.1);
+        this.scene.add( sphere );
+
+        //Move the cylinder so its base rests at the turtle's current position
+        var mat5 = new THREE.Matrix4();
+        var mat6 = new THREE.Matrix4();
+        var trans = this.state.pos;
+        // var pos = sphere.position;
+        mat5.makeTranslation(trans.x, trans.y, trans.z);
+        sphere.applyMatrix(mat5);
+
+        // Leaf.applyMatrix(mat5);
+        //apply scaling after
+        sphere.scale.set(1, 1, 1);
+        sphere.rotateZ(-15* 3.14/180);
+        var pos = sphere.position;
+        sphere.position.set(pos.x, pos.y-0.1, pos.z);
+    };
+
+    makeLeaf(radius, length){
+      var sphereGeom = new THREE.IcosahedronGeometry(radius, 3);
+      var Lmaterial = new THREE.MeshBasicMaterial( {color: 0x32CD32} ); ///0x990000
+      var Leaf = new THREE.Mesh( sphereGeom, Lmaterial );
+      this.scene.add( Leaf );
+
+      //Move the cylinder so its base rests at the turtle's current position
+      var mat5 = new THREE.Matrix4();
+      var mat6 = new THREE.Matrix4();
+      var trans = this.state.pos;
+      var pos = Leaf.position;
+      // mat6.makeRotationZ ( 15* 3.14/180);
+      mat5.makeTranslation(trans.x, trans.y, trans.z);
+      // mat5 *= mat6;
+      Leaf.applyMatrix(mat5);
+
+      // Leaf.applyMatrix(mat5);
+      //apply scaling after
+      Leaf.scale.set(1, 10, 1);
+      Leaf.rotateZ(-15* 3.14/180);
+      var pos = Leaf.position;
+      Leaf.position.set(pos.x, pos.y-1, pos.z);
+    }
+
     saveState()
     {
         this.SaveStack.push(new TurtleState(this.state.pos, this.state.dir));
-        // console.log(this.SaveStack[this.index++]);
     };
 
     respawnAtState()
     {
         this.state = this.SaveStack.pop();
-        // console.log(this.SaveStack[--this.index - 1]);
     };
 
     // Call the function to which the input symbol is bound.
