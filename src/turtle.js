@@ -15,24 +15,28 @@ var TurtleState = function(pos, forward, up, left) {
   
 export default class Turtle {
     
-    constructor(scene, totaldepth, grammar) {
+    constructor(scene, totaldepth, anglefactor, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), new THREE.Vector3(0,0,1), new THREE.Vector3(-1,0,0));
         this.scene = scene;
         this.stack = [];
         this.depth = 1;
-        this.totaldepth = totaldepth;
+        this.totaldepth = totaldepth+1;
+        this.anglefactor = anglefactor;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 0, 0, 50),
-                '-' : this.rotateTurtle.bind(this, 0, 0, -50),
+                '+' : this.rotateTurtle.bind(this, 0, 0, 40),
+                '-' : this.rotateTurtle.bind(this, 0, 0, -40),
                 '&' : this.rotateTurtle.bind(this, 72, 0, 0),
-                '^' : this.rotateTurtle.bind(this, 90, 0, 0),
+                '$' : this.rotateTurtle.bind(this, 0, 30, 0),
+                '%' : this.rotateTurtle.bind(this, 0, -30, 0),
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
                 'X' : this.makeCylinder.bind(this, 2, 0.1),
-                'S' : this.makeSphere.bind(this, 2),
+                'A' : this.makeCylinder.bind(this, 2, 0.1),
+                'S' : this.makeBrightSphere.bind(this, 2),
+                'D' : this.makeDarkSphere.bind(this, 2),
                 '[' : this.pushState.bind(this),
                 ']' : this.popState.bind(this)
             };
@@ -73,18 +77,9 @@ export default class Turtle {
     // Euler angles indicated by the input.
     rotateTurtle(forwardA, upA, leftA) {
 
-        /*
-        var e = new THREE.Euler(
-                leftA * Math.PI/180,
-                upA * Math.PI/180,
-                forwardA * Math.PI/180);
-        this.state.forward.applyEuler(e);
-        this.state.up.applyEuler(e);
-        this.state.left.applyEuler(e);
-        */
-
         var q = new THREE.Quaternion();
-        if (forwardA > 0) {
+        if (forwardA != 0) {
+            //forward rotation is not affected by angle factor, rotation about the trunk
             q.setFromAxisAngle(this.state.forward, forwardA * Math.PI/180.0);
             var mat4 = new THREE.Matrix4();
             mat4.makeRotationFromQuaternion(q);
@@ -92,7 +87,8 @@ export default class Turtle {
             this.state.left.applyMatrix4(mat4);
         }
 
-        if (upA > 0) {
+        if (upA != 0) {
+            //up rotation is not affected by angle factor, main trunk curve
             q.setFromAxisAngle(this.state.up, upA * Math.PI/180.0);
             var mat4 = new THREE.Matrix4();
             mat4.makeRotationFromQuaternion(q);
@@ -100,8 +96,8 @@ export default class Turtle {
             this.state.left.applyMatrix4(mat4);
         }
 
-        if (leftA > 0) {
-            q.setFromAxisAngle(this.state.left, leftA * Math.PI/180.0);
+        if (leftA != 0) {
+            q.setFromAxisAngle(this.state.left, this.anglefactor*leftA * Math.PI/180.0);
             var mat4 = new THREE.Matrix4();
             mat4.makeRotationFromQuaternion(q);
             this.state.forward.applyMatrix4(mat4);
@@ -135,8 +131,8 @@ export default class Turtle {
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
-        var geometry = new THREE.CylinderGeometry(this.totaldepth*0.25/this.depth, this.totaldepth*0.25/this.depth, len);
-        var material = new THREE.MeshLambertMaterial( {color: 0xB8753E} );
+        var geometry = new THREE.CylinderGeometry(this.totaldepth*0.25/this.depth, this.totaldepth*0.25/this.depth, len, 6);
+        var material = new THREE.MeshLambertMaterial( {color: 0xCD853F, shading: THREE.FlatShading} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
 
@@ -160,11 +156,40 @@ export default class Turtle {
 
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
-    makeSphere(radius) {
+    makeBrightSphere(radius) {
         if (this.totaldepth - this.depth <= 0) {
-            var len = this.totaldepth*1/this.depth;
-            var geometry = new THREE.IcosahedronGeometry( len, 1);
-            var material = new THREE.MeshLambertMaterial( {color: 0xA5C33F} );
+            var len = this.totaldepth*1.0/this.depth;
+            var geometry = new THREE.IcosahedronGeometry(len, 0);
+            var material = new THREE.MeshLambertMaterial( {color: 0xADFF2F, shading: THREE.FlatShading} );
+            var cylinder = new THREE.Mesh( geometry, material );
+            this.scene.add( cylinder );
+
+            //Orient the cylinder to the turtle's current direction
+            var quat = new THREE.Quaternion();
+            quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.forward);
+            var mat4 = new THREE.Matrix4();
+            mat4.makeRotationFromQuaternion(quat);
+            cylinder.applyMatrix(mat4);
+
+
+            //Move the cylinder so its base rests at the turtle's current position
+            var mat5 = new THREE.Matrix4();
+            var trans = this.state.pos.add(this.state.forward.multiplyScalar(0.5 * len));
+            mat5.makeTranslation(trans.x, trans.y, trans.z);
+            cylinder.applyMatrix(mat5);
+
+            //Scoot the turtle forward by len units
+            this.moveForward(len/2);
+        }
+    };
+
+        // Make a cylinder of given length and width starting at turtle pos
+    // Moves turtle pos ahead to end of the new cylinder
+    makeDarkSphere(radius) {
+        if (this.totaldepth - this.depth <= 0) {
+            var len = this.totaldepth*1.0/this.depth;
+            var geometry = new THREE.IcosahedronGeometry(len, 0);
+            var material = new THREE.MeshLambertMaterial( {color: 0x008000, shading: THREE.FlatShading} );
             var cylinder = new THREE.Mesh( geometry, material );
             this.scene.add( cylinder );
 

@@ -123,18 +123,26 @@ function replaceNode(linkedList, node, replacementString) {
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
-	// default LSystem
-	//F[aR][aR][aR][aR]
 	this.axiom = "X";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, 'F[XS][+XS][&+XS][&&+XS][&&&+XS][&&&&+XS]')
-		//new Rule(0.33, 'F[+XS][-XS][FXS]'),
-		//new Rule(0.33, 'F[-XS][+XS][FXS]'),
-		//new Rule(0.34, 'F[[XS][+XS]][+XS][-XS]')
+		//original symmetric tree
+		//new Rule(0.25, 'F[+AD][&+AD][&&+AS][&&&+AD][&&&&+AS][FXD]'),
+		//new Rule(0.25, 'F[+AS][&+AD][&&+AS][&&&+AD][&&&&+AD][FXS]')
+		new Rule(0.25, 'F[+AD][&+AD][&&+AS][&&&+AD][&&&&+AS][&&FXD]'),
+		new Rule(0.25, 'F[+AS][&+AD][&&+AS][&&&+AD][&&&&+AD][&&FXS]'),
+		new Rule(0.25, 'F[+AD][&+AD][&&+AS][&&&+AD][&&&&+AS][FXD]'),
+		new Rule(0.25, 'F[+AS][&+AD][&&+AS][&&&+AD][&&&&+AD][FXS]')
 	];
 	this.grammar['F'] = [
+		//original symmetric tree
+		//new Rule(1.0, 'FF')
+		new Rule(1.0, 'F$F%'),
 		new Rule(1.0, 'FF')
+	];
+	this.grammar['A']  = [
+		new Rule(0.5, 'F[AD][+AS][&+AS][&&+AD][&&&+AD][&&&&+AS]'),
+		new Rule(0.5, 'F[AS][+AS][&+AD][&&+AS][&&&+AD][&&&&+AS]')
 	];
 	this.iterations = 0; 
 	
@@ -191,7 +199,10 @@ export default function Lsystem(axiom, grammar, iterations) {
 							var rule = this.grammar[key][i];
 							sumProbability += rule.probability;
 							if (seed <= sumProbability) {
+								//console.log(seed);
+								//console.log(rule.successorString);
 								replaceNode(lSystemLL, currentNode, rule.successorString);
+								break;
 							}
 						}
 					}
@@ -203,7 +214,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	        count++;
     	}
         
-        console.log(linkedListToString(lSystemLL));
+        //console.log(linkedListToString(lSystemLL));
 		return lSystemLL;
 	}
 }

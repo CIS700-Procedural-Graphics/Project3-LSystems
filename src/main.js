@@ -6,6 +6,11 @@ import Turtle from './turtle.js'
 
 var turtle;
 
+var Sliders = function() {
+  this.anglefactor = 1.0;
+};
+var sliders = new Sliders();
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -16,7 +21,8 @@ function onLoad(framework) {
 
   // initialize a simple box and material
   var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight.color.setHSL(0.1, 1, 0.95);
+  directionalLight.color.set(0xFFDAB9);
+  //directionalLight.color.setHSL(0.1, 1, 0.95);
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
@@ -35,12 +41,17 @@ function onLoad(framework) {
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
-    doLsystem(lsys, lsys.iterations, turtle);
+    doLsystem(lsys, lsys.iterations, turtle, sliders.anglefactor);
   });
 
   gui.add(lsys, 'iterations', 0, 5).step(1).onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
+    doLsystem(lsys, newVal, turtle, sliders.anglefactor);
+  });
+
+  gui.add(sliders, 'anglefactor', 0.5, 1.5).step(0.05).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, lsys.iterations, turtle, sliders.anglefactor);
   });
 }
 
@@ -53,10 +64,10 @@ function clearScene(turtle) {
   }
 }
 
-function doLsystem(lsystem, iterations, turtle) {
+function doLsystem(lsystem, iterations, turtle, anglefactor) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene, iterations);
+    turtle = new Turtle(turtle.scene, iterations, anglefactor);
     turtle.renderSymbols(result);
 }
 
