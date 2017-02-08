@@ -124,7 +124,11 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.grammar['X'] = [
 		// new Rule(0.8, '[-FT][+FT]')
 		new Rule(0.5, 'F-[[X]+X]+F[+FX]-X'),
-		new Rule(0.6, 'LA'),
+		new Rule(0.5, 'FF'),
+		new Rule(0.5, 'X'),
+		new Rule(0.5, 'F[+FX][-FX]'),
+		new Rule(0.5, 'F[-FX][+FX]'),
+		new Rule(1.0, 'LA'),
 		new Rule(0.6, 'L'),
 		new Rule(0.5, 'F+[[X]-X]-F[-FX]+X')
 	];
@@ -132,7 +136,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(0.3, 'F')
 	];
 	this.grammar['T'] = [
-		new Rule(0.6, '[FX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX]')
+		new Rule(0.6, '[FX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX][aFX]')
 	];
 	this.iterations = 0;
 
@@ -174,19 +178,18 @@ export default function Lsystem(axiom, grammar, iterations) {
 		for(var i =0; i < n; i++)
 		{
 			//call replace node on every character in the string
-
 			var temp = lSystemLL.first;
 
 			while(temp) {
 				var tempNext = temp.next;
 
 				var grammar_symbol = temp.grammar;
-				if((i >=2))
+				if((i >=1))
 				{
 					if((grammar_symbol == "X"))
 					{
-						grammar_replacement_rule_index++;
-						var grammar_replacement_rule = this.grammar[grammar_symbol][grammar_replacement_rule_index%3];
+						count_x++;
+						var grammar_replacement_rule = this.grammar[grammar_symbol][count_x%7];
 						var grammar_replacement = grammar_replacement_rule.successorString;
 						grammar_symbol = grammar_replacement;
 					}
@@ -203,6 +206,16 @@ export default function Lsystem(axiom, grammar, iterations) {
 					var grammar_replacement_rule = this.grammar[grammar_symbol][0];
 					var grammar_replacement = grammar_replacement_rule.successorString;
 					grammar_symbol = grammar_replacement;
+				}
+
+				if(i == n-1)
+				{
+					if((grammar_symbol == "X"))
+					{
+						var grammar_replacement_rule = this.grammar[grammar_symbol][5];
+						var grammar_replacement = grammar_replacement_rule.successorString;
+						grammar_symbol = grammar_replacement;
+					}
 				}
 
 				replaceNode(lSystemLL, temp, grammar_symbol);

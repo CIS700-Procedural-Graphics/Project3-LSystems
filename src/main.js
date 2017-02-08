@@ -56,12 +56,7 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  // gui.add(lsys, 'Angle').onChange(function(newVal) {
-  //   lsys.UpdateAxiom(newVal);
-  //   doLsystem(lsys, lsys.iterations, turtle);
-  // });
-
-  gui.add(lsys, 'iterations', 0, 6).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 9).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
