@@ -161,7 +161,7 @@ export default function Lsystem(axiom, grammar, iterations) {
     // this.grammar['X'] = [
     //     new Rule(1.0, '[-FX][+FX]')
     // ];
-    this.grammar['F'] = [new Rule(1.0, 'FF')];//new Rule(0.2, '[-F][F][+F]'), new Rule(0.5, 'F[+F]F[-F]F'), new Rule(0.3, '[+F]F[-F][F]')];
+    this.grammar['F'] = [new Rule(0.7, 'FF'), new Rule(0.3, '[-F][+F][-F][+F]')];//new Rule(0.2, '[-F][F][+F]'), new Rule(0.5, 'F[+F]F[-F]F'), new Rule(0.3, '[+F]F[-F][F]')];
     this.grammar['X'] = [new Rule(1.0, 'F−[[X]+X]+F[+FX]−X')];
     this.iterations = 0; 
     
@@ -198,12 +198,9 @@ export default function Lsystem(axiom, grammar, iterations) {
     // list of the axiom.
     this.doIterations = function(n) {   
         var lSystemLL = stringToLinkedList(this.axiom);
-        //console.log("do " + n + " iterations ");
-        //console.log(linkedListToString(lSystemLL));
         for (var i = 0; i < n; i++) {
             var temp = lSystemLL.getStartNode();
             var lSystemLength = lSystemLL.getLength();
-            console.log(lSystemLength);
             for (var j = 0; j < lSystemLength; j++) {
                 if (temp == null) break;
                 var grammarRuleArray = this.grammar[temp.getSymbol()];
@@ -215,10 +212,8 @@ export default function Lsystem(axiom, grammar, iterations) {
                     var tempMax = 0;
                     for (var k = 0; k < grammarRuleArray.length; k++) {
                         tempMax += grammarRuleArray[k].probability;
-                        console.log(tempMin + ", " +tempMax);
                         if (determineRule >= tempMin && determineRule <= tempMax) {
                             replacementString = grammarRuleArray[k].successorString;
-                            console.log("picked rule " + replacementString);
                             break;
                         } 
                         tempMin += grammarRuleArray[k].probability; 
@@ -227,10 +222,7 @@ export default function Lsystem(axiom, grammar, iterations) {
                 } 
                 temp = temp.getNext(); 
             }
-            console.log(linkedListToString(lSystemLL));
         }
-        //console.log("after replacement");
-        //console.log(linkedListToString(lSystemLL));
         return lSystemLL;
     }
 }

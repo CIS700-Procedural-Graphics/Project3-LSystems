@@ -20,7 +20,7 @@ function onLoad(framework) {
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
-  scene.background = new THREE.Color('white');
+  scene.background = new THREE.Color('skyblue');
 
   // set camera position
   camera.position.set(1, 1, 2);
@@ -36,7 +36,7 @@ function onLoad(framework) {
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
