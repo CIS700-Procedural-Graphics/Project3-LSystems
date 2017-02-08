@@ -16,17 +16,17 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
-        this.savedState = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
+        this.savedStates = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 90, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -90, 0, 0),
+                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
-                '[' : this.saveState(this.state),
-                ']' : this.restoreState()
+                '[' : this.saveState.bind(this),
+                ']' : this.restoreState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -73,7 +73,7 @@ export default class Turtle {
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
         var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+        var material = new THREE.MeshBasicMaterial( {color: new THREE.Color('green')} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
 
@@ -83,7 +83,6 @@ export default class Turtle {
         var mat4 = new THREE.Matrix4();
         mat4.makeRotationFromQuaternion(quat);
         cylinder.applyMatrix(mat4);
-
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
@@ -113,11 +112,13 @@ export default class Turtle {
         }
     }
 
-    saveState(state) {
-        this.savedState = state;
+    saveState() {
+        var saveThisState = new TurtleState(this.state.pos, this.state.dir);
+        this.savedStates.push(saveThisState);
     }
 
     restoreState() {
-        this.state = this.savedState;
+        var savedState = this.savedStates.pop();
+        this.state = savedState;
     }
 }

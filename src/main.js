@@ -20,6 +20,7 @@ function onLoad(framework) {
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
+  scene.background = new THREE.Color('white');
 
   // set camera position
   camera.position.set(1, 1, 2);

@@ -156,12 +156,12 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
     // default LSystem
-    this.axiom = "F+F+F+F";// FX";
+    this.axiom = "F";// FX";
     this.grammar = {};
     // this.grammar['X'] = [
     //     new Rule(1.0, '[-FX][+FX]')
     // ];
-    this.grammar['F'] = [ new Rule(1.0, 'F-F+F-F+F')];
+    this.grammar['F'] = [ new Rule(1.0, '[+F]F[-F][F]')];
     this.iterations = 0; 
     
     // Set up the axiom string
@@ -199,7 +199,7 @@ export default function Lsystem(axiom, grammar, iterations) {
         var lSystemLL = stringToLinkedList(this.axiom);
         console.log("do " + n + " iterations ");
         console.log(linkedListToString(lSystemLL));
-        for (var i = 0; i <= n; i++) {
+        for (var i = 0; i < n; i++) {
             var temp = lSystemLL.getStartNode();
             var lSystemLength = lSystemLL.getLength();
             console.log(lSystemLength);
