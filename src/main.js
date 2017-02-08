@@ -16,17 +16,9 @@ function onLoad(framework) {
   var stats = framework.stats;
 
   // initialize a simple box and material
-  var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  var directionalLight = new THREE.DirectionalLight( 0xff0000, 1 );
   directionalLight.color.setHSL(0.1, 1, 0.95);
   directionalLight.position.set(1, 3, 2);
-  directionalLight.position.multiplyScalar(10);
-  scene.add(directionalLight);
-
-
-  // initialize a simple box and material
-  directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight.color.setHSL(0.1, 1, 0.95);
-  directionalLight.position.set(-1, -3, -2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
@@ -55,7 +47,7 @@ function onLoad(framework) {
   // var lSystem = new LSystem("FX", "", 10);
   // lSystem.expand();
 
-  var lSystem = new MainCharacter();
+  var lSystem = new MainCharacter(2234);
   var expandedChain = lSystem.expand();
 
   // console.log(expandedChain.toString());
@@ -64,7 +56,6 @@ function onLoad(framework) {
   mesh.scale.set(.3, .3, .3);
   scene.add(mesh);
 
-
   var cactus = new CactusCharacter(6565);
   cactus.expand();
   var cactusMesh = cactus.generateMesh();
@@ -72,16 +63,12 @@ function onLoad(framework) {
   cactusMesh.scale.set(.2, .2, .2);
   scene.add(cactusMesh);
 
-
   var willow = new WillowCharacter(2135);
   willow.expand();
   var willowMesh = willow.generateMesh();
   willowMesh.position.set(-2, 0, 0);
   willowMesh.scale.set(.2, .2, .2);
   scene.add(willowMesh);
-
-
-  // scene.add(lSystem.getLineDebugger())
 }
 
 // clears the scene by removing all geometries added by turtle.js

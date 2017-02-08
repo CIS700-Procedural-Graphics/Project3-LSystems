@@ -412,11 +412,11 @@ export default class PlantLSystem
 
 export class MainCharacter extends PlantLSystem
 {
-	constructor()
+	constructor(seed)
 	{
 		super();
 
-		var instructions = [new ForwardInstruction(toRadians(75)), 
+		var instructions = [new ForwardInstruction(toRadians(35)), 
 						new DummyInstruction("X"), 
 						new DummyInstruction("Y"), 
 						new FlowerInstruction(),
@@ -425,7 +425,7 @@ export class MainCharacter extends PlantLSystem
 						new BranchInstruction(.8, .6),
 						new DetailInstruction(toRadians(40), .3, .6, toRadians(5)),
 						new RootInstruction(.7),
-						new LInstructionOverride("E", new DetailInstruction(toRadians(10), .1, .2, toRadians(25)))];
+						new LInstructionOverride("E", new DetailInstruction(toRadians(10), .3, .2, toRadians(5)))];
 
 		var rules = [];
 
@@ -433,15 +433,15 @@ export class MainCharacter extends PlantLSystem
 		rules.push(new LRule("X", "[B-QQQQQY][B+QQQQQY]", 1.0));
 
 		// Arms details (fingers?)
-		rules.push(new LRule("Y", "[B-QY][B+QY]QQ", .75));
+		rules.push(new LRule("Y", "[B-QX][B+QX]QQ", .75));
 		rules.push(new LRule("Y", "QW", .25));
 
 		// Detailing the main branch
-		rules.push(new LRule("F", "EEFE", .85));
-		rules.push(new LRule("F", "FF", .15));
+		rules.push(new LRule("F", "EEFXE", .85));
+		rules.push(new LRule("F", "FXF", .15));
 
-		var random = new Random(Random.engines.mt19937().seed(2234));
-		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, 5, random);
+		var random = new Random(Random.engines.mt19937().seed(seed));
+		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, 6, random);
 		this.subdivisions = 32;
 	}
 }
@@ -572,7 +572,7 @@ export class WillowCharacter extends PlantLSystem
 	evaluate()
 	{
 		// (a, b, m1, m2, n1, n2, n3)
-		var crossSection = new CrossSectionParameters(1,1,64,64,-10.0,0,10);
+		var crossSection = new CrossSectionParameters(1,1,18,18,2.225,1,10);
 		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, 1.25, crossSection, this.system.random);
 		return this.system.evaluate(state);
 	}
@@ -599,14 +599,9 @@ export class WillowCharacter extends PlantLSystem
 
 		rules.push(new LRule("X", "[B+QT][B-QT]X", 1.0)); // Grow Rule
 
-		// rules.push(new LRule("F", "E", .5));
-		// rules.push(new LRule("E", "EE", 1.0)); // Grow Rule
-		// rules.push(new LRule("X", "[CE]", 1.0));
-
 		var random = new Random(Random.engines.mt19937().seed(seed));
-		// this.system = new LSystem("RRFFRRR", instructions, rules, 5, random);
 
 		this.system = new LSystem("RRQX", instructions, rules, 5, random);
-		this.subdivisions = 16;
+		this.subdivisions = 64;
 	}
 }
