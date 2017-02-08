@@ -1,6 +1,6 @@
 // A class that represents a symbol replacement rule to
 // be used when expanding an L-system grammar.
-function Rule(prob, str) {
+export function Rule(prob, str) {
 	this.probability = prob; // The probability that this Rule will be used when replacing a character in the grammar string
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
@@ -41,7 +41,7 @@ function findReplace(currNode, linkedList, grammar) {
 	
 
 	// using the random number, decide which validRule to choose
-	var rand = Math.rand();
+	var rand = Math.random();
 	var totalRules = currGram.length;
 	var accumulatedProb = 0.0; 
 
@@ -57,8 +57,8 @@ function findReplace(currNode, linkedList, grammar) {
 	}
 
 	// create new chain of nodes based on the Rule replacement
-	// return this value 
-	return currGram[i].successorString;
+	// return the string 
+	return chosenRule.successorString;
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -68,14 +68,16 @@ export function stringToLinkedList(input_string) {
 	// ex. assuming input_string = "F+X"
 	// you should return a linked list where the head is 
 	// at Node('F') and the tail is at Node('X')
-	var headNode = new Node(null, input_string.charAt(0), null);
-	var prev = headNode;
-	var tailNode = new Node(null, null, null);
-	for (var i = 0; i < input_string.length; i++) {
-		var newNode = new Node(prev, input_string.charAt(i), null);
-		tailNode = newNode;
-		prev.next = newNode;
-		prev = newNode;
+	if (typeof input_string !== "undefined") {
+		var headNode = new Node(null,  null, input_string.charAt(0));
+		var prev = headNode;
+		var tailNode = headNode;
+		for (var i = 1; i < input_string.length; i++) {
+			var newNode = new Node(prev, null, input_string.charAt(i));
+			tailNode = newNode;
+			prev.next = newNode;
+			prev = newNode;
+		}
 	}
 
 	var ll = new LinkedList(headNode, tailNode);
@@ -86,9 +88,10 @@ export function stringToLinkedList(input_string) {
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var result = "";
-	while (linkedList.head !== LinkedList.tail) {
-		result += linkedList.head.sym;
-		linkedList.head = linkedList.head.next;
+	var currNode = linkedList.head;
+	while (currNode) {
+		result += currNode.sym;
+		currNode = currNode.next;
 	}
 	return result;
 }
@@ -98,26 +101,57 @@ export function linkedListToString(linkedList) {
 function replaceNode(linkedList, node, replacementString) {
 	var subLinkedList = stringToLinkedList(replacementString);
 
-	// find the place of node in linkedList
-	var curr = linkedList.head;
-	while (curr) {
-		if (curr === node) {
-			// then replace node with new subLinkedList.
-			curr.prev.next = subLinkedList.head;
-			subLinkedList.tail.next = curr.next;
+	// edge case: single axiom
+	if (linkedList.head === linkedList.tail) {
+		linkedList.head = subLinkedList.head; 
+	} else {
+		// find the place of node in linkedList
+		var curr = linkedList.head;
+		while (curr) {
+			if (curr === node) {
+				// Replace old node with the new subLinkedList.
+				if (curr !== linkedList.head) {
+					// if current node is not at head, then set curr's previous's next appropriately
+					// else, then the sublinkedlist is at the head of the Node
+					curr.prev.next = subLinkedList.head;
+				}
+				// set the previous of the to be the old node's previous 
+				subLinkedList.prev = curr.prev; 
+				if (curr.next) {
+					// if it's in the middle of the linked list, set the next to the current's next
+					// else, the tail next will default point to null 
+					subLinkedList.tail.next = curr.next;
+				}
+			}
+			curr = curr.next;
 		}
-		curr = curr.next;
 	}
-
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "FY";
 	this.grammar = {};
 	this.grammar['X'] = [
 		new Rule(1.0, '[-FX][+FX]')
 	];
+	// new grammar rules
+	// S[+B][-B][D]FY
+	this.grammar['Y'] = [
+		new Rule(0.6, 'S[D]FY'),
+		new Rule(0.1, 'S[D][JB]FY'),
+		new Rule(0.1, 'S[D][KB]FY'),
+		new Rule(0.1, 'S[D][+B]FY'),
+		new Rule(0.1, 'S[D][-B]FY')
+	];
+	this.grammar['A'] = [
+		new Rule(1.0, 'SFY')
+	];
+	// this.grammar['F'] = [
+	// 	new Rule(0.5, 'F[+B]'),
+	// 	new Rule(0.5, 'F[-B]')
+	// ]
+
 	this.iterations = 0; 
 	
 	// Set up the axiom string
@@ -151,8 +185,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var origString = axiom;
-		var stringOutput = ""; 
+		var origString = this.axiom;
 
 		// base case: empty string
 		if (n === 0) {
@@ -162,13 +195,15 @@ export default function Lsystem(axiom, grammar, iterations) {
 			var lSystemLL = stringToLinkedList(origString);
 
 			for (var i = 0; i < n; i++) {
+				// console.log("hi");
 				// iterate through the linked list n times
 				var currNode = lSystemLL.head;
-				while (typeof currNode !== "undefined") {
+				while (currNode) {
 					// check if the currNode sym has any listings in grammar
-					if (grammar[currNode.symbol]) {
+					if (this.grammar[currNode.sym]) {
 						// then findReplace what string should replace the current node
-						var replacementString = findReplace(currNode, lSystemLL, grammar);
+						var replacementString = findReplace(currNode, lSystemLL, this.grammar);
+
 						// then replaceNode with the new string
 						replaceNode(lSystemLL, currNode, replacementString); 
 					}
@@ -177,6 +212,8 @@ export default function Lsystem(axiom, grammar, iterations) {
 				}
 			}
 		}
+
+		// console.log("lSystemString: " + linkedListToString(lSystemLL));
 
 		return lSystemLL;
 	}

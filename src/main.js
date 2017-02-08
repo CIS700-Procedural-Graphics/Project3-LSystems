@@ -5,6 +5,7 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var turtleArr; 
 
 // called after the scene loads
 function onLoad(framework) {
@@ -14,10 +15,13 @@ function onLoad(framework) {
   var gui = framework.gui;
   var stats = framework.stats;
 
+  // set background
+  renderer.setClearColor (0x625C5C, 1);
+
   // initialize a simple box and material
   var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
   directionalLight.color.setHSL(0.1, 1, 0.95);
-  directionalLight.position.set(1, 3, 2);
+  directionalLight.position.set(1, 1, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
@@ -25,7 +29,23 @@ function onLoad(framework) {
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  // initialize LSystem and a Turtle to draw
+  // add in axis and a grid to help with orientation
+  var geometry = new THREE.PlaneGeometry( 30, 30, 32 );
+  var material = new THREE.MeshLambertMaterial( {color: 0xcad2a7, side: THREE.DoubleSide} );
+  var plane = new THREE.Mesh( geometry, material );
+  plane.rotation.set(Math.PI / 2,0,0); 
+  scene.add( plane );
+
+  // load a simple obj mesh
+  var objLoader = new THREE.OBJLoader();
+  // objLoader.load('leaf.obj', function(obj) {
+  //   var featherGeo = obj.children[0].geometry;
+  //   var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
+  //   featherMesh.name = "feather";
+  //   scene.add(featherMesh);
+  // });
+
+  // initialize LSystem and a Turtle to draw  
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
 
@@ -34,7 +54,7 @@ function onLoad(framework) {
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
@@ -50,11 +70,11 @@ function clearScene(turtle) {
   for( var i = turtle.scene.children.length - 1; i > 3; i--) {
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
-  }
+  } 
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
