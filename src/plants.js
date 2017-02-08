@@ -304,7 +304,7 @@ export default class PlantLSystem
 		var flowerGeometry = new THREE.SphereBufferGeometry(.1, 16, 16);
 		var geometry = new THREE.Geometry();
 		var prevPosition = stateArray[0].position;
-		var subdivs = 64;
+		var subdivs = this.subdivisions;
 		var segments = 0;
 		var maxDepth = 0;
 
@@ -442,6 +442,7 @@ export class MainCharacter extends PlantLSystem
 
 		var random = new Random(Random.engines.mt19937().seed(2234));
 		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, 5, random);
+		this.subdivisions = 32;
 	}
 }
 
@@ -531,6 +532,81 @@ export class CactusCharacter extends PlantLSystem
 		var random = new Random(Random.engines.mt19937().seed(seed));
 		// this.system = new LSystem("RRFFRRR", instructions, rules, 5, random);
 
-		this.system = new LSystem("FXFXFXFFF", instructions, rules, 5, random);
+		this.system = new LSystem("RFXFXFXFFF", instructions, rules, 5, random);
+		this.subdivisions = 128;
+	}
+}
+
+class WillowInstruction extends LInstruction
+{
+	symbol() { return "T" };
+	
+
+	evaluate(context, stack) 
+	{
+		var c = context;
+
+		c.position.add(new THREE.Vector3(0, context.branchLength, 0).applyQuaternion(c.rotation));
+		c.branchRadius += c.random.real(-.1, .1, true) * c.branchRadius;
+		// c.rotation.multiply(randomTwistRotation(c.random, this.twistFactor));
+
+		var euler = new THREE.Euler(0, 0, .35);
+		var quat = new THREE.Quaternion();
+		quat.setFromEuler(euler);
+
+		var dir = new THREE.Vector3(0,1,0).applyQuaternion(c.rotation)
+
+		if(Math.abs(dir.y + 1.0) > .1)
+			c.rotation.multiply(quat);
+
+		c.renderable = true;
+		c.depth++;
+		return c;
+	}
+}
+
+
+
+export class WillowCharacter extends PlantLSystem
+{
+	evaluate()
+	{
+		// (a, b, m1, m2, n1, n2, n3)
+		var crossSection = new CrossSectionParameters(1,1,64,64,-10.0,0,10);
+		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, 1.25, crossSection, this.system.random);
+		return this.system.evaluate(state);
+	}
+
+	constructor(seed)
+	{
+		super();
+
+		var instructions = [new ForwardInstruction(toRadians(45)), 
+						new DummyInstruction("X"), 
+						new DummyInstruction("Y"),
+						new FlowerInstruction(),
+						new WillowInstruction(),
+						new RotateNegativeInstruction(), 
+						new RotatePositiveInstruction(toRadians(90)),
+						new BranchInstruction(.8, .6),
+						new DetailInstruction(toRadians(15), .5, .5, toRadians(20)),
+						new RootInstruction(.8)];
+
+		var rules = [];
+
+		rules.push(new LRule("Q", "QQ", 1.0)); // Grow Rule
+		rules.push(new LRule("T", "TT", 1.0)); // Grow Rule
+
+		rules.push(new LRule("X", "[B+QT][B-QT]X", 1.0)); // Grow Rule
+
+		// rules.push(new LRule("F", "E", .5));
+		// rules.push(new LRule("E", "EE", 1.0)); // Grow Rule
+		// rules.push(new LRule("X", "[CE]", 1.0));
+
+		var random = new Random(Random.engines.mt19937().seed(seed));
+		// this.system = new LSystem("RRFFRRR", instructions, rules, 5, random);
+
+		this.system = new LSystem("RRQX", instructions, rules, 5, random);
+		this.subdivisions = 16;
 	}
 }

@@ -3,7 +3,7 @@ const THREE = require('three'); // older modules are imported like this. You sho
 import Framework from './framework'
 import LSystem from './lsystem.js'
 import Turtle from './turtle.js'
-import {PlantLSystem, MainCharacter, CactusCharacter}  from './plants.js'
+import {PlantLSystem, MainCharacter, CactusCharacter, WillowCharacter}  from './plants.js'
 
 var turtle;
 
@@ -71,6 +71,15 @@ function onLoad(framework) {
   cactusMesh.position.set(2, 0, 0);
   cactusMesh.scale.set(.2, .2, .2);
   scene.add(cactusMesh);
+
+
+  var willow = new WillowCharacter(2135);
+  willow.expand();
+  var willowMesh = willow.generateMesh();
+  willowMesh.position.set(-2, 0, 0);
+  willowMesh.scale.set(.2, .2, .2);
+  scene.add(willowMesh);
+
 
   // scene.add(lSystem.getLineDebugger())
 }
