@@ -1,10 +1,10 @@
-var colors = require('colors');
-var path = require('path');
-var git = require('simple-git')(__dirname);
-var deploy = require('gh-pages-deploy');
-var packageJSON = require('require-module')('./package.json');
+let colors = require('colors');
+let path = require('path');
+let git = require('simple-git')(__dirname);
+let deploy = require('gh-pages-deploy');
+let packageJSON = require('require-module')('./package.json');
 
-var success = 1;
+let success = 1;
 git.fetch('origin', 'master', function(err) {
     if (err) throw err;
     git.status(function(err, status) {
@@ -28,8 +28,8 @@ git.fetch('origin', 'master', function(err) {
             }
 
             if (success) {
-                var cfg = packageJSON['gh-pages-deploy'] || {};
-                var buildCmd = deploy.getFullCmd(cfg);
+                let cfg = packageJSON['gh-pages-deploy'] || {};
+                let buildCmd = deploy.getFullCmd(cfg);
                 deploy.displayCmds(deploy.getFullCmd(cfg));
                 deploy.execBuild(buildCmd, cfg);
             }

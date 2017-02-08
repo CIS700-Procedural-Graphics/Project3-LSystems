@@ -46,7 +46,7 @@ Implement the following functions in L-System so that you can apply grammar rule
 
 ## Interactivity
 
-Using dat.GUI and the examples provided in the reference code, make some aspect of your demo an interactive variable. For example, you could modify:
+Using dat.GUI and the examples provided in the reference code, make some aspect of your demo an interactive letiable. For example, you could modify:
 
 1. the axiom
 2. Your input grammer rules and their probability
@@ -59,7 +59,7 @@ Design a grammar for a new procedural plant! As the preceding parts of this assi
 
 1. Grow in 3D. Take advantage of three.js! 
 2. Have flowers or leaves that are added as a part of the grammar
-3. Variation. Different instances of your plant should look distinctly different!
+3. letiation. Different instances of your plant should look distinctly different!
 4. A twist. Broccoli trees are cool and all, but we hope to see sometime a little more surprising in your grammars
 
 # Publishing Your code
