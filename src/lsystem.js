@@ -50,7 +50,11 @@ export function StringToLinkedList(input_string) {
 // TODO: Return a string form of the LinkedList
 export function LinkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
-	var result = "";
+	var temp = [];
+	for (var node = linkedList.head; node != linkedList.tail; node = node.next) {
+		temp.push(node.character);
+	}
+	var result = temp.join("");
 	return result;
 }
 
@@ -83,7 +87,7 @@ function pickRuleFromDistr(distribution) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "X";
 	this.grammar = {};
 	// this.grammar['X'] = [
 	// 	new Rule(1.0, '[-FX][+FX]')
@@ -138,7 +142,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 			}
 		}
 	}
-	
+
 	this.DoExpansion = function(n) {
 		if (n < 0) {
 			throw 'Invalid number of expansions!';
