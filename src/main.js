@@ -3,7 +3,7 @@ const THREE = require('three'); // older modules are imported like this. You sho
 import Framework from './framework'
 import LSystem from './lsystem.js'
 import Turtle from './turtle.js'
-import PlantLSystem from './plants.js'
+import {PlantLSystem, MainCharacter, CactusCharacter}  from './plants.js'
 
 var turtle;
 
@@ -31,8 +31,8 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(1, 2, 2);
+  camera.lookAt(new THREE.Vector3(0,1,0));
 
   // // initialize LSystem and a Turtle to draw
   // var lsys = new Lsystem();
@@ -55,13 +55,22 @@ function onLoad(framework) {
   // var lSystem = new LSystem("FX", "", 10);
   // lSystem.expand();
 
-  var lSystem = new PlantLSystem();
+  var lSystem = new MainCharacter();
   var expandedChain = lSystem.expand();
 
   // console.log(expandedChain.toString());
 
   var mesh = lSystem.generateMesh();
+  mesh.scale.set(.3, .3, .3);
   scene.add(mesh);
+
+
+  var cactus = new CactusCharacter(6565);
+  cactus.expand();
+  var cactusMesh = cactus.generateMesh();
+  cactusMesh.position.set(2, 0, 0);
+  cactusMesh.scale.set(.2, .2, .2);
+  scene.add(cactusMesh);
 
   // scene.add(lSystem.getLineDebugger())
 }

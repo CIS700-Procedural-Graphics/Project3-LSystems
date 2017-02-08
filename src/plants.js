@@ -8,6 +8,15 @@ function toRadians(degrees)
 	return degrees * Math.PI / 180.0;
 }
 
+function randomTwistRotation(random, twist)
+{
+	var a = twist;
+	var euler = new THREE.Euler(0, a * random.real(.75, 1), 0);
+	var quat = new THREE.Quaternion();
+	quat.setFromEuler(euler);
+	return quat;
+}
+
 function randomQuaternion(random, amplitude)
 {
 	var a = amplitude * .5;
@@ -57,29 +66,55 @@ class PlantContext extends LContext
 		this.crossSection = crossSection;
 		this.renderable = false;
 		this.flower = false;
+		this.depth = 0;
 	}
 
 	copy()
 	{
-		return new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.crossSection.copy(), this.random);
+		var c = new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.crossSection.copy(), this.random);
+		c.depth = this.depth;
+		return c;
+	}
+}
+
+class LInstructionOverride extends LInstruction
+{
+	constructor(symbolCharacter, instruction)
+	{
+		super();
+		this.symbolCharacter = symbolCharacter;
+		this.instruction = instruction;
+	}
+
+	symbol()
+	{
+		return this.symbolCharacter;
+	}
+
+	evaluate(context, stack)
+	{
+		return this.instruction.evaluate(context, stack);
 	}
 }
 
 // A more specific instruction that can modify branches
 class BranchInstruction extends LInstruction
 {
-	constructor()
+	constructor(sizeFactor, radiusFactor)
 	{
 		super();
-		// TODO: parametrization of branch modification
+		this.sizeFactor = sizeFactor;
+		this.radiusFactor = radiusFactor;
 	}
+
 	symbol() { return "B"; }
 
 	evaluate(context, stack)
 	{
 		var c = context;
-		c.branchLength *= .9;
-		c.branchRadius *= .7;
+		c.branchLength *= this.sizeFactor;
+		c.branchRadius *= this.radiusFactor;
+		c.branched = true;
 
 		// For now, when branching we lose all fine details
 		c.crossSection = new CrossSectionParameters(1,1,1,1,1,1,1);
@@ -89,62 +124,95 @@ class BranchInstruction extends LInstruction
 
 class RootInstruction extends LInstruction 
 {  
+	constructor(sizeFactor)
+	{
+		super();
+		this.sizeFactor = sizeFactor;
+	}
+
 	symbol() { return "R"; }
 
 	evaluate(context, stack) 
 	{
 		var c = context;
-		c.position.add(new THREE.Vector3(0, context.branchLength * .1, 0).applyQuaternion(c.rotation));
+		c.position.add(new THREE.Vector3(0, context.branchLength * .2, 0).applyQuaternion(c.rotation));
 		c.renderable = true;
-		c.branchRadius *= .6;
+		c.branchRadius *= this.sizeFactor;
 		return c;
 	}
 }
+
+// Main branch
 class ForwardInstruction extends LInstruction 
-{  
+{
+	constructor(twistFactor)
+	{
+		super();
+		this.twistFactor = twistFactor;
+	}
+
 	symbol() { return "F"; }
 
 	evaluate(context, stack) 
 	{
 		var c = context;
 		c.position.add(new THREE.Vector3(0, context.branchLength, 0).applyQuaternion(c.rotation));
+		c.branchRadius += c.random.real(-.2, .2, true) * c.branchRadius;
+		c.rotation.multiply(randomTwistRotation(c.random, this.twistFactor));
 		c.renderable = true;
+		c.depth++;
 		return c;
 	}
 }
 
 class DetailInstruction extends LInstruction 
 {
+	constructor(rotationFactor, minLength, maxLength, twistFactor)
+	{
+		super();
+		this.rotationFactor = rotationFactor;
+		this.minLength = minLength;
+		this.maxLength = maxLength;
+		this.twistFactor = twistFactor;
+	}
+
 	symbol() { return "Q"; }
 
 	evaluate(context, stack) 
 	{
 		var c = context;
-
-		var min = context.branchLength / 15;
-		var max = context.branchLength / 3;
-		var randomness = context.branchLength / 5;
-
-		c.position.add(new THREE.Vector3(0, c.random.real(min, max, true), 0).applyQuaternion(c.rotation));
-		c.renderable = true;
-		c.rotation.multiply(randomQuaternion(c.random, toRadians(30)));
+		c.position.add(new THREE.Vector3(0, c.random.real(this.minLength, this.maxLength) * c.branchLength, 0).applyQuaternion(c.rotation));
+		c.renderable = true;		
+		c.rotation.multiply(randomTwistRotation(c.random, this.twistFactor));		
+		c.rotation.multiply(randomQuaternion(c.random, this.rotationFactor));
 		c.branchRadius += c.random.real(-.1, .1, true) * c.branchRadius;
+		c.depth++;
 		return c;
 	}
 }
 
 class RotatePositiveInstruction extends LInstruction
 {
+	constructor(angle)
+	{
+		super();
+		this.angle = angle;
+	}
+
 	symbol() { return "+"; }
 
 	evaluate(context, stack) {
 		var c = context;
 
-		var euler = new THREE.Euler(0, 0, 1.25 * c.random.real(.25, 1));
+		var euler = new THREE.Euler(0, c.random.real(-Math.PI, Math.PI), this.angle * c.random.real(.5, 1));
 		var quat = new THREE.Quaternion();
 		quat.setFromEuler(euler);
 
 		c.rotation.multiply(quat);
+
+		// Jump to the boundary of the tree
+		c.position.add(new THREE.Vector3(0, context.branchRadius, 0).applyQuaternion(c.rotation));
+		
 		return c;
 	}
 }
@@ -156,11 +224,14 @@ class RotateNegativeInstruction extends LInstruction
 	evaluate(context, stack) {
 		var c = context;
 		
-		var euler = new THREE.Euler(0, 0, -1.25 * c.random.real(.25, 1));
+		var euler = new THREE.Euler(0, c.random.real(-Math.PI, Math.PI), -1.25 * c.random.real(.5, 1));
 		var quat = new THREE.Quaternion();
 		quat.setFromEuler(euler);
 
 		c.rotation.multiply(quat);
+
+		// Jump to the boundary of the tree
+		c.position.add(new THREE.Vector3(0, context.branchRadius, 0).applyQuaternion(c.rotation));
 		return c;
 	}
 }
@@ -178,36 +249,7 @@ class FlowerInstruction extends LInstruction
 
 export default class PlantLSystem
 {
-	constructor()
-	{
-		var instructions = [new ForwardInstruction(), 
-						new DummyInstruction("X"), 
-						new DummyInstruction("Y"), 
-						new FlowerInstruction(),
-						new RotateNegativeInstruction(), 
-						new RotatePositiveInstruction(),
-						new BranchInstruction(),
-						new DetailInstruction(),
-						new RootInstruction()];
-
-		var rules = [];
-		// rules.push(new LRule("X", "FX", 1.0));
-		rules.push(new LRule("X", "[B-FY][B+FY]FX", 1.0));
-
-		rules.push(new LRule("Y", "[B-QQQY][B+QQQY]YY", .7));
-		rules.push(new LRule("Y", "[B-QQQW][B+QQQW]QQW", .3));
-
-		// Detailing the branches
-		rules.push(new LRule("F", "QQQQ", 1.0));
-		// rules.push(new LRule("Q", "QW", .1));
-// 
-		// rules.push(new LRule("X", "FX", 1.0));
-
-		this.system = new LSystem("RRRRFX", instructions, rules, 5);
-
-
-		// this.system = new LSystem("F[-F]QQQ", instructions, rules, 2);
-	}
+	constructor() {} 
 
 	expand()
 	{
@@ -216,15 +258,13 @@ export default class PlantLSystem
 
 	evaluate()
 	{
-		var random = new Random(Random.engines.mt19937().seed(performance.now()));
-
 		// (a, b, m1, m2, n1, n2, n3)
 		var crossSection = new CrossSectionParameters(1,1,2,10,-1.5,1,1);
-		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .4, crossSection, random);
+		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .95, crossSection, this.system.random);
 		return this.system.evaluate(state);
 	}
 
-	generateCrossSectionVertices(geometry, state, subdivs, lastSectionOfBranch)
+	generateCrossSectionVertices(geometry, state, subdivs, lastSectionOfBranch, nextState)
 	{
 		var centerPoint = state.position;
 
@@ -239,7 +279,12 @@ export default class PlantLSystem
 			if(lastSectionOfBranch)
 				r *= .5;
 
-			var point = centerPoint.clone().add(new THREE.Vector3(x * r, 0, y * r).applyQuaternion(state.rotation));
+			var quat = state.rotation;
+
+			if(state.branched && nextState != null)
+				quat = nextState.rotation;
+
+			var point = centerPoint.clone().add(new THREE.Vector3(x * r, 0, y * r).applyQuaternion(quat));
 
 			geometry.vertices.push(point);
 		}
@@ -256,11 +301,17 @@ export default class PlantLSystem
 
 		var t = performance.now();
 
-		var flowerGeometry = new THREE.SphereBufferGeometry(.03, 16, 16);
+		var flowerGeometry = new THREE.SphereBufferGeometry(.1, 16, 16);
 		var geometry = new THREE.Geometry();
 		var prevPosition = stateArray[0].position;
 		var subdivs = 64;
 		var segments = 0;
+		var maxDepth = 0;
+
+		// We need to find the max depth, so that we can normalize other stuff
+		for(var i = 0; i < stateArray.length; i++)
+			if(stateArray[i].depth > maxDepth)
+				maxDepth = stateArray[i].depth;
 
 		// We always draw backwards, with consideration of branching and the first case
 		for(var i = 0; i < stateArray.length; i++)
@@ -272,12 +323,18 @@ export default class PlantLSystem
 
 			// Note: if the grammar branched, we need to redraw the initial set of vertices
 			if(i == 0 || stateArray[i].renderable || stateArray[i].branched)
-				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs, lastSectionOfBranch);
+			{
+				var nextState = i < stateArray.length - 1 ? stateArray[i+1] : null;
+				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs, lastSectionOfBranch, nextState);
+			}
 
 			if(stateArray[i].flower)
 			{
 				var sphere = new THREE.Mesh(flowerGeometry, material);
-				sphere.position.copy(stateArray[i].position);
+				var scale = this.system.random.real(.15, 4);
+				sphere.position.copy(stateArray[i].position.add(new THREE.Vector3(0, -scale * .1, 0)));
+
+				sphere.scale.set(scale, scale, scale);
 				plantContainer.add(sphere);
 			}
 
@@ -342,10 +399,9 @@ export default class PlantLSystem
 
 			if(i == 0 || (prevPosition.distanceTo(p) > .01 && stateArray[i].renderable))
 			{
-				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs);
+				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs, null);
 				geometry.vertices.push(p);
 			}
-
 
 			prevPosition = p;
 		}
@@ -354,15 +410,127 @@ export default class PlantLSystem
 	}
 }
 
-// function EvaluatePlant() 
-// {
-// 	var instructions = [new ForwardInstruction(), 
-// 						new DummyInstruction("X"), 
-// 						new RotateNegativeInstruction(), 
-// 						new RotatePositiveInstruction()];
+export class MainCharacter extends PlantLSystem
+{
+	constructor()
+	{
+		super();
 
-// 	var rules = [];
-// 	rules.push(new LRule("X", "[-FX][+FX]", 1.0));
+		var instructions = [new ForwardInstruction(toRadians(75)), 
+						new DummyInstruction("X"), 
+						new DummyInstruction("Y"), 
+						new FlowerInstruction(),
+						new RotateNegativeInstruction(), 
+						new RotatePositiveInstruction(toRadians(90)),
+						new BranchInstruction(.8, .6),
+						new DetailInstruction(toRadians(40), .3, .6, toRadians(5)),
+						new RootInstruction(.7),
+						new LInstructionOverride("E", new DetailInstruction(toRadians(10), .1, .2, toRadians(25)))];
 
-// 	return new LSystem("FX", instructions, rules, 5);
-// }
+		var rules = [];
+
+		// Two arms rule
+		rules.push(new LRule("X", "[B-QQQQQY][B+QQQQQY]", 1.0));
+
+		// Arms details (fingers?)
+		rules.push(new LRule("Y", "[B-QY][B+QY]QQ", .75));
+		rules.push(new LRule("Y", "QW", .25));
+
+		// Detailing the main branch
+		rules.push(new LRule("F", "EEFE", .85));
+		rules.push(new LRule("F", "FF", .15));
+
+		var random = new Random(Random.engines.mt19937().seed(2234));
+		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, 5, random);
+	}
+}
+
+
+class CactusBranchInstruction extends LInstruction
+{
+	symbol() { return "C" };
+
+	evaluate(context, stack) 
+	{
+		var c = context;
+
+		var euler = new THREE.Euler(0, c.random.real(-Math.PI, Math.PI), Math.PI * .5);
+		var quat = new THREE.Quaternion();
+		quat.setFromEuler(euler);
+
+		// Jump to the boundary of the tree
+		c.position.add(new THREE.Vector3(0, context.branchRadius , 0).applyQuaternion(quat));
+		
+		c.branchRadius *= .5;
+		c.rotation.multiply(quat);
+		return c;
+	}
+}
+
+class CactusForward extends LInstruction
+{
+	symbol() { return "F" };
+
+	evaluate(context, stack) 
+	{
+		var c = context;
+
+		c.position.add(new THREE.Vector3(0, context.branchLength, 0).applyQuaternion(c.rotation));
+		c.branchRadius += c.random.real(-.1, .1, true) * c.branchRadius;
+		// c.rotation.multiply(randomTwistRotation(c.random, this.twistFactor));
+
+		var euler = new THREE.Euler(0, 0, -.35);
+		var quat = new THREE.Quaternion();
+		quat.setFromEuler(euler);
+
+		var dir = new THREE.Vector3(0,1,0).applyQuaternion(c.rotation)
+
+		if(Math.abs(dir.y - 1.0) > .1)
+			c.rotation.multiply(quat);
+
+
+		c.renderable = true;
+		c.depth++;
+		return c;
+	}
+}
+
+export class CactusCharacter extends PlantLSystem
+{
+	evaluate()
+	{
+		// (a, b, m1, m2, n1, n2, n3)
+		var crossSection = new CrossSectionParameters(1,1,18,18,2.225,1,10);
+		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), .4, 1.25, crossSection, this.system.random);
+		return this.system.evaluate(state);
+	}
+
+	constructor(seed)
+	{
+		super();
+
+		var instructions = [new CactusForward(), 
+						new DummyInstruction("X"), 
+						new DummyInstruction("Y"),
+						new CactusBranchInstruction(),
+						new FlowerInstruction(),
+						new RotateNegativeInstruction(), 
+						new RotatePositiveInstruction(toRadians(90)),
+						new BranchInstruction(.8, .6),
+						new DetailInstruction(toRadians(0), .5, .5, toRadians(0)),
+						new RootInstruction(.8),
+						new LInstructionOverride("E", new CactusForward())];
+
+		var rules = [];
+
+		rules.push(new LRule("F", "FF", .3)); // Grow Rule
+		// rules.push(new LRule("F", "E", .5));
+		rules.push(new LRule("E", "EE", 1.0)); // Grow Rule
+		rules.push(new LRule("X", "[CE]", 1.0));
+
+		var random = new Random(Random.engines.mt19937().seed(seed));
+		// this.system = new LSystem("RRFFRRR", instructions, rules, 5, random);
+
+		this.system = new LSystem("FXFXFXFFF", instructions, rules, 5, random);
+	}
+}

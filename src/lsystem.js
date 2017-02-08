@@ -1,3 +1,5 @@
+var Random = require("random-js");
+
 class LContext
 {
 	constructor()
@@ -152,7 +154,7 @@ class LInstructionChain
   // Because we're expanding in-place, we must be careful not to 
   // expand recently added nodes that come from a previous replacement
   // in the same expansion cycle. 
-  expand(rules)
+  expand(rules, random)
   {
 	var node = this.root;
 
@@ -168,7 +170,7 @@ class LInstructionChain
 	  			var ruleArray = rules[pred];
 	  			var replaced = false;
 
-	  			var randomValue = Math.random();
+	  			var randomValue = random.real(0, 1, true);
 
 	  			for(var r = 0; r < ruleArray.length && !replaced; r++)
 		  		{
@@ -236,7 +238,7 @@ function LRule(predecessor, successor, probability)
 	this.probability = probability;
 }
 
-function LSystem(axiom, instructions, rules, iterations) 
+function LSystem(axiom, instructions, rules, iterations, random) 
 {
 	this.registerInstruction = function(instruction)
 	{
@@ -288,8 +290,7 @@ function LSystem(axiom, instructions, rules, iterations)
 
 		for(var i = 0; i < this.iterations; i++)
 		{
-			this.chain.expand(this.ruleMap);
-			// console.log(this.chain.toString());
+			this.chain.expand(this.ruleMap, this.random);
 		}
 
 		t = performance.now() - t;
@@ -308,6 +309,7 @@ function LSystem(axiom, instructions, rules, iterations)
 	this.instructionMap = {};
 	this.ruleMap = {};
 	this.chain = new LInstructionChain();
+	this.random = random;
 
 	// Register common instructions
 	this.registerInstruction(new PushInstruction());
