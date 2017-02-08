@@ -3,13 +3,18 @@ var Random = require("random-js");
 
 import { LSystem, LContext, LRule, LInstruction, DummyInstruction } from './lsystem.js'
 
-
-function crossSection(t, a, b, m1, m2, n1, n2, n3)
+function toRadians(degrees)
 {
-	var term1 = Math.pow(Math.abs(Math.cos(m1 * t * .25) / a), n2);
-	var term2 = Math.pow(Math.abs(Math.sin(m2 * t * .25) / b), n3);
+	return degrees * Math.PI / 180.0;
+}
 
-	return Math.pow(term1 + term2, -1.0 / n1);
+function randomQuaternion(random, amplitude)
+{
+	var a = amplitude * .5;
+	var euler = new THREE.Euler(a * random.real(-1,1, true), a * random.real(-1,1, true), a * random.real(-1,1, true));
+	var quat = new THREE.Quaternion();
+	quat.setFromEuler(euler);
+	return quat;
 }
 
 class CrossSectionParameters
@@ -35,7 +40,7 @@ class CrossSectionParameters
 
 class PlantContext extends LContext
 {
-	constructor(position, rotation, branchLength, branchRadius, random) 
+	constructor(position, rotation, branchLength, branchRadius, crossSection, random) 
 	{
 		super();
 
@@ -44,12 +49,13 @@ class PlantContext extends LContext
 		this.branchLength = branchLength;
 		this.branchRadius = branchRadius;
 		this.random = random;
+		this.crossSection = crossSection;
 		this.renderable = false;
 	}
 
 	copy()
 	{
-		return new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.random);
+		return new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.crossSection, this.random);
 	}
 }
 
@@ -67,6 +73,7 @@ class BranchInstruction extends LInstruction
 	{
 		var c = context;
 		c.branchLength *= .9;
+		c.branchRadius *= .8;
 		return c;
 	}
 }
@@ -80,14 +87,6 @@ class ForwardInstruction extends LInstruction
 		var c = context;
 		c.position.add(new THREE.Vector3(0, context.branchLength, 0).applyQuaternion(c.rotation));
 		c.renderable = true;
-
-		// // TWIST
-		// var euler = new THREE.Euler(0, 1.5, 0);
-		// var quat = new THREE.Quaternion();
-		// quat.setFromEuler(euler);
-
-		// c.rotation.multiply(quat);
-
 		return c;
 	}
 }
@@ -106,15 +105,8 @@ class DetailInstruction extends LInstruction
 
 		c.position.add(new THREE.Vector3(0, c.random.real(min, max, true), 0).applyQuaternion(c.rotation));
 		c.renderable = true;
-		// TODO: consider the rotation!
-		
-		// TWIST
-		var euler = new THREE.Euler(0, .25, 0);
-		var quat = new THREE.Quaternion();
-		quat.setFromEuler(euler);
-
-		c.rotation.multiply(quat);
-
+		c.rotation.multiply(randomQuaternion(c.random, toRadians(30)));
+		c.branchRadius += c.random.real(-.1, .1, true) * c.branchRadius;
 		return c;
 	}
 }
@@ -186,8 +178,11 @@ export default class PlantLSystem
 
 	evaluate()
 	{
-		var random = new Random(Random.engines.mt19937().seed(0));
-		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .05, random);
+		var random = new Random(Random.engines.mt19937().seed(13438));
+
+		// (a, b, m1, m2, n1, n2, n3)
+		var crossSection = new CrossSectionParameters(1,1,2,10,-1.5,1,1);
+		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .2, crossSection, random);
 		return this.system.evaluate(state);
 	}
 
@@ -201,10 +196,7 @@ export default class PlantLSystem
 			var x = Math.cos(theta);
 			var y = Math.sin(theta);
 
-			// function crossSection(t, a, b, m1, m2, n1, n2, n3)
-			var r = crossSection(theta, 1, 1, 2, 10, -1.5,  1,1) * state.branchRadius;
-
-
+			var r = state.crossSection.evaluate(theta) * state.branchRadius;
 			var point = centerPoint.clone().add(new THREE.Vector3(x * r, 0, y * r).applyQuaternion(state.rotation));
 
 			geometry.vertices.push(point);
@@ -226,7 +218,7 @@ export default class PlantLSystem
 		var stateArray = this.evaluate();
 
 		var prevPosition = stateArray[0].position;
-		var subdivs = 32;
+		var subdivs = 64;
 		var segments = 0;
 
 		var t = performance.now();
@@ -297,9 +289,9 @@ export default class PlantLSystem
 		{
 			var p = stateArray[i].position;
 
-			if(i == 0 || prevPosition.distanceTo(p) > .01)
+			if(i == 0 || (prevPosition.distanceTo(p) > .01 && stateArray[i].renderable))
 			{
-				// this.generateCrossSectionVertices(geometry, stateArray[i], subdivs);
+				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs);
 				geometry.vertices.push(p);
 			}
 

@@ -63,7 +63,7 @@ function onLoad(framework) {
   var mesh = lSystem.generateMesh();
   scene.add(mesh);
 
-  scene.add(lSystem.getLineDebugger())
+  // scene.add(lSystem.getLineDebugger())
 }
 
 // clears the scene by removing all geometries added by turtle.js
