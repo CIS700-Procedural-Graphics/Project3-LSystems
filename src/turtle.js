@@ -30,7 +30,7 @@ export default class Turtle {
                 'F' : this.makeCylinder.bind(this, 2, 0.12),
                 '[' : this.saveState.bind(this),
                 ']' : this.restoreState.bind(this),
-                'O' : this.drawFlower.bind(this, 0.12)
+                'K' : this.drawFlower.bind(this, 0.12)
             };
         } else {
             this.renderGrammar = grammar;
@@ -127,22 +127,25 @@ export default class Turtle {
     }
 
     drawFlower(len) {
-        var geometry = new THREE.ConeGeometry( 0.5, 1, 32 );
-        var material = new THREE.MeshBasicMaterial( {color: new THREE.Color('yellow')} );
-        var flower = new THREE.Mesh( geometry, material );
-        this.scene.add( flower );
+        var geometry = new THREE.OctahedronGeometry(10, 0);
+        var material = new THREE.MeshBasicMaterial( {color: new THREE.Color('pink')} );    
+        var mesh = new THREE.Mesh( geometry, material ) ;
+        this.scene.add( mesh );
 
         //Orient the cylinder to the turtle's current direction
         var quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
         var mat4 = new THREE.Matrix4();
         mat4.makeRotationFromQuaternion(quat);
-        flower.applyMatrix(mat4);
+        mesh.applyMatrix(mat4);
 
         //Move the cylinder so its base rests at the turtle's current position
         var mat5 = new THREE.Matrix4();
         var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
-        flower.applyMatrix(mat5);
+        mesh.applyMatrix(mat5);
+        mesh.scale.x = 0.02;
+        mesh.scale.y = 0.02;
+        mesh.scale.z = 0.02;
     }
 }

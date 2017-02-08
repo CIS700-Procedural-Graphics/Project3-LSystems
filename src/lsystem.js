@@ -161,7 +161,7 @@ export default function Lsystem(axiom, grammar, iterations) {
     // this.grammar['X'] = [
     //     new Rule(1.0, '[-FX][+FX]')
     // ];
-    this.grammar['F'] = [new Rule(0.7, 'FF'), new Rule(0.3, '[-F][+F][-F][+F]')];//new Rule(0.2, '[-F][F][+F]'), new Rule(0.5, 'F[+F]F[-F]F'), new Rule(0.3, '[+F]F[-F][F]')];
+    this.grammar['F'] = [new Rule(0.7, 'FF'), new Rule(0.3, '[-FK][+FK]F[-FK][+FK]')];//new Rule(0.2, '[-F][F][+F]'), new Rule(0.5, 'F[+F]F[-F]F'), new Rule(0.3, '[+F]F[-F][F]')];
     this.grammar['X'] = [new Rule(1.0, 'F−[[X]+X]+F[+FX]−X')];
     this.iterations = 0; 
     
