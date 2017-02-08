@@ -14,18 +14,6 @@ objLoader.load('feather.obj', function(obj) {
   window.leafMesh = new THREE.Mesh(leafGeo, lambertGreen);
 });
 
-objLoader.load('blazeit.obj', function(obj) {
-  let cannabis = new THREE.MeshLambertMaterial({color: 0x106601, side: THREE.DoubleSide});
-  let fiveStarMagicalLeaf = obj.children[0].geometry;
-  obj.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-          child.material = cannabis;
-      }
-  });
-  window.XXX420blazeItYoloSwagNoScopeXXX = obj;
-  window.blazed = true;
-});
-
 objLoader.load('bud.obj', function(obj) {
   let cannabis = new THREE.MeshLambertMaterial({color: 0x254f1e, side: THREE.DoubleSide});
   let fiveStarMagicalLeaf = obj.children[0].geometry;
