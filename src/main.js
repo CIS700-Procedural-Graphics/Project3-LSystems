@@ -20,13 +20,13 @@ audioLoader.load('img/xd.mp3', function (buffer) {
 });
 
 objLoader.load('/obj/feather.obj', function(obj) {
-  let lambertGreen = new THREE.MeshBasicMaterial({color: 0x66FF66, side: THREE.DoubleSide});
+  let lambertGreen = new THREE.MeshLambertMaterial({color: 0x66FF66, side: THREE.DoubleSide});
   let leafGeo = obj.children[0].geometry;
   window.leafMesh = new THREE.Mesh(leafGeo, lambertGreen);
 });
 
 objLoader.load('/obj/blazeit.obj', function(obj) {
-  let cannabis = new THREE.MeshBasicMaterial({color: 0x106601, side: THREE.DoubleSide});
+  let cannabis = new THREE.MeshLambertMaterial({color: 0x106601, side: THREE.DoubleSide});
   let fiveStarMagicalLeaf = obj.children[0].geometry;
   obj.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -37,14 +37,14 @@ objLoader.load('/obj/blazeit.obj', function(obj) {
 });
 
 objLoader.load('/obj/bud.obj', function(obj) {
-  let cannabis = new THREE.MeshBasicMaterial({color: 0x254f1e, side: THREE.DoubleSide});
+  let cannabis = new THREE.MeshLambertMaterial({color: 0x254f1e, side: THREE.DoubleSide});
   let fiveStarMagicalLeaf = obj.children[0].geometry;
   obj.traverse((child) => {
       if (child instanceof THREE.Mesh) {
           child.material = cannabis;
       }
   });
-  window.imGettingHighFromCodingThisDankLSystem = obj;
+  window.dankAfSystem = obj;
 });
 
 window.sceneState = {
@@ -62,13 +62,13 @@ function onLoad(framework) {
   let stats = framework.stats;
 
   // initialize a simple box and material
-  let directionalLight = new THREE.PointLight( 0xffffff, 1, 100000);
+  window.directionalLight = new THREE.PointLight( 0xffffff, 1, 100000);
   directionalLight.color.setHSL(0.1, 1, 0.95);
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(20);
   scene.add(directionalLight);
 
-  let ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+  window.ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
   scene.add(ambientLight);
 
   let loader = new THREE.TextureLoader();
@@ -187,6 +187,8 @@ function clearScene(turtle) {
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
   }
+  turtle.scene.add(directionalLight);
+  turtle.scene.add(ambientLight);
   snoopDogg();
 }
 

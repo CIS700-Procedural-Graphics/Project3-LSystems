@@ -180,7 +180,7 @@ export default class Turtle {
 
     makeSomeBud(size) {
       size += this.state.scale;
-      let bud = imGettingHighFromCodingThisDankLSystem.clone(true);
+      let bud = dankAfSystem.clone(true);
       this.scene.add(bud);
 
       let quat = new THREE.Quaternion();
