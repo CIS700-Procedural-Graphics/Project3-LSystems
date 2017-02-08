@@ -11,40 +11,11 @@ let turtle;
 let audioListener = new THREE.AudioListener();
 let sound = new THREE.Audio(audioListener);
 let audioLoader = new THREE.AudioLoader();
-let objLoader = new THREE.OBJLoader();
 audioLoader.load('xd.mp3', function (buffer) {
   sound.setBuffer( buffer );
   sound.setLoop(true);
   sound.setVolume(0.5);
   sound.play();
-});
-
-objLoader.load('feather.obj', function(obj) {
-  let lambertGreen = new THREE.MeshLambertMaterial({color: 0x66FF66, side: THREE.DoubleSide});
-  let leafGeo = obj.children[0].geometry;
-  window.leafMesh = new THREE.Mesh(leafGeo, lambertGreen);
-});
-
-objLoader.load('blazeit.obj', function(obj) {
-  let cannabis = new THREE.MeshLambertMaterial({color: 0x106601, side: THREE.DoubleSide});
-  let fiveStarMagicalLeaf = obj.children[0].geometry;
-  obj.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-          child.material = cannabis;
-      }
-  });
-  window.XXX420blazeItYoloSwagNoScopeXXX = obj;
-});
-
-objLoader.load('bud.obj', function(obj) {
-  let cannabis = new THREE.MeshLambertMaterial({color: 0x254f1e, side: THREE.DoubleSide});
-  let fiveStarMagicalLeaf = obj.children[0].geometry;
-  obj.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-          child.material = cannabis;
-      }
-  });
-  window.dankAfSystem = obj;
 });
 
 window.sceneState = {

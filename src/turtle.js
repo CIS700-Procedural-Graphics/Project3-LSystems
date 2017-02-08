@@ -6,7 +6,35 @@ window.xd = new THREE.Vector3(0.3, -0.54, -0.62).normalize();
 window.f = (a, b, c) => {
   window.xd = new three.Vector3(a, b, c).normalize();
 }
+let objLoader = new THREE.OBJLoader();
 
+objLoader.load('feather.obj', function(obj) {
+  let lambertGreen = new THREE.MeshLambertMaterial({color: 0x66FF66, side: THREE.DoubleSide});
+  let leafGeo = obj.children[0].geometry;
+  window.leafMesh = new THREE.Mesh(leafGeo, lambertGreen);
+});
+
+objLoader.load('blazeit.obj', function(obj) {
+  let cannabis = new THREE.MeshLambertMaterial({color: 0x106601, side: THREE.DoubleSide});
+  let fiveStarMagicalLeaf = obj.children[0].geometry;
+  obj.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+          child.material = cannabis;
+      }
+  });
+  window.XXX420blazeItYoloSwagNoScopeXXX = obj;
+});
+
+objLoader.load('bud.obj', function(obj) {
+  let cannabis = new THREE.MeshLambertMaterial({color: 0x254f1e, side: THREE.DoubleSide});
+  let fiveStarMagicalLeaf = obj.children[0].geometry;
+  obj.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+          child.material = cannabis;
+      }
+  });
+  window.dankAfSystem = obj;
+});
 
 let TurtleState = function(pos, dir, scale) {
     return {
