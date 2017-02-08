@@ -22,8 +22,8 @@ export default class Turtle {
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
+                '+' : this.rotateTurtle.bind(this, 90, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -90, 0, 0),
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
                 '[' : this.saveState(this.state),
                 ']' : this.restoreState()
@@ -99,7 +99,7 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        var func = this.renderGrammar[symbolNode.symbol];
         if (func) {
             func();
         }
@@ -108,7 +108,7 @@ export default class Turtle {
     // Invoke renderSymbol for every node in a linked list of grammar symbols.
     renderSymbols(linkedList) {
         var currentNode;
-        for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
+        for(currentNode = linkedList.startNode; currentNode != null; currentNode = currentNode.getNext()) {
             this.renderSymbol(currentNode);
         }
     }
