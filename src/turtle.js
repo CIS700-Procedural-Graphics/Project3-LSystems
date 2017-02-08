@@ -16,18 +16,35 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        this.stack = [];
+        this.angle = 30;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                '+' : this.rotateTurtle.bind(this, this.angle, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -this.angle, 0, 0),
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.saveState.bind(this),
+                ']' : this.recoverState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
         }
+    }
+
+    saveState() {
+        this.stack.push(new TurtleState(this.state.pos, this.state.dir));
+    }
+
+    recoverState() {
+        this.state = this.stack.pop();
+    }
+
+    updateAngles() {
+        this.renderGrammar['+'] = this.rotateTurtle.bind(this, this.angle, 0, 0);
+        this.renderGrammar['-'] = this.rotateTurtle.bind(this, -this.angle, 0, 0);
     }
 
     // Resets the turtle's position to the origin
@@ -46,6 +63,7 @@ export default class Turtle {
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+        // console.log(this.angle);
         var e = new THREE.Euler(
                 x * 3.14/180,
 				y * 3.14/180,
@@ -96,17 +114,19 @@ export default class Turtle {
     // Look in the Turtle's constructor for examples of how to bind 
     // functions to grammar symbols.
     renderSymbol(symbolNode) {
-        var func = this.renderGrammar[symbolNode.character];
+        var func = this.renderGrammar[symbolNode.symbol];
         if (func) {
             func();
+            // this.printState();
         }
     };
 
     // Invoke renderSymbol for every node in a linked list of grammar symbols.
     renderSymbols(linkedList) {
         var currentNode;
-        for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.next) {
+        for(currentNode = linkedList.head; currentNode != null; currentNode = currentNode.nextNode) {
             this.renderSymbol(currentNode);
+            // console.log(currentNode.symbol);
         }
     }
 }
