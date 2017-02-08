@@ -113,26 +113,34 @@ export default class Turtle {
     };
 
     makeSmallBranch(len, width) {
-        var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshLambertMaterial( {color: 0xaab964} );
-        var cylinder = new THREE.Mesh( geometry, material );
-        this.scene.add( cylinder );
+        this.makeCylinder(len, width);
+        // this.moveForward(len/2);
+        // this.rotateTurtle( 0, -30, 0);
+        // this.makeCylinder(len/3, width);
+        // this.moveForward(len/2);
+        // // this.rotateTurtle( 0, 10, 0);
+        // this.makeCylinder(len/3, width);
 
-        //Orient the cylinder to the turtle's current direction
-        var quat = new THREE.Quaternion();
-        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-        var mat4 = new THREE.Matrix4();
-        mat4.makeRotationFromQuaternion(quat);
-        cylinder.applyMatrix(mat4);
+        // var geometry = new THREE.CylinderGeometry(width, width, len);
+        // var material = new THREE.MeshLambertMaterial( {color: 0xaab964} );
+        // var cylinder = new THREE.Mesh( geometry, material );
+        // this.scene.add( cylinder );
 
-        //Move the cylinder so its base rests at the turtle's current position
-        var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
-        mat5.makeTranslation(trans.x, trans.y, trans.z);
-        cylinder.applyMatrix(mat5);
+        // //Orient the cylinder to the turtle's current direction
+        // var quat = new THREE.Quaternion();
+        // quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+        // var mat4 = new THREE.Matrix4();
+        // mat4.makeRotationFromQuaternion(quat);
+        // cylinder.applyMatrix(mat4);
 
-        //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        // //Move the cylinder so its base rests at the turtle's current position
+        // var mat5 = new THREE.Matrix4();
+        // var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
+        // mat5.makeTranslation(trans.x, trans.y, trans.z);
+        // cylinder.applyMatrix(mat5);
+
+        // //Scoot the turtle forward by len units
+        // this.moveForward(len/2);
     };
 
     makeDivider(len, width) {
@@ -158,9 +166,9 @@ export default class Turtle {
         this.moveForward(len/2);
     };
 
-    rotateBase(x) {
-        var x = Math.random() * 4 - 2;
-        var z = Math.random() * 4 - 2;
+    rotateBase() {
+        var x = Math.random() * 6 - 3;
+        var z = Math.random() * 6 - 3;
         var e = new THREE.Euler(
                 x * 3.14/180,
                 0 * 3.14/180,
