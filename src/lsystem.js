@@ -1,76 +1,86 @@
 // A class that represents a symbol replacement rule to
 // be used when expanding an L-system grammar.
 function Rule(prob, str) {
-	this.probability = prob; // The probability that this Rule will be used when replacing a character in the grammar string
-	this.successorString = str; // The string that will replace the char that maps to this Rule
+	this.prob = prob; // The prob that this Rule will be used when replacing a character in the grammar string
+	this.symbol = str; // The string that will replace the char that maps to this Rule
+};
+
+function parse(g) {
+  let grammar = {};
+  let rules = g.split('\n');
+  rules.map((rule) => {
+    let [lvalue, rvalue] = rule.split('=>');
+    let [rsym, prob] = lvalue.split(',');
+    rsym = rsym.trim();
+    prob = prob.trim();
+    rvalue = rvalue.trim();
+    if (!grammar[rsym]) {
+      grammar[rsym] = [
+        new Rule(parseFloat(prob), rvalue)
+      ];
+    } else {
+      grammar[rsym].push(new Rule(parseFloat(prob), rvalue));
+    }
+  });
+  return normalize(grammar);
 }
 
-// TODO: Implement a linked list class and its requisite functions
-// as described in the homework writeup
-
-// TODO: Turn the string into linked list 
-export function stringToLinkedList(input_string) {
-	// ex. assuming input_string = "F+X"
-	// you should return a linked list where the head is 
-	// at Node('F') and the tail is at Node('X')
-	var ll = new LinkedList();
-	return ll;
-}
-
-// TODO: Return a string form of the LinkedList
-export function linkedListToString(linkedList) {
-	// ex. Node1("F")->Node2("X") should be "FX"
-	var result = "";
-	return result;
-}
-
-// TODO: Given the node to be replaced, 
-// insert a sub-linked-list that represents replacementString
-function replaceNode(linkedList, node, replacementString) {
+function normalize(g) {
+  for (let key in g) {
+    let sum = 0;
+    let rules = g[key];
+    for (let i = 0; i < rules.length; i++) {
+      sum += rules[i].prob;
+    }
+    for (let i = 0; i < rules.length; i++) {
+      rules[i].prob /= sum;
+    }
+  }
+  return g;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
-	// default LSystem
-	this.axiom = "FX";
-	this.grammar = {};
-	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
-	];
-	this.iterations = 0; 
-	
-	// Set up the axiom string
-	if (typeof axiom !== "undefined") {
-		this.axiom = axiom;
-	}
+  this.grammar = parse(grammar);
+  this.axiom = axiom;
+  this.iterations = iterations;
 
-	// Set up the grammar as a dictionary that 
-	// maps a single character (symbol) to a Rule.
-	if (typeof grammar !== "undefined") {
-		this.grammar = Object.assign({}, grammar);
-	}
-	
-	// Set up iterations (the number of times you 
-	// should expand the axiom in DoIterations)
-	if (typeof iterations !== "undefined") {
-		this.iterations = iterations;
-	}
 
-	// A function to alter the axiom string stored 
-	// in the L-system
-	this.updateAxiom = function(axiom) {
-		// Setup axiom
+  this.updateAxiom = function(axiom) {
 		if (typeof axiom !== "undefined") {
 			this.axiom = axiom;
 		}
 	}
 
-	// TODO
-	// This function returns a linked list that is the result 
-	// of expanding the L-system's axiom n times.
-	// The implementation we have provided you just returns a linked
-	// list of the axiom.
-	this.doIterations = function(n) {	
-		var lSystemLL = StringToLinkedList(this.axiom);
-		return lSystemLL;
+  this.updateGrammar = function(grammar) {
+    if (typeof grammar !== "undefined") {
+      this.grammar = parse(grammar);
+    }
+  }
+
+
+	this.doIterations = function(n) {
+		let axiom = this.axiom;
+		for (let i = 0; i < n; i++) {
+			let newAxiom = "";
+			for (let c = 0; c < axiom.length; c++) {
+				let char = axiom[c];
+				let rules = this.grammar[char];
+				if (rules) {
+					let prob = 0;
+					let r = Math.random();
+					for (let j = 0; j < rules.length; j++) {
+						prob += rules[j].prob;
+						if (prob > r) {
+              newAxiom += rules[j].symbol;
+							break;
+						}
+					}
+				} else {
+					newAxiom += char;
+				}
+			}
+			axiom = newAxiom;
+		}
+		return axiom;
 	}
 }
