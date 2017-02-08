@@ -17,13 +17,14 @@ export default class Turtle {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.stack = [];
+        this.angle = 30;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
+                '+' : this.rotateTurtle.bind(this, this.angle, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -this.angle, 0, 0),
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
                 '[' : this.saveState.bind(this),
                 ']' : this.recoverState.bind(this)
@@ -34,16 +35,16 @@ export default class Turtle {
     }
 
     saveState() {
-        // console.log(this.state);
         this.stack.push(new TurtleState(this.state.pos, this.state.dir));
-        // console.log('push');
-        // console.log(this.stack);
-        // console.log(this.stack.pop());
-        
     }
 
     recoverState() {
         this.state = this.stack.pop();
+    }
+
+    updateAngles() {
+        this.renderGrammar['+'] = this.rotateTurtle.bind(this, this.angle, 0, 0);
+        this.renderGrammar['-'] = this.rotateTurtle.bind(this, -this.angle, 0, 0);
     }
 
     // Resets the turtle's position to the origin
@@ -62,6 +63,7 @@ export default class Turtle {
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
     rotateTurtle(x, y, z) {
+        // console.log(this.angle);
         var e = new THREE.Euler(
                 x * 3.14/180,
 				y * 3.14/180,

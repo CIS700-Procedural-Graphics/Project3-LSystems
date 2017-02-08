@@ -6,6 +6,10 @@ import Turtle from './turtle.js'
 
 var turtle;
 
+var settings = {
+  angle : 30
+}
+
 function rate_limit(func) {
     var running = false;
     var next = undefined;
@@ -78,6 +82,11 @@ function onLoad(framework) {
     doLsystem(lsys, newVal, turtle);
     done();
   }));
+
+  gui.add(settings,'angle', 0, 90).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -93,6 +102,8 @@ function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
+    turtle.angle = settings.angle;
+    turtle.updateAngles();
     turtle.renderSymbols(result);
 }
 
