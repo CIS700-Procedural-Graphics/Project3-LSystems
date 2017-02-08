@@ -1,0 +1,46 @@
+.grammar {
+  background: rgba(204, 204, 204, 0.0);
+  position: fixed;
+  top: 11%;
+  left: 0;
+  right: 10px;
+  height: 0;
+  z-index: 0;
+}
+
+textarea {
+  border: 3px solid #cccccc;
+  padding: 5px;
+  font-family: Tahoma, sans-serif;
+  background-image: url(bg.gif);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  transition: opacity .5s ease-out;
+  -moz-transition: opacity .5s ease-out;
+  -webkit-transition: opacity .5s ease-out;
+  -o-transition: opacity .5s ease-out;
+}
+
+textarea:hover {
+  border: 3px solid #cccccc;
+  padding: 5px;
+  font-family: Tahoma, sans-serif;
+  background-image: url(bg.gif);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  opacity: 1.0;
+  transition: opacity .5s ease-out;
+  -moz-transition: opacity .5s ease-out;
+  -webkit-transition: opacity .5s ease-out;
+  -o-transition: opacity .5s ease-out;
+}
+
+html, body {
+  margin: 0;
+  overflow: hidden;
+}
+canvas {
+  width: 100%;
+  height: 100%;
+}
