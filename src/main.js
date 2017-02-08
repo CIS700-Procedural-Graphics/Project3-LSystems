@@ -26,12 +26,13 @@ function onLoad(framework) {
   scene.add(ambientLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 40, 70);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene, null, 30);
+  doLsystem(lsys,lsys.iterations, turtle);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
@@ -52,6 +53,7 @@ function onLoad(framework) {
     turtle = new Turtle(scene, null, newVal);
     redoLsystem(lsys, lsys.iterations, turtle);
   });
+
 }
 
 // clears the scene by removing all geometries added by turtle.js

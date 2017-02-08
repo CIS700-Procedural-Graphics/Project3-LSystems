@@ -123,7 +123,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	]
 
 
-	this.iterations = 0; 
+	this.iterations = 4; 
 	this.angle = 25;
 	
 	// Set up the axiom string
