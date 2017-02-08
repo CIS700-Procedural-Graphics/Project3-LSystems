@@ -2,7 +2,7 @@
 
 https://davlia.github.io/Project3-LSystems/
 
-![]('lol.png')
+![]('./lol.png')
 
 ## Grammar
  - `+` : Rotate turtle x 30 degrees
