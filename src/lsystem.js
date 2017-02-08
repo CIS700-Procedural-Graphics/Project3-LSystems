@@ -41,13 +41,6 @@ export function stringToLinkedList(input_string) {
 	for (var i = 0; i < input_string.length; i++) {
 		ll.push(input_string.charAt(i));
 	}
-	// var thisNode = ll.head;
-	// for (var i = 0; i < input_string.length; i++) {
-	// 	console.log(thisNode.symbol);
-	// 	if (thisNode.nextNode){
-	// 		thisNode = thisNode.nextNode;
-	// 	}
-	// }
 	return ll;
 }
 
@@ -55,11 +48,11 @@ export function stringToLinkedList(input_string) {
 export function linkedListToString(linkedList) {
 	// ex. Node1("F")->Node2("X") should be "FX"
 	var node = linkedList.head;
-	var result = node.symbol;
-	
-	while (node.next) {
-		node = node.next;
-		result += node.symbol;
+	var result = '';
+
+	while (node) {
+		result = result.concat(node.symbol);
+		node = node.nextNode;
 	}
 	return result;
 }
@@ -91,6 +84,7 @@ function replaceNode(linkedList, node, replacementString) {
 		prev.nextNode = replacementList.head;
 		replacementList.head.nextNode = prev;
 	}
+	return replacementList.tail.next;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
@@ -128,13 +122,36 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
+	this.updateString = function(n) {
+		var stringResult = this.axiom;
+
+		for (var i = 0; i < n; i++) {
+			var newString = '';
+			for (var j = 0; j < stringResult.length; j++) {
+				var currentChar = stringResult.charAt(j);
+				if (this.grammar[currentChar]) {
+					newString = newString.concat(this.grammar[currentChar][0].successorString);
+				} else {
+					newString = newString.concat(currentChar);
+				}
+			}
+			stringResult = newString;
+		}
+
+		// console.log(stringResult);
+		return stringResult;
+	}
+
+
 	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
 	// The implementation we have provided you just returns a linked
 	// list of the axiom.
 	this.doIterations = function(n) {	
-		var lSystemLL = stringToLinkedList(this.axiom);
+
+		var lSystemLL = stringToLinkedList(this.updateString(n));
+
 		return lSystemLL;
 	}
 }

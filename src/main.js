@@ -6,6 +6,40 @@ import Turtle from './turtle.js'
 
 var turtle;
 
+function rate_limit(func) {
+    var running = false;
+    var next = undefined;
+
+    function onDone() {
+        running = false; // set the flag to allow the function to be called again
+        if (typeof next !== 'undefined') {
+            callFunc(next); // call the function again with the queued args 
+        }
+    }
+
+    function callFunc(args) {
+        if (running) {
+            // if the function is already running, remember the arguments passed in so we can call the func with them after we're ready
+            next = args;
+        } else {
+            running = true; // prevent other function calls from running until we're done
+            next = undefined;
+            func.apply(func, args); // call the func with the arguments
+        }
+    }
+
+    // return a new function wrapping the function we want to rate limit
+    return function() {
+        // we use the same arguments but add the onDone callback as the last argument
+        var args = new Array(arguments.length + 1);
+        for (var i = 0; i < arguments.length; ++i) {
+            args[i] = arguments[i];
+        }
+        args[arguments.length] = onDone;
+        callFunc(args);
+    }
+}
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -39,10 +73,11 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(rate_limit(function(newVal, done) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
-  });
+    done();
+  }));
 }
 
 // clears the scene by removing all geometries added by turtle.js
