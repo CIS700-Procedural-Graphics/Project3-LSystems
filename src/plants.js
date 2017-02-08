@@ -36,6 +36,11 @@ class CrossSectionParameters
 		var term2 = Math.pow(Math.abs(Math.sin(this.m2 * t * .25) / this.b), this.n3);
 		return Math.pow(term1 + term2, -1.0 / this.n1);
 	}
+
+	copy()
+	{
+		return new CrossSectionParameters(this.a, this.b, this.m1, this.m2, this.n1, this.n2, this.n3);
+	}
 }
 
 class PlantContext extends LContext
@@ -55,7 +60,7 @@ class PlantContext extends LContext
 
 	copy()
 	{
-		return new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.crossSection, this.random);
+		return new PlantContext(this.position, this.rotation, this.branchLength, this.branchRadius, this.crossSection.copy(), this.random);
 	}
 }
 
@@ -73,11 +78,27 @@ class BranchInstruction extends LInstruction
 	{
 		var c = context;
 		c.branchLength *= .9;
-		c.branchRadius *= .8;
+		c.branchRadius *= .7;
+
+		// For now, when branching we lose all fine details
+		c.crossSection = new CrossSectionParameters(1,1,1,1,1,1,1);
 		return c;
 	}
 }
 
+class RootInstruction extends LInstruction 
+{  
+	symbol() { return "R"; }
+
+	evaluate(context, stack) 
+	{
+		var c = context;
+		c.position.add(new THREE.Vector3(0, context.branchLength * .1, 0).applyQuaternion(c.rotation));
+		c.renderable = true;
+		c.branchRadius *= .6;
+		return c;
+	}
+}
 class ForwardInstruction extends LInstruction 
 {  
 	symbol() { return "F"; }
@@ -118,7 +139,7 @@ class RotatePositiveInstruction extends LInstruction
 	evaluate(context, stack) {
 		var c = context;
 
-		var euler = new THREE.Euler(0, 0, 1.25 * c.random.real(0,1, true));
+		var euler = new THREE.Euler(0, 0, 1.25 * c.random.real(.25, 1));
 		var quat = new THREE.Quaternion();
 		quat.setFromEuler(euler);
 
@@ -134,7 +155,7 @@ class RotateNegativeInstruction extends LInstruction
 	evaluate(context, stack) {
 		var c = context;
 		
-		var euler = new THREE.Euler(0, 0, -1.25 * c.random.real(0,1, true));
+		var euler = new THREE.Euler(0, 0, -1.25 * c.random.real(.25, 1));
 		var quat = new THREE.Quaternion();
 		quat.setFromEuler(euler);
 
@@ -153,19 +174,21 @@ export default class PlantLSystem
 						new RotateNegativeInstruction(), 
 						new RotatePositiveInstruction(),
 						new BranchInstruction(),
-						new DetailInstruction()];
+						new DetailInstruction(),
+						new RootInstruction()];
 
 		var rules = [];
 		// rules.push(new LRule("X", "FX", 1.0));
 		rules.push(new LRule("X", "[B-FY][B+FY]FX", 1.0));
-		rules.push(new LRule("Y", "[B-FY]", 1.0));
+		rules.push(new LRule("Y", "[B-QQQY][B+QQQY]YY", 1.0));
 
 		// Detailing the branches
 		rules.push(new LRule("F", "QQQQ", 1.0));
+		// rules.push(new LRule("R", "RR", 1.0));
 // 
 		// rules.push(new LRule("X", "FX", 1.0));
 
-		this.system = new LSystem("FX", instructions, rules, 8);
+		this.system = new LSystem("RRRRFX", instructions, rules, 4);
 
 
 		// this.system = new LSystem("F[-F]QQQ", instructions, rules, 2);
@@ -178,15 +201,15 @@ export default class PlantLSystem
 
 	evaluate()
 	{
-		var random = new Random(Random.engines.mt19937().seed(13438));
+		var random = new Random(Random.engines.mt19937().seed(performance.now()));
 
 		// (a, b, m1, m2, n1, n2, n3)
 		var crossSection = new CrossSectionParameters(1,1,2,10,-1.5,1,1);
-		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .2, crossSection, random);
+		var state = new PlantContext(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromEuler(new THREE.Euler(0,0,0)), 1.0, .4, crossSection, random);
 		return this.system.evaluate(state);
 	}
 
-	generateCrossSectionVertices(geometry, state, subdivs)
+	generateCrossSectionVertices(geometry, state, subdivs, lastSectionOfBranch)
 	{
 		var centerPoint = state.position;
 
@@ -197,6 +220,10 @@ export default class PlantLSystem
 			var y = Math.sin(theta);
 
 			var r = state.crossSection.evaluate(theta) * state.branchRadius;
+
+			if(lastSectionOfBranch)
+				r *= .5;
+
 			var point = centerPoint.clone().add(new THREE.Vector3(x * r, 0, y * r).applyQuaternion(state.rotation));
 
 			geometry.vertices.push(point);
@@ -229,9 +256,11 @@ export default class PlantLSystem
 			var p = stateArray[i].position;
 			var offset = geometry.vertices.length - subdivs;
 
+			var lastSectionOfBranch = (i == stateArray.length - 1) || stateArray[i+1].branched;
+
 			// Note: if the grammar branched, we need to redraw the initial set of vertices
 			if(i == 0 || stateArray[i].renderable || stateArray[i].branched)
-				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs);
+				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs, lastSectionOfBranch);
 
 			if((prevPosition.distanceTo(p) > .01 && stateArray[i].renderable))
 			{

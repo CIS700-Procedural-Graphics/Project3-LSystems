@@ -58,7 +58,7 @@ function onLoad(framework) {
   var lSystem = new PlantLSystem();
   var expandedChain = lSystem.expand();
 
-  console.log(expandedChain.toString());
+  // console.log(expandedChain.toString());
 
   var mesh = lSystem.generateMesh();
   scene.add(mesh);
