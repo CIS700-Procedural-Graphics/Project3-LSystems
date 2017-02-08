@@ -1,6 +1,7 @@
 /**
  * @author mrdoob / http://mrdoob.com/
  */
+const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 
 THREE.OBJLoader = function ( manager ) {
 

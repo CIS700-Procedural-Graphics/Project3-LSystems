@@ -40,7 +40,9 @@ function onLoad(framework) {
   var objLoader = new THREE.OBJLoader();
   objLoader.load('geo/leaf.obj', function(obj) {
     var featherGeo = obj.children[0].geometry;
-    var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
+    var leafMat = new THREE.MeshLambertMaterial( {color: 0x9fbf12} );
+    var featherMesh = new THREE.Mesh(featherGeo, leafMat);
+    featherMesh.position.set(3,3,3);
     featherMesh.name = "feather";
     scene.add(featherMesh);
   });
