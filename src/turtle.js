@@ -1,5 +1,6 @@
 const THREE = require('three')
 
+
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
 // You are free to add features to this state class,
@@ -13,26 +14,31 @@ var TurtleState = function(pos, dir) {
   
 export default class Turtle {
     
-    constructor(scene, grammar) {
+    constructor(scene, mesh, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.stack = [];
+        this.mesh = mesh;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
+                '+' : this.rotateTurtle.bind(this, 25, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -25, 0, 0),
                 'F' : this.makeCylinder.bind(this, 2, 0.15),
                 '[' : this.saveState.bind(this),
                 ']' : this.popState.bind(this),
-                'B' : this.makeSmallBranch.bind(this, 3, 0.04),
+                'B' : this.makeSmallBranch.bind(this, 1.5, 0.02),
                 'S' : this.rotateBase.bind(this),
                 'D' : this.makeDivider.bind(this, .030, 0.18),
                 // to rotate branch position
-                'J' :  this.rotateTurtle.bind(this, 0, 0, 30),
-                'K' : this.rotateTurtle.bind(this, 0, 0, -30)
+                'J' :  this.rotateTurtle.bind(this, 0, 0, 25),
+                'K' : this.rotateTurtle.bind(this, 0, 0, -25),
+
+                // small increment for branching
+                'L' : this.rotateTurtle.bind(this, 0,0,8),
+                'P' : this.makeLeaf.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -62,6 +68,32 @@ export default class Turtle {
 
     popState() {
         this.state = this.stack.pop(); 
+    };
+
+    // TRY TO LOAD OBJ
+    makeLeaf() {
+      var leafMesh = new THREE.Mesh(this.mesh.geometry, this.mesh.material);
+      leafMesh.position.set(this.state.pos.x, this.state.pos.x, this.state.pos.z)
+      leafMesh.scale.set(1/2.0,1/2.0,1/2.0);
+      leafMesh.rotation.set(Math.PI / 2.0, 0, 0);
+      this.scene.add(leafMesh);
+
+              //Orient the cylinder to the turtle's current direction
+        var quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
+        var mat4 = new THREE.Matrix4();
+        mat4.makeRotationFromQuaternion(quat);
+        leafMesh.applyMatrix(mat4);
+
+        // //Move the cylinder so its base rests at the turtle's current position
+        var mat5 = new THREE.Matrix4();
+        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * 1));
+        mat5.makeTranslation(trans.x, trans.y, trans.z);
+        leafMesh.applyMatrix(mat5);
+
+        // //Scoot the turtle forward by len units
+        this.moveForward(1/2);
+
     };
 
     // Rotate the turtle's _dir_ vector by each of the 
@@ -114,33 +146,6 @@ export default class Turtle {
 
     makeSmallBranch(len, width) {
         this.makeCylinder(len, width);
-        // this.moveForward(len/2);
-        // this.rotateTurtle( 0, -30, 0);
-        // this.makeCylinder(len/3, width);
-        // this.moveForward(len/2);
-        // // this.rotateTurtle( 0, 10, 0);
-        // this.makeCylinder(len/3, width);
-
-        // var geometry = new THREE.CylinderGeometry(width, width, len);
-        // var material = new THREE.MeshLambertMaterial( {color: 0xaab964} );
-        // var cylinder = new THREE.Mesh( geometry, material );
-        // this.scene.add( cylinder );
-
-        // //Orient the cylinder to the turtle's current direction
-        // var quat = new THREE.Quaternion();
-        // quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-        // var mat4 = new THREE.Matrix4();
-        // mat4.makeRotationFromQuaternion(quat);
-        // cylinder.applyMatrix(mat4);
-
-        // //Move the cylinder so its base rests at the turtle's current position
-        // var mat5 = new THREE.Matrix4();
-        // var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
-        // mat5.makeTranslation(trans.x, trans.y, trans.z);
-        // cylinder.applyMatrix(mat5);
-
-        // //Scoot the turtle forward by len units
-        // this.moveForward(len/2);
     };
 
     makeDivider(len, width) {

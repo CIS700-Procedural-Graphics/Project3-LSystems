@@ -138,19 +138,25 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// new grammar rules
 	// S[+B][-B][D]FY
 	this.grammar['Y'] = [
-		new Rule(0.6, 'S[D]FY'),
-		new Rule(0.1, 'S[D][JB]FY'),
-		new Rule(0.1, 'S[D][KB]FY'),
-		new Rule(0.1, 'S[D][+B]FY'),
-		new Rule(0.1, 'S[D][-B]FY')
+		// regular case (base branch with dividers)
+		new Rule(0.55, 'S[D]FY'),
+
+		// rotate and add smaller branches
+		new Rule(0.1, 'S[D][JBQ]FY'),
+		new Rule(0.1, 'S[D][KBQ]FY'),
+		new Rule(0.1, 'S[D][+BQ]FY'),
+		new Rule(0.1, 'S[D][-BQ]FY'),
+
+		// branching behavior in base branch
+		new Rule(0.5, 'S[D][LAY]Y')
 	];
 	this.grammar['A'] = [
-		new Rule(1.0, 'SFY')
+		new Rule(1.0, 'S[D]FA')
 	];
-	// this.grammar['F'] = [
-	// 	new Rule(0.5, 'F[+B]'),
-	// 	new Rule(0.5, 'F[-B]')
-	// ]
+	this.grammar['Q'] = [
+		// new Rule(.5, 'B'),
+		new Rule(1.0, 'P')
+	];
 
 	this.iterations = 0; 
 	

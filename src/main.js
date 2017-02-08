@@ -5,7 +5,7 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
-var turtleArr; 
+var lMesh; 
 
 // called after the scene loads
 function onLoad(framework) {
@@ -21,7 +21,7 @@ function onLoad(framework) {
   // initialize a simple box and material
   var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
   directionalLight.color.setHSL(0.1, 1, 0.95);
-  directionalLight.position.set(1, 1, 2);
+  directionalLight.position.set(1, 2, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
@@ -33,33 +33,24 @@ function onLoad(framework) {
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // add in plane
-  var geometry = new THREE.PlaneGeometry( 30, 30, 1, 1 );
-  var material = new THREE.MeshBasicMaterial( { color: 0xcbccb8 } );
-  var floor = new THREE.Mesh( geometry, material );
-  floor.material.side = THREE.DoubleSide;
-  floor.rotation.set(Math.PI / 2,0,0); 
-  scene.add( floor );
+  var material = new THREE.MeshLambertMaterial( { color: 0xcbccb8 } );
+  var geometry = new THREE.CylinderGeometry( 30, 30, 1, 50 );
+  var cylinder = new THREE.Mesh( geometry, material );
+  scene.add( cylinder );
 
-  // var geometry2 = new THREE.PlaneGeometry( 30, 30, 1, 1 );
-  // var floor2 = new THREE.Mesh( geometry2, material );
-  // floor2.material.side = THREE.DoubleSide;
-  // floor2.rotation.set(Math.PI / 2.0,0,Math.PI / 4.0);
-  // scene.add(floor2);
-
-  // load a simple obj mesh
+      // load a simple obj mesh
   var objLoader = new THREE.OBJLoader();
-  objLoader.load('geo/leaf.obj', function(obj) {
+  objLoader.load('geo/leafgroup.obj', function(obj) {
     var leafGeo = obj.children[0].geometry;
     var leafMat = new THREE.MeshLambertMaterial( {color: 0x9fbf12} );
     var leafMesh = new THREE.Mesh(leafGeo, leafMat);
-    leafMesh.position.set(3,3,3);
-    leafMesh.name = "feather";
-    scene.add(leafMesh);
+    lMesh = leafMesh; 
+    // leafMesh.rotation.set(Math.PI / 2.0, 0, 0);
   });
 
   // initialize LSystem and a Turtle to draw  
   var lsys = new Lsystem();
-  turtle = new Turtle(scene); 
+  turtle = new Turtle(scene, lMesh); 
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
@@ -88,7 +79,7 @@ function clearScene(turtle) {
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene, lMesh);
     turtle.renderSymbols(result);
 }
 
