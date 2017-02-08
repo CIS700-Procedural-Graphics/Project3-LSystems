@@ -1,12 +1,12 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import LSystem from './lsystem.js'
 import Turtle from './turtle.js'
+import {PlantLSystem, MainCharacter, CactusCharacter, WillowCharacter}  from './plants.js'
 
 var turtle;
 
-// called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
   var camera = framework.camera;
@@ -22,26 +22,95 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(2, 3, 4);
+  camera.lookAt(new THREE.Vector3(0,2,0));
 
-  // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
-  turtle = new Turtle(scene);
 
-  gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
-    camera.updateProjectionMatrix();
+  var UserSettings = 
+  {
+    iterations : 5,
+    willow : null,
+    main : null,
+    cactus : null,
+    rebuild : function() { RebuildTrees(scene, UserSettings) }
+  }
+
+  // // initialize LSystem and a Turtle to draw
+  // var lsys = new Lsystem();
+  // turtle = new Turtle(scene);
+
+  gui.add(UserSettings, 'rebuild', 0, 180);
+  // gui.add(lsys, 'axiom').onChange(function(newVal) {
+  //   lsys.UpdateAxiom(newVal);
+  //   doLsystem(lsys, lsys.iterations, turtle);
+  // });
+
+  gui.add(UserSettings, 'iterations', 0, 8).step(1).onChange(function(newVal) {
+    // clearScene(turtle);
+    // doLsystem(lsys, newVal, turtle);
+    RebuildTrees(scene, UserSettings);
   });
 
-  gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
-    doLsystem(lsys, lsys.iterations, turtle);
-  });
+  // var lSystem = new LSystem("FX", "", 10);
+  // lSystem.expand();
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
-    clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
-  });
+  var lSystem = new MainCharacter(2234, 5);
+  var expandedChain = lSystem.expand();
+
+  var mesh = lSystem.generateMesh();
+  mesh.scale.set(.3, .3, .3);
+  scene.add(mesh);
+
+  var cactus = new CactusCharacter(6565, 6);
+  cactus.expand();
+  var cactusMesh = cactus.generateMesh();
+  cactusMesh.position.set(2, 0, 0);
+  cactusMesh.scale.set(.2, .2, .2);
+  scene.add(cactusMesh);
+
+  var willow = new WillowCharacter(2135, 5);
+  willow.expand();
+  var willowMesh = willow.generateMesh();
+  willowMesh.position.set(-2, 0, 0);
+  willowMesh.scale.set(.2, .2, .2);
+  scene.add(willowMesh);
+
+  UserSettings.willow = willowMesh;
+  UserSettings.main = mesh;
+  UserSettings.cactus = cactusMesh;
+}
+
+function RebuildTrees(scene, UserSettings)
+{
+  scene.remove(UserSettings.willow);
+  scene.remove(UserSettings.main);
+  scene.remove(UserSettings.cactus);
+
+  var lSystem = new MainCharacter(performance.now(), UserSettings.iterations);
+  lSystem.expand();
+  var mesh = lSystem.generateMesh();
+  mesh.scale.set(.3, .3, .3);
+  scene.add(mesh);
+
+  var cactus = new CactusCharacter(performance.now(), UserSettings.iterations);
+  cactus.expand();
+  var cactusMesh = cactus.generateMesh();
+  cactusMesh.position.set(2, 0, 0);
+  cactusMesh.scale.set(.2, .2, .2);
+  scene.add(cactusMesh);
+
+  var willow = new WillowCharacter(performance.now(), UserSettings.iterations);
+  willow.expand();
+  var willowMesh = willow.generateMesh();
+  willowMesh.position.set(-2, 0, 0);
+  willowMesh.scale.set(.2, .2, .2);
+  scene.add(willowMesh);
+
+
+  UserSettings.willow = willowMesh;
+  UserSettings.main = mesh;
+  UserSettings.cactus = cactusMesh;
+
 }
 
 // clears the scene by removing all geometries added by turtle.js
