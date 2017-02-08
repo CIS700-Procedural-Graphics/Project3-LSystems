@@ -72,39 +72,59 @@ function replaceNode(linkedList, node, replacementString, iter) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	this.axiom = "FJ[-Y][+Y]";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(0.5, '[F][+FFX#][-FFX#]'),
-		new Rule(0.2, 'F-[[X]+X]+F[+FX]-X')
+		new Rule(0.5, 'FF[+JFX#][-JFX#][Y]'),
+		new Rule(0.2, 'FF[JF[X]+X][+JFX]-X'),
+		new Rule(0.3, 'FFF#'),
 	];
 
-	this.grammar['F'] = [
-		new Rule(0.1, 'FF'),
+	this.grammar['J'] = [
+		new Rule(0.1, 'FFJY'),
+		new Rule(0.1, '+FFJY'),
+		new Rule(0.1, '-FJY'),
+		new Rule(0.2, 'X'),
+		new Rule(0.2, 'G')
 	]
 
+	this.grammar['G'] = [
+		new Rule(0.5, 'FF-FFXFJF#&')
+	]
+
+	this.grammar['Y'] = [
+		new Rule(1, 'F[+FX#][-FX#]') 
+	]
+
+	//bush
 	this.grammar['#'] = [
-		new Rule(0.2, '#F*'),
-		
+		new Rule(0.1, '[-FX][+FJF#*]'),
+		new Rule(0.4, '[X]')
 	]
 
+	//building
 	this.grammar['*'] = [
-		new Rule (0.1, '#F&')
+		new Rule (0.2, '*F[-FF#&]'),
+		new Rule(0.8, '-FFF#*>#*<#*'),
 	]
 
+	//house
 	this.grammar['&'] = [
-		new Rule (0.2, '#F&')
+		new Rule (0.6, '&+FJX'),
+		new Rule(0.4, '&>#>#&')
 	]
 
-	this.grammar['A'] = [
-		new Rule(1, 'AAF')
+	this.grammar['>'] = [
+		new Rule(0.4, 'X')
 	]
-	this.grammar['B'] = [
-		new Rule(1, 'B[-FA]+FA')
+
+	this.grammar['<'] = [
+		new Rule(0.4, 'X')
 	]
+
 
 	this.iterations = 0; 
-	this.angle = 60;
+	this.angle = 25;
 	
 	// Set up the axiom string
 	if (axiom) {
@@ -165,6 +185,8 @@ export default function Lsystem(axiom, grammar, iterations) {
 			 	n = n.next;
 			}
 		}
+
+		this.list = list;
 		return list;
 	}
 }
