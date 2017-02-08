@@ -38,7 +38,7 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 5).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
@@ -47,7 +47,7 @@ function onLoad(framework) {
 // clears the scene by removing all geometries added by turtle.js
 function clearScene(turtle) {
   var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
+  for( var i = turtle.scene.children.length - 1; i > 2; i--) {
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
   }
@@ -56,7 +56,7 @@ function clearScene(turtle) {
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene, iterations);
     turtle.renderSymbols(result);
 }
 

@@ -68,8 +68,13 @@ function replaceNode(linkedList, node, replacementString) {
 	var prevNode;
 	var nextNode;
 
+	//check if node to replace is the only node on the list
+	if (node.prev === null && node.next == null) {
+		prevNode = null;
+		nextNode = null;
+	}
 	//check if node to replace is head of list
-	if (node.prev === null) {
+	else if (node.prev === null) {
 		prevNode = null;
 		nextNode = node.next;
 	}
@@ -83,6 +88,7 @@ function replaceNode(linkedList, node, replacementString) {
 		nextNode = node.next;
 	}
 
+	//create a chain of notes given replacement string
 	var newStartNode = new Node(replacementString[0]);
 	var newEndNode = newStartNode;
 	for (var i = 1; i < replacementString.length; i++) {
@@ -92,8 +98,11 @@ function replaceNode(linkedList, node, replacementString) {
 		newEndNode = tempNode;
 	}
 
+	if (prevNode == null && nextNode == null) {
+		linkedList.head = newStartNode;
+	}
 	//replaced node that is at head of list
-	if (prevNode == null) {
+	else if (prevNode == null) {
 		linkedList.head = newStartNode;
 		newEndNode.next = nextNode;
 		nextNode.prev = newEndNode;
@@ -115,10 +124,17 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
-	this.axiom = "FX";
+	//F[aR][aR][aR][aR]
+	this.axiom = "X";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(1.0, '[-FX][+FX]')
+		new Rule(1.0, 'F[XS][+XS][&+XS][&&+XS][&&&+XS][&&&&+XS]')
+		//new Rule(0.33, 'F[+XS][-XS][FXS]'),
+		//new Rule(0.33, 'F[-XS][+XS][FXS]'),
+		//new Rule(0.34, 'F[[XS][+XS]][+XS][-XS]')
+	];
+	this.grammar['F'] = [
+		new Rule(1.0, 'FF')
 	];
 	this.iterations = 0; 
 	
@@ -155,16 +171,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// list of the axiom.
 	this.doIterations = function(n) {	
 		var lSystemLL = stringToLinkedList(this.axiom);
-
-		/*
-		var testing = stringToLinkedList("HAPPY");
-		var n = new Node("H");
-		testing.add(n);
-		var n2 = new Node("I");
-		testing.add(n2);
-		replaceNode(testing, n, "POPP");
-		console.log(linkedListToString(testing));
-		*/
 
 		var count = 0;
 		while (count < n) {
