@@ -1,4 +1,26 @@
 
+
+# Stauffer Notes
+
+The l-system is updated/redrawn only when the iterations or axiom are changed.
+Otherwise it was updating too frequently and I didn't get around to adding
+the fix that was offered to delay updates.
+
+The 'Anim period' is period that controls cylinders' widths scaling based
+on their color index value. The color index value serves as a proxy for iteration count, since
+I couldn't find a quick way to get iteration info into the turtle mesh objects.
+
+I added these turtle rendering symbols:
+
+> X/x - Increment/Decrement subsequent rotation angles around X
+> Y/y - Increment/Decrement subsequent rotation angles around Y
+> Z/z - Increment/Decrement subsequent rotation angles around Z
+> C/C - Increment/Decrement the state color value (a 1D value that indexes a ramp)
+
+
+================================================================================
+
+
 The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
 
 # L-System Parser
