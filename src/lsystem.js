@@ -125,7 +125,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.grammar['A'] = [
 		new Rule(0.55, '[YY-CFA][YY+CFA]'),
 		new Rule(0.25, '[yyy--CFA][y++CFA]'),
-		new Rule(0.2, '[ZZcccA]' )
+		new Rule(0.2, '[ZZccXA]' )
 	];
 	this.grammar['B'] = [
 		new Rule(0.0, ''),

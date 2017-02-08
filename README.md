@@ -2,23 +2,21 @@
 
 # Stauffer Notes
 
-Sorry, I didn't leave time for the readme. I added these turtle rendering symbols:
+The l-system is updated/redrawn only when the iterations or axiom are changed.
+Otherwise it was updating too frequently and I didn't get around to adding
+the fix that was offered to delay updates.
 
-                '+' : this.rotateTurtle.bind(this, 1),
-                '-' : this.rotateTurtle.bind(this, -1),
-                'X' : this.rotateChange.bind(this, [this.rotStep,0,0]), //increment rotation in X
-                'x' : this.rotateChange.bind(this, [-this.rotStep,0,0]), //decrement rotation in X
-                'Y' : this.rotateChange.bind(this, [0,this.rotStep,0]),
-                'y' : this.rotateChange.bind(this, [0,-this.rotStep,0]),
-                'Z' : this.rotateChange.bind(this, [0,0,this.rotStep]),
-                'z' : this.rotateChange.bind(this, [0,0,-this.rotStep]),
-                'F' : this.makeCylinder.bind(this, 2, 0.1),
-                '[' : this.pushState.bind(this),
-                ']' : this.popState.bind(this),
-                'C' : this.changeColor.bind(this, 0.8), //increment color along color ramp
-                'c' : this.changeColor.bind(this, -0.8),
+The 'Anim period' is period that controls cylinders' widths scaling based
+on their color index value. The color index value serves as a proxy for iteration count, since
+I couldn't find a quick way to get iteration info into the turtle mesh objects.
 
-I'll try to update this README after class tonight
+I added these turtle rendering symbols:
+
+> X/x - Increment/Decrement subsequent rotation angles around X
+> Y/y - Increment/Decrement subsequent rotation angles around Y
+> Z/z - Increment/Decrement subsequent rotation angles around Z
+> C/C - Increment/Decrement the state color value (a 1D value that indexes a ramp)
+
 
 ================================================================================
 

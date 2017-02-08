@@ -28,12 +28,18 @@ function onLoad(framework) {
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene, lsys.startingRotations);
-
+  framework.turtle = turtle;
+  
+  //period of color-based segment width cycling
+  framework.colorPeriod = 3000;
+  
   ////// gui
   
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+
+  gui.add(framework, 'colorPeriod', 100, 12000).name('Anim Period (msec)');
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.updateAxiom(newVal);
@@ -94,11 +100,25 @@ function doLsystem(lsystem, iterations, turtle) {
 
 // called on frame updates
 function onUpdate(framework) {
-/*	var date = new Date();
-	var time = date.getMilliseconds();
-	var period = 8000;
+	if( turtle === undefined )
+	  return;
+	  
+	var date = new Date();
+	var time = date.getTime();
+	var period = framework.colorPeriod;
 	var phase = (time % period ) / period * 2 * 3.1415;
-	var x = Math.cos( phase ) * 4;
+	
+	//traverse nodes and change width
+	turtle.scene.traverse( function (node ) {
+		if ( node instanceof THREE.Mesh ) {
+			//node.stateColor is a hack for getting in some iteration state info in here
+			var thisPhase = phase + ( node.stateColor * 2 * 3.1415 );
+			var scale = Math.sin( thisPhase ) + 1;
+			scale = scale / 6 + 0.2;
+			node.scale.set( scale, 1, scale );	
+		}
+	} );
+/*	var x = Math.cos( phase ) * 4;
 	var z = Math.sin (phase ) * 4;
 	//console.log(time, phase, x, z);
 	framework.camera.position.set( x, 0, z );

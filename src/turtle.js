@@ -145,6 +145,7 @@ export default class Turtle {
         material.color = this.getColor( this.state.color);
         
         var cylinder = new THREE.Mesh( geometry, material );
+        cylinder.stateColor = this.state.color % 1;
         this.scene.add( cylinder );
 
         //Orient the cylinder to the turtle's current direction
