@@ -295,7 +295,7 @@ function LSystem(axiom, instructions, rules, iterations, random)
 
 		t = performance.now() - t;
 
-		console.log("Expansion took " + t.toFixed(1) + "ms");
+		// console.log("Expansion took " + t.toFixed(1) + "ms");
 
 		return this.chain;
 	}

@@ -372,7 +372,7 @@ export default class PlantLSystem
 		geometry.mergeVertices();
 		geometry.computeVertexNormals();
 
-		console.log("Mesh generation took " + t.toFixed(1) + "ms (" + segments + " segments, " + subdivs + " subdivs, " + geometry.vertices.length  + " vertices)");
+		// console.log("Mesh generation took " + t.toFixed(1) + "ms (" + segments + " segments, " + subdivs + " subdivs, " + geometry.vertices.length  + " vertices)");
 
 		var mesh = new THREE.Mesh(geometry, material);
 
@@ -412,7 +412,7 @@ export default class PlantLSystem
 
 export class MainCharacter extends PlantLSystem
 {
-	constructor(seed)
+	constructor(seed, iterations)
 	{
 		super();
 
@@ -441,7 +441,7 @@ export class MainCharacter extends PlantLSystem
 		rules.push(new LRule("F", "FXF", .15));
 
 		var random = new Random(Random.engines.mt19937().seed(seed));
-		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, 6, random);
+		this.system = new LSystem("RRRRFXEEEEX", instructions, rules, iterations, random);
 		this.subdivisions = 32;
 	}
 }
@@ -506,7 +506,7 @@ export class CactusCharacter extends PlantLSystem
 		return this.system.evaluate(state);
 	}
 
-	constructor(seed)
+	constructor(seed, iterations)
 	{
 		super();
 
@@ -532,7 +532,7 @@ export class CactusCharacter extends PlantLSystem
 		var random = new Random(Random.engines.mt19937().seed(seed));
 		// this.system = new LSystem("RRFFRRR", instructions, rules, 5, random);
 
-		this.system = new LSystem("RFXFXFXFFF", instructions, rules, 5, random);
+		this.system = new LSystem("RFXFXFXFFF", instructions, rules, iterations, random);
 		this.subdivisions = 128;
 	}
 }
@@ -577,7 +577,7 @@ export class WillowCharacter extends PlantLSystem
 		return this.system.evaluate(state);
 	}
 
-	constructor(seed)
+	constructor(seed, iterations)
 	{
 		super();
 
@@ -601,7 +601,7 @@ export class WillowCharacter extends PlantLSystem
 
 		var random = new Random(Random.engines.mt19937().seed(seed));
 
-		this.system = new LSystem("RRQX", instructions, rules, 5, random);
+		this.system = new LSystem("RRQX", instructions, rules, iterations, random);
 		this.subdivisions = 64;
 	}
 }
