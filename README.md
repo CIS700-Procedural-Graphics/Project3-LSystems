@@ -12,17 +12,19 @@ For this project, I took inspiration from Low-Poly art (one of my favorite style
 I rewrote the turtle class so that the turtle had a local forward, up, and left axes. This allowed me to create the symmetric effect of the tree.
 
 In addition to operations for `[` and `]`, I invented the operations:
-	'&' : rotate the turtle along its forward vector (main trunk)
-	'$' : rotate the turtle along its up vector (trunk bending),
-    '%' : rotate the turtle along its up vector (trunk bending),
-	'X' : draw a branch if iteration ends
-	'A' : draw a branch if iteration ends
-    'S' : make a bright-colored leaf
-    'D' : make a dark-colored leaf
+
+1. '&' : rotate the turtle along its forward vector (main trunk)
+2. '$' : rotate the turtle along its up vector (trunk bending)
+3. '%' : rotate the turtle along its up vector (trunk bending)
+4. 'X' : draw a branch if iteration ends
+5. 'A' : draw a branch if iteration ends
+6. 'S' : make a bright-colored leaf
+7. 'D' : make a dark-colored leaf
 
 ## Interactivity
 
 Aspects of my demo that is interactive:
+
 1. the axiom
 2. number of iterations
 3. the angle of rotation of the turtle (branches only)
