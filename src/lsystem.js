@@ -1,3 +1,17 @@
+class LContext
+{
+	constructor()
+	{
+		this.branched = false;
+	}
+
+	copy()
+	{
+		return new LContext();
+	}
+}
+
+
 // An instruction is essentially a symbol with logic, context, stack and (TODO) parameters
 class LInstruction
 {
@@ -35,7 +49,9 @@ class PullInstruction extends LInstruction
 	symbol() { return "]"; }
 
 	evaluate(context, stack) {
-		return stack.pop(context);
+		var c = stack.pop(context);
+		c.branched = true;
+		return c;
 	}
 }
 
@@ -71,16 +87,19 @@ class LInstructionChain
   {    
     var contextStack = [];
     var context = initialState;
-    var stateArray = [context];
+    var stateArray = [context.copy()];
 
     this.evaluateInternal(function(node) {
-      var c = node.value.evaluate(context, contextStack);
+      var c = node.value.evaluate(context.copy(), contextStack);
 
       // Some instructions may not want to modify the context
       if(c != null)
       {
+      	// Debug data :D
+      	c.relatedInstruction = node.value;
+      	stateArray.push(c);
+
       	context = c;
-      	stateArray.push(context);
       }
     });
 
@@ -267,6 +286,8 @@ function LSystem(axiom, instructions, rules, iterations)
 		t = performance.now() - t;
 
 		console.log("Expansion took " + t.toFixed(1) + "ms");
+
+		return this.chain;
 	}
 
 	this.evaluate = function(initialState) 
@@ -292,4 +313,4 @@ function LSystem(axiom, instructions, rules, iterations)
 	this.updateAxiom(axiom);
 }
 
-export {LSystem, LRule, LInstruction, DummyInstruction}
+export {LSystem, LContext, LRule, LInstruction, DummyInstruction}

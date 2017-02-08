@@ -22,6 +22,14 @@ function onLoad(framework) {
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
+
+  // initialize a simple box and material
+  directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  directionalLight.color.setHSL(0.1, 1, 0.95);
+  directionalLight.position.set(-1, -3, -2);
+  directionalLight.position.multiplyScalar(10);
+  scene.add(directionalLight);
+
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
@@ -50,7 +58,12 @@ function onLoad(framework) {
   var lSystem = new PlantLSystem();
   var expandedChain = lSystem.expand();
 
-  scene.add(lSystem.getLineDebugger());
+  console.log(expandedChain.toString());
+
+  var mesh = lSystem.generateMesh();
+  scene.add(mesh);
+
+  scene.add(lSystem.getLineDebugger())
 }
 
 // clears the scene by removing all geometries added by turtle.js
