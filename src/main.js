@@ -6,9 +6,6 @@ import Framework from './framework'
 import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 let turtle;
 
@@ -30,7 +27,6 @@ window.sceneState = {
 
 // called after the scene loads
 function onLoad(framework) {
-  sleep(1000);
   let scene = framework.scene;
   let camera = framework.camera;
   let renderer = framework.renderer;
