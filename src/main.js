@@ -54,6 +54,14 @@ function onLoad(framework) {
     redoLsystem(lsys, lsys.iterations, turtle);
   });
 
+  var button = {
+    rerender: function() {     
+      clearScene(turtle);
+      doLsystem(lsys, lsys.iterations, turtle); 
+    }
+  };
+
+  gui.add(button,'rerender');
 }
 
 // clears the scene by removing all geometries added by turtle.js
