@@ -3,6 +3,36 @@ var Random = require("random-js");
 
 import { LSystem, LContext, LRule, LInstruction, DummyInstruction } from './lsystem.js'
 
+
+function crossSection(t, a, b, m1, m2, n1, n2, n3)
+{
+	var term1 = Math.pow(Math.abs(Math.cos(m1 * t * .25) / a), n2);
+	var term2 = Math.pow(Math.abs(Math.sin(m2 * t * .25) / b), n3);
+
+	return Math.pow(term1 + term2, -1.0 / n1);
+}
+
+class CrossSectionParameters
+{
+	constructor(a, b, m1, m2, n1, n2, n3)
+	{
+		this.a = a;
+		this.b = b;
+		this.m1 = m1;
+		this.m2 = m2;
+		this.n1 = n1;
+		this.n2 = n2;
+		this.n3 = n3;
+	}
+
+	evaluate(t)
+	{
+		var term1 = Math.pow(Math.abs(Math.cos(this.m1 * t * .25) / this.a), this.n2);
+		var term2 = Math.pow(Math.abs(Math.sin(this.m2 * t * .25) / this.b), this.n3);
+		return Math.pow(term1 + term2, -1.0 / this.n1);
+	}
+}
+
 class PlantContext extends LContext
 {
 	constructor(position, rotation, branchLength, branchRadius, random) 
@@ -36,7 +66,7 @@ class BranchInstruction extends LInstruction
 	evaluate(context, stack)
 	{
 		var c = context;
-		c.branchLength *= .65;
+		c.branchLength *= .9;
 		return c;
 	}
 }
@@ -121,15 +151,6 @@ class RotateNegativeInstruction extends LInstruction
 	}
 }
 
-
-function crossSection(t, a, b, m1, m2, n1, n2, n3)
-{
-	var term1 = Math.pow(Math.abs(Math.cos(m1 * t * .25) / a), n2);
-	var term2 = Math.pow(Math.abs(Math.sin(m2 * t * .25) / b), n3);
-
-	return Math.pow(term1 + term2, -1.0 / n1);
-}
-
 export default class PlantLSystem
 {
 	constructor()
@@ -152,7 +173,7 @@ export default class PlantLSystem
 // 
 		// rules.push(new LRule("X", "FX", 1.0));
 
-		this.system = new LSystem("FX", instructions, rules, 6);
+		this.system = new LSystem("FX", instructions, rules, 8);
 
 
 		// this.system = new LSystem("F[-F]QQQ", instructions, rules, 2);
@@ -206,8 +227,9 @@ export default class PlantLSystem
 
 		var prevPosition = stateArray[0].position;
 		var subdivs = 32;
+		var segments = 0;
 
-		var sections = 0;
+		var t = performance.now();
 
 		// We always draw backwards, with consideration of branching and the first case
 		for(var i = 0; i < stateArray.length; i++)
@@ -221,8 +243,6 @@ export default class PlantLSystem
 
 			if((prevPosition.distanceTo(p) > .01 && stateArray[i].renderable))
 			{
-				sections++;
-
 				// console.log(stateArray[i].position);
 				// console.log(stateArray[i-1].position);
 				// console.log('')
@@ -242,6 +262,8 @@ export default class PlantLSystem
 						geometry.faces.push(new THREE.Face3(v3, v2, v1));
 						geometry.faces.push(new THREE.Face3(v6, v5, v4));
 					}
+
+					segments++;
 				}
 			}
 
@@ -249,10 +271,11 @@ export default class PlantLSystem
 		}
 
 		// console.log(stateArray);
-		console.log(sections);
 
 		geometry.mergeVertices();
 		geometry.computeVertexNormals();
+
+		console.log("Mesh generation took " + t.toFixed(1) + "ms (" + segments + " segments, " + subdivs + " subdivs, " + geometry.vertices.length  + " vertices)");
 
 		return new THREE.Mesh(geometry, material);
 	}
