@@ -151,7 +151,7 @@ class LInstructionChain
 
   // Because we're expanding in-place, we must be careful not to 
   // expand recently added nodes that come from a previous replacement
-  // in the same expansion cycle. This is why
+  // in the same expansion cycle. 
   expand(rules)
   {
 	var node = this.root;
@@ -168,13 +168,22 @@ class LInstructionChain
 	  			var ruleArray = rules[pred];
 	  			var replaced = false;
 
+	  			var randomValue = Math.random();
+
 	  			for(var r = 0; r < ruleArray.length && !replaced; r++)
 		  		{
 	  				if(node.value == ruleArray[r].predecessor)
 	  				{
-		  				// TODO: Check probability
-	  					this.replace(node, ruleArray[r].successor);
-	  					replaced = true;
+	  					if(ruleArray[r].probability >= 1.0 || ruleArray[r].probability > randomValue)
+	  					{
+		  					this.replace(node, ruleArray[r].successor);
+		  					replaced = true;
+		  					break;
+		  				}
+		  				else
+		  				{
+		  					randomValue -= ruleArray[r].probability;
+		  				}
 	  				}
 		  		}
 	  		}

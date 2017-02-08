@@ -56,6 +56,7 @@ class PlantContext extends LContext
 		this.random = random;
 		this.crossSection = crossSection;
 		this.renderable = false;
+		this.flower = false;
 	}
 
 	copy()
@@ -164,6 +165,17 @@ class RotateNegativeInstruction extends LInstruction
 	}
 }
 
+class FlowerInstruction extends LInstruction
+{
+	symbol() { return "W"; }
+
+	evaluate(context, stack) 
+	{
+		context.flower = true;
+		return context;
+	}
+}
+
 export default class PlantLSystem
 {
 	constructor()
@@ -171,6 +183,7 @@ export default class PlantLSystem
 		var instructions = [new ForwardInstruction(), 
 						new DummyInstruction("X"), 
 						new DummyInstruction("Y"), 
+						new FlowerInstruction(),
 						new RotateNegativeInstruction(), 
 						new RotatePositiveInstruction(),
 						new BranchInstruction(),
@@ -180,15 +193,17 @@ export default class PlantLSystem
 		var rules = [];
 		// rules.push(new LRule("X", "FX", 1.0));
 		rules.push(new LRule("X", "[B-FY][B+FY]FX", 1.0));
-		rules.push(new LRule("Y", "[B-QQQY][B+QQQY]YY", 1.0));
+
+		rules.push(new LRule("Y", "[B-QQQY][B+QQQY]YY", .7));
+		rules.push(new LRule("Y", "[B-QQQW][B+QQQW]QQW", .3));
 
 		// Detailing the branches
 		rules.push(new LRule("F", "QQQQ", 1.0));
-		// rules.push(new LRule("R", "RR", 1.0));
+		// rules.push(new LRule("Q", "QW", .1));
 // 
 		// rules.push(new LRule("X", "FX", 1.0));
 
-		this.system = new LSystem("RRRRFX", instructions, rules, 4);
+		this.system = new LSystem("RRRRFX", instructions, rules, 5);
 
 
 		// this.system = new LSystem("F[-F]QQQ", instructions, rules, 2);
@@ -232,23 +247,20 @@ export default class PlantLSystem
 
 	generateMesh()
 	{
-		var geometry = new THREE.Geometry();
-
-		var stateArray = this.evaluate();
-		var prevPosition = stateArray[0].position;
-
+		var plantContainer = new THREE.Group();
+		
 		var material = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x333333 });
 		material.side = THREE.DoubleSide;
-		// material.wireframe = true;
-		var geometry = new THREE.Geometry();
 
 		var stateArray = this.evaluate();
 
+		var t = performance.now();
+
+		var flowerGeometry = new THREE.SphereBufferGeometry(.03, 16, 16);
+		var geometry = new THREE.Geometry();
 		var prevPosition = stateArray[0].position;
 		var subdivs = 64;
 		var segments = 0;
-
-		var t = performance.now();
 
 		// We always draw backwards, with consideration of branching and the first case
 		for(var i = 0; i < stateArray.length; i++)
@@ -261,6 +273,13 @@ export default class PlantLSystem
 			// Note: if the grammar branched, we need to redraw the initial set of vertices
 			if(i == 0 || stateArray[i].renderable || stateArray[i].branched)
 				this.generateCrossSectionVertices(geometry, stateArray[i], subdivs, lastSectionOfBranch);
+
+			if(stateArray[i].flower)
+			{
+				var sphere = new THREE.Mesh(flowerGeometry, material);
+				sphere.position.copy(stateArray[i].position);
+				plantContainer.add(sphere);
+			}
 
 			if((prevPosition.distanceTo(p) > .01 && stateArray[i].renderable))
 			{
@@ -298,7 +317,10 @@ export default class PlantLSystem
 
 		console.log("Mesh generation took " + t.toFixed(1) + "ms (" + segments + " segments, " + subdivs + " subdivs, " + geometry.vertices.length  + " vertices)");
 
-		return new THREE.Mesh(geometry, material);
+		var mesh = new THREE.Mesh(geometry, material);
+
+		plantContainer.add(mesh);
+		return plantContainer;
 	}
 
 	getLineDebugger()
