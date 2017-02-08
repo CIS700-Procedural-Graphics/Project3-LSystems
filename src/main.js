@@ -43,7 +43,7 @@ function onLoad(framework) {
   scene.add(ambientLight);
 
   let loader = new THREE.TextureLoader();
-  let background = new THREE.TextureLoader().load('/img/420.jpg');
+  let background = new THREE.TextureLoader().load('420.jpg');
   scene.background = background;
   framework.leaves = [];
 
