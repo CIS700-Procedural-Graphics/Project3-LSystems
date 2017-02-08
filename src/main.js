@@ -38,12 +38,12 @@ function onLoad(framework) {
 
   // load a simple obj mesh
   var objLoader = new THREE.OBJLoader();
-  // objLoader.load('leaf.obj', function(obj) {
-  //   var featherGeo = obj.children[0].geometry;
-  //   var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
-  //   featherMesh.name = "feather";
-  //   scene.add(featherMesh);
-  // });
+  objLoader.load('geo/leaf.obj', function(obj) {
+    var featherGeo = obj.children[0].geometry;
+    var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
+    featherMesh.name = "feather";
+    scene.add(featherMesh);
+  });
 
   // initialize LSystem and a Turtle to draw  
   var lsys = new Lsystem();

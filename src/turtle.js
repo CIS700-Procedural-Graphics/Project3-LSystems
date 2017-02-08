@@ -114,7 +114,7 @@ export default class Turtle {
 
     makeSmallBranch(len, width) {
         var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshLambertMaterial( {color: 0x608d58} );
+        var material = new THREE.MeshLambertMaterial( {color: 0xaab964} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
 
