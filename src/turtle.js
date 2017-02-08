@@ -10,9 +10,12 @@ var TurtleState = function(pos, dir) {
         dir: new THREE.Vector3(dir.x, dir.y, dir.z)
     }
 }
-  
-export default class Turtle {
-    
+
+function getRandomValueInRange(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+export default class Turtle {    
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
@@ -22,9 +25,9 @@ export default class Turtle {
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '+' : this.rotateTurtle.bind(this, getRandomValueInRange(10, 25), 0, 0),
+                '-' : this.rotateTurtle.bind(this, getRandomValueInRange(-10, -25), 0, 0),
+                'F' : this.makeCylinder.bind(this, 2, 0.2),
                 '[' : this.saveState.bind(this),
                 ']' : this.restoreState.bind(this)
             };
