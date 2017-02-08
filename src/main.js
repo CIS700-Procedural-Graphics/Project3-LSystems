@@ -27,12 +27,8 @@ function onLoad(framework) {
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
-  var ll = stringToLinkedList("F+X[F]");
-  console.log(linkedListToString(ll));
-  lsys.doIterations(1);
-
-
   turtle = new Turtle(scene);
+  doLsystem(lsys, 1, turtle);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();

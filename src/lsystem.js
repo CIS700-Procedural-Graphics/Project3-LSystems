@@ -69,11 +69,16 @@ class LinkedList {
     deleteNode(nodeToDelete) {
         var prevNode = nodeToDelete.getPrev();
         var nextNode = nodeToDelete.getNext(); 
-        if (prevNode != null) {
-            prevNode.setNext(nextNode);
-        } 
-        if (nextNode != null) {
+        if (prevNode == null && nextNode == null) {
+            this.startNode = null;
+        } else if (prevNode == null && nextNode != null) {
+            this.startNode = nextNode;
+            nextNode.setPrev(null);
+        } else if (prevNode != null && nextNode == null) {
+            prevNode.setNext(null);
+        } else {
             nextNode.setPrev(prevNode);
+            prevNode.setNext(nextNode);
         }
         this.length--;
     }
@@ -95,13 +100,19 @@ class LinkedList {
             var prevNode = nodeToExpand.getPrev();
             var nextNode = nodeToExpand.getNext();
             this.deleteNode(nodeToExpand);
+            var simpleAdd = true;
+            if (this.length > 0) simpleAdd = !simpleAdd;
             for (var i = 0; i < replacementSymbols.length; i++) {
-                var newNode = new Node();
-                newNode.setSymbol(replacementSymbols[i]);
-                this.linkNodes(prevNode, newNode);
-                prevNode = newNode;
-                if (i == replacementSymbols.length - 1) {
-                    this.linkNodes(newNode, nextNode);
+                if (!simpleAdd) {
+                    var newNode = new Node();
+                    newNode.setSymbol(replacementSymbols[i]);
+                    this.linkNodes(prevNode, newNode);
+                    prevNode = newNode;
+                    if (i == replacementSymbols.length - 1) {
+                        this.linkNodes(newNode, nextNode);
+                    }
+                } else {
+                    this.addNodeWithSymbol(replacementSymbols[i]);
                 }
                 this.length++;
             }
@@ -145,11 +156,12 @@ function replaceNode(linkedList, node, replacementString) {
 
 export default function Lsystem(axiom, grammar, iterations) {
     // default LSystem
-    this.axiom = "FX";
+    this.axiom = "F";// FX";
     this.grammar = {};
-    this.grammar['X'] = [
-        new Rule(1.0, '[-FX][+FX]')
-    ];
+    // this.grammar['X'] = [
+    //     new Rule(1.0, '[-FX][+FX]')
+    // ];
+    this.grammar['F'] = [ new Rule(1.0, '[-F][F+]')];
     this.iterations = 0; 
     
     // Set up the axiom string
@@ -187,18 +199,20 @@ export default function Lsystem(axiom, grammar, iterations) {
         var lSystemLL = stringToLinkedList(this.axiom);
         console.log("do " + n + " iterations ");
         console.log(linkedListToString(lSystemLL));
-        var temp = lSystemLL.getStartNode();
         for (var i = 0; i <= n; i++) {
+            var temp = lSystemLL.getStartNode();
             var lSystemLength = lSystemLL.getLength();
+            console.log(lSystemLength);
             for (var j = 0; j < lSystemLength; j++) {
                 if (temp == null) break;
                 var grammarRuleArray = this.grammar[temp.getSymbol()];
                 if (grammarRuleArray != null) {
                     var replacementString = grammarRuleArray[0].successorString;
-                    replaceNode(lSystemLL,temp, replacementString);
+                    replaceNode(lSystemLL, temp, replacementString);
                 } 
                 temp = temp.getNext(); 
             }
+            console.log(linkedListToString(lSystemLL));
         }
         console.log("after replacement");
         console.log(linkedListToString(lSystemLL));
