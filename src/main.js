@@ -1,7 +1,7 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {stringToLinkedList, linkedListToString, replaceNode} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
@@ -20,6 +20,7 @@ function onLoad(framework) {
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
+  scene.background = new THREE.Color('skyblue');
 
   // set camera position
   camera.position.set(1, 1, 2);
@@ -28,13 +29,14 @@ function onLoad(framework) {
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
+  doLsystem(lsys, 1, turtle);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
@@ -54,7 +56,7 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
