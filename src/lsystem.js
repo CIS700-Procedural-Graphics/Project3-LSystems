@@ -209,7 +209,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 			}
 		}
 
-		console.log(lSystemLL.toString());
 		return lSystemLL;
 	}
 }

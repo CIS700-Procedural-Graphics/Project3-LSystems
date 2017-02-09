@@ -27,7 +27,7 @@ export default class Turtle {
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
                 '[' : this.pushState.bind(this),
                 ']' : this.popState.bind(this),
-                '|' : this.rotateTutle.bind(this, 180, 0, 0)
+                '|' : this.rotateTurtle.bind(this, 180, 0, 0)
             };
         } else {
             this.renderGrammar = grammar;
