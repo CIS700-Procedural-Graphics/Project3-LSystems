@@ -6,6 +6,7 @@ For this project I generated an L-System parser, and used it to visualize a bamb
 *basic bamboo plant*
 
 ![Alt text](references/top-view.png?raw=true)
+*leaves modeled in Maya*
 
 ![Alt text](references/multiple-branches.png?raw=true)
 *branching behavior*
