@@ -26,7 +26,7 @@ function onLoad(framework) {
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
   // add in an ambient light 
-  var light = new THREE.AmbientLight( 0x404040, 1.5 );
+  var light = new THREE.AmbientLight( 0x404040, 1.7 );
   scene.add(light);
 
   // set camera position
@@ -35,7 +35,7 @@ function onLoad(framework) {
 
   // add in ground plane
   var material = new THREE.MeshLambertMaterial( { color: 0xcbccb8 } );
-  var geometry = new THREE.CylinderGeometry( 30, 30, 1, 50 );
+  var geometry = new THREE.CylinderGeometry( 10, 10, 1, 50 );
   var cylinder = new THREE.Mesh( geometry, material );
   scene.add( cylinder );
 
@@ -52,7 +52,7 @@ function onLoad(framework) {
 
   // initialize LSystem and a Turtle to draw  
   var lsys = new Lsystem();
-  turtle = new Turtle(scene, lMesh, 0x6c8619); 
+  turtle = new Turtle(scene, lMesh, branchAngle); 
 
   // GUI stuff
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
