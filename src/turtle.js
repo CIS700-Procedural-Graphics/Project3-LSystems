@@ -21,8 +21,6 @@ export default class Turtle {
         this.mesh = mesh;
         this.angle = angle;
         this.dimen = 10; 
-        this.geometries = []; 
-        this.ruleArr = []; 
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -133,9 +131,6 @@ export default class Turtle {
 
         // //Scoot the turtle forward by len units
         this.moveForward(len/2);
-
-        this.geometries.push(cylinder); 
-        this.ruleArr.push(this.makeCylinder.bind(this, len, width)); 
     };
 
     makeSmallBranch(len, width) {
@@ -163,9 +158,6 @@ export default class Turtle {
 
         //Scoot the turtle forward by len units
         this.moveForward(len/2);
-
-        this.geometries.push(cylinder); 
-        this.ruleArr.push(this.makeDivider.bind(this, len, width)); 
     };
 
     rotateBase() {
@@ -197,10 +189,7 @@ export default class Turtle {
       leafMesh.rotateZ(Math.PI / 7);
 
       // add leaf to the scene
-      this.scene.add(leafMesh);
-    
-      this.geometries.push(leafMesh);
-      this.ruleArr.push(this.rotateBase.bind(this, direction));  
+      this.scene.add(leafMesh);    
     };
 
     // Call the function to which the input symbol is bound.
