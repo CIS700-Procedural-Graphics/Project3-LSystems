@@ -54,9 +54,6 @@ export default class Turtle {
                 'Q' : this.makeLeaf.bind(this, Math.PI * 1.5),
                 'W' : this.makeLeaf.bind(this, Math.PI / 4),
                 'E' : this.makeLeaf.bind(this, -Math.PI ), 
-
-                // working on making multiple instances of geometry... sad 
-                'M' : this.makeForest.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -86,24 +83,6 @@ export default class Turtle {
 
     popState() {
         this.state = this.stack.pop(); 
-    };
-
-    makeForest(numTrees) {
-        // console.log("hi " + this.ruleArr.length); 
-        // for (var i = 0; i < this.ruleArr.length; i++) {
-        //     // execute the function ? idk
-        //     // console.log(this.ruleArr[i]);
-        //     turtle.state.pos = new THREE.Vector(10,0,0); 
-        //     this.ruleArr[i];
-        // }
-        // for (var i = 0; i < this.geometries.length; i ++) {
-        //     var newGeom = this.geometries[i];
-        //     var newMesh = new THREE.Mesh(newGeom.geometry, newGeom.material);
-        //     newMesh.rotation.set(newGeom.rotation.x,newGeom.rotation.y,newGeom.rotation.z);
-        //     newMesh.position.set(newGeom.position.x,newGeom.position.y,newGeom.position.z);
-        //     this.scene.add(newMesh);
-        //     newMesh.translateX(10);    
-        // }
     };
 
     // Rotate the turtle's _dir_ vector by each of the 
@@ -157,32 +136,6 @@ export default class Turtle {
 
         this.geometries.push(cylinder); 
         this.ruleArr.push(this.makeCylinder.bind(this, len, width)); 
-
-        // // TRYING TO MAKE A FOREST YALL. ... but it only follows the original state...
-        // // it doesn't make a new continuous branch. What to do? 
-        // var origState = new THREE.Vector3(this.state.pos.x,this.state.pos.y,this.state.pos.z);
-        // for (var i = 0; i < this.dimen; i++) {
-        //     this.state.pos = new THREE.Vector3(i + 2,this.state.pos.y - 1, this.state.pos.z);
-        //     var geometryi = new THREE.CylinderGeometry(width, width, len);
-        //     var materiali = new THREE.MeshLambertMaterial( {color: 0x6c8619} );
-        //     var cylinderi = new THREE.Mesh( geometryi, materiali );
-        //     this.scene.add(cylinderi);
-
-        //     //Orient the cylinder to the turtle's current direction
-        //     var quat = new THREE.Quaternion();
-        //     quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-        //     var mat4 = new THREE.Matrix4();
-        //     mat4.makeRotationFromQuaternion(quat);
-        //     cylinderi.applyMatrix(mat4);
-
-        //     //Move the cylinder so its base rests at the turtle's current position
-        //     var mat5 = new THREE.Matrix4();
-        //     var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
-        //     mat5.makeTranslation(trans.x, trans.y, trans.z);
-        //     cylinderi.applyMatrix(mat5);
-        // }
-        // // set the state back to its original 
-        // this.state.pos = new THREE.Vector3(origState.x,origState.y,origState.z);
     };
 
     makeSmallBranch(len, width) {
@@ -213,32 +166,6 @@ export default class Turtle {
 
         this.geometries.push(cylinder); 
         this.ruleArr.push(this.makeDivider.bind(this, len, width)); 
-
-        // FOREST ATTEMPTS 
-        // var origState = new THREE.Vector3(this.state.pos.x,this.state.pos.y,this.state.pos.z);
-        // for (var i = 0; i < this.dimen; i++) {
-        //     this.state.pos = new THREE.Vector3(i + 2,this.state.pos.y , this.state.pos.z);
-        //     var geometryi = new THREE.CylinderGeometry(width, width, len);
-        //     var materiali = new THREE.MeshLambertMaterial( {color: 0xddd8a2} );
-        //     var cylinderi = new THREE.Mesh( geometryi, materiali );
-        //     this.scene.add(cylinderi);
-
-        //     //Orient the cylinder to the turtle's current direction
-        //     var quat = new THREE.Quaternion();
-        //     quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-        //     var mat4 = new THREE.Matrix4();
-        //     mat4.makeRotationFromQuaternion(quat);
-        //     cylinderi.applyMatrix(mat4);
-
-        //     //Move the cylinder so its base rests at the turtle's current position
-        //     var mat5 = new THREE.Matrix4();
-        //     var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
-        //     mat5.makeTranslation(trans.x, trans.y, trans.z);
-        //     cylinderi.applyMatrix(mat5);
-        // }
-        // // set the state back to its original 
-        // this.state.pos = new THREE.Vector3(origState.x,origState.y,origState.z);
-
     };
 
     rotateBase() {

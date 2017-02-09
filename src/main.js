@@ -7,6 +7,7 @@ import Turtle from './turtle.js'
 var turtle;
 var lMesh; 
 var branchAngle = 8.0;
+var branching = 1; 
 
 // called after the scene loads
 function onLoad(framework) {
@@ -61,24 +62,43 @@ function onLoad(framework) {
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.updateAxiom(newVal);
+        for (var i = 0; i < branching; i++) {
     doLsystem(lsys, lsys.iterations, turtle);
+  }
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 15).step(1).onChange(function(newVal) {
     clearScene(turtle);
+        for (var i = 0; i < branching; i++) {
     doLsystem(lsys, newVal, turtle);
+    }
+
   });
 
   var guiItems = function() {
-    this.branchAngle = 8.0;
+    this.angle = 8.0;
+    this.branching = 1; 
   }
   var guio = new guiItems(); 
-  gui.add(guio, 'branchAngle', 0, 30).step(1).onChange(function(newVal) {
+
+  gui.add(guio, 'branching', 1, 10).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    branching = newVal; 
+    for (var i = 0; i < branching; i++) {
+      turtle.state.pos = new THREE.Vector3(0,10,0);
+        doLsystem(lsys, lsys.iterations, turtle); 
+    }
+  });
+
+  gui.add(guio, 'angle', 0, 30).step(1).onChange(function(newVal) {
     clearScene(turtle);
     branchAngle = newVal;
     turtle.angle = branchAngle;
-    doLsystem(lsys, lsys.iterations, turtle);
+    for (var i = 0; i < branching; i++) {
+        doLsystem(lsys, lsys.iterations, turtle); 
+    }
   });
+
 }
 
 // clears the scene by removing all geometries added by turtle.js

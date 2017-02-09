@@ -148,7 +148,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(0.1, 'S[D][-BQ]FY'),
 
 		// branching behavior in base branch
-		new Rule(0.5, 'S[D][LAY]Y')
+		new Rule(0.05, 'S[D][LAY]Y')
 	];
 	this.grammar['A'] = [
 		new Rule(1.0, 'S[D]FA')
