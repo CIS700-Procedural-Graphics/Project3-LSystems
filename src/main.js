@@ -31,7 +31,7 @@ function onLoad(framework) {
   scene.add(light);
 
   // set camera position
-  camera.position.set(10, 3, 10);
+  camera.position.set(15, 6, 15);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // add in ground plane
