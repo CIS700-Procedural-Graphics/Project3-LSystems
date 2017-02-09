@@ -2,7 +2,7 @@
   "scripts": {
     "start": "webpack-dev-server --hot --inline",
     "build": "webpack",
-    "deploy": "node deploy.js"
+    "deploy": "gh-pages-deploy"
   },
   "gh-pages-deploy": {
     "prep": [

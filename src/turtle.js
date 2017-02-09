@@ -111,6 +111,8 @@ export default class Turtle {
     
     // Make a cylinder of given length and width starting at turtle pos
     // Moves turtle pos ahead to end of the new cylinder
+    // 0x6c8619 light green
+    // 0x2a4d19 darker green
     makeCylinder(len, width) {
         var geometry = new THREE.CylinderGeometry(width, width, len);
         var material = new THREE.MeshLambertMaterial( {color: 0x6c8619} );

@@ -43,7 +43,9 @@ function onLoad(framework) {
   var objLoader = new THREE.OBJLoader();
   objLoader.load('geo/leafgroup.obj', function(obj) {
     var leafGeo = obj.children[0].geometry;
-    var leafMat = new THREE.MeshLambertMaterial( {color: 0x9fbf12} );
+    // lime green 0x9fbf12
+    // another green 0x6c8619
+    var leafMat = new THREE.MeshLambertMaterial( {color: 0x9ab021} );
     var leafMesh = new THREE.Mesh(leafGeo, leafMat);
     lMesh = leafMesh; 
   });
@@ -77,7 +79,6 @@ function onLoad(framework) {
     turtle.angle = branchAngle;
     doLsystem(lsys, lsys.iterations, turtle);
   });
-
 }
 
 // clears the scene by removing all geometries added by turtle.js
