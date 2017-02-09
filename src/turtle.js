@@ -14,11 +14,12 @@ var TurtleState = function(pos, dir) {
   
 export default class Turtle {
     
-    constructor(scene, mesh, grammar) {
+    constructor(scene, mesh, angle, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.stack = [];
         this.mesh = mesh;
+        this.angle = angle;
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
@@ -48,8 +49,8 @@ export default class Turtle {
                 // to place leaves
                 'P' : this.makeLeaf.bind(this, Math.PI / 2),
                 'Q' : this.makeLeaf.bind(this, Math.PI * 1.5),
-                'W' : this.makeLeaf.bind(this, "posZ"),
-                'E' : this.makeLeaf.bind(this, "negZ")
+                'W' : this.makeLeaf.bind(this, Math.PI / 4),
+                'E' : this.makeLeaf.bind(this, -Math.PI )
             };
         } else {
             this.renderGrammar = grammar;
@@ -80,6 +81,10 @@ export default class Turtle {
     popState() {
         this.state = this.stack.pop(); 
     };
+
+    makeForest(numTrees) {
+        // idk how to make multiple instances of this? idk 
+    }
 
     // Rotate the turtle's _dir_ vector by each of the 
     // Euler angles indicated by the input.
@@ -157,8 +162,11 @@ export default class Turtle {
     };
 
     rotateBase() {
-        var x = Math.random() * 6 - 3;
-        var z = Math.random() * 6 - 3;
+        var x = Math.random() * this.angle - this.angle / 2.0;
+        var z = Math.random() * this.angle - this.angle / 2.0;
+        // var x = Math.random() * 6 - 3;
+        // var z = Math.random() * 6 - 3;
+
         var e = new THREE.Euler(
                 x * 3.14/180,
                 0 * 3.14/180,
@@ -166,36 +174,25 @@ export default class Turtle {
         this.state.dir.applyEuler(e);
     };
 
-    // DISPLAY LEAF... BUT NEED TO FIX POSITION/ ORIENTATION 
+    // DISPLAY LEAF
     makeLeaf(direction) {
       var leafMesh = new THREE.Mesh(this.mesh.geometry, this.mesh.material);
       leafMesh.scale.set(0.8,0.8,0.8);
       leafMesh.position.set(this.state.pos.x,this.state.pos.y,this.state.pos.z );
 
-      var randOffset = (Math.random() * 10 - 5) / 100; 
+      // get a little bit of variation in the leaf orientation
+      var randOffset = (Math.random() * 10 - 5) / 20; 
 
       // orient the leaf based on its direction
-      // if (direction === "posX") {
-          leafMesh.rotateY(direction + randOffset);
-          leafMesh.translateZ( -4.0 );
-          leafMesh.translateX(-1.06);
-          leafMesh.translateY(-0.2);
-          leafMesh.rotateZ(Math.PI / 7);
-      // } else if (direction === "negX") {
-      //     leafMesh.rotateY(Math.PI * 1.5);
-      //     leafMesh.translateZ( -4.0 );
-      //     leafMesh.translateX(-1.06);
-      //     leafMesh.translateY(-0.2);
-      //     leafMesh.rotateZ(Math.PI / 7);
-      // } else if (direction === "posZ") {
-      //   // 
-      // } else if (direction === "negZ") {
-      //   // 
-      // }    
-      
+      leafMesh.rotateY(direction + randOffset);
+      leafMesh.translateX(-1.06);
+      leafMesh.translateY(-0.2);
+      leafMesh.translateZ(-4.0);
+      leafMesh.rotateZ(Math.PI / 7);
+
+      // add leaf to the scene
       this.scene.add(leafMesh);
     };
-
 
     // Call the function to which the input symbol is bound.
     // Look in the Turtle's constructor for examples of how to bind 

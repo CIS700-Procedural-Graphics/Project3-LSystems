@@ -6,6 +6,7 @@ import Turtle from './turtle.js'
 
 var turtle;
 var lMesh; 
+var branchAngle = 8.0;
 
 // called after the scene loads
 function onLoad(framework) {
@@ -24,24 +25,21 @@ function onLoad(framework) {
   directionalLight.position.set(1, 2, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
-
-  var light = new THREE.AmbientLight( 0x404040, 1.5 ); // soft white light
-  scene.add( light );
+  // add in an ambient light 
+  var light = new THREE.AmbientLight( 0x404040, 1.5 );
+  scene.add(light);
 
   // set camera position
   camera.position.set(10, 3, 10);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  // add in plane
+  // add in ground plane
   var material = new THREE.MeshLambertMaterial( { color: 0xcbccb8 } );
   var geometry = new THREE.CylinderGeometry( 30, 30, 1, 50 );
   var cylinder = new THREE.Mesh( geometry, material );
   scene.add( cylinder );
 
-var axisHelper = new THREE.AxisHelper( 40 );
-scene.add( axisHelper );
-
-      // load a simple obj mesh
+  // load leaf mesh
   var objLoader = new THREE.OBJLoader();
   objLoader.load('geo/leafgroup.obj', function(obj) {
     var leafGeo = obj.children[0].geometry;
@@ -52,8 +50,9 @@ scene.add( axisHelper );
 
   // initialize LSystem and a Turtle to draw  
   var lsys = new Lsystem();
-  turtle = new Turtle(scene, lMesh); 
+  turtle = new Turtle(scene, lMesh, 0x6c8619); 
 
+  // GUI stuff
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
@@ -67,6 +66,18 @@ scene.add( axisHelper );
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+
+  var guiItems = function() {
+    this.branchAngle = 8.0;
+  }
+  var guio = new guiItems(); 
+  gui.add(guio, 'branchAngle', 0, 30).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    branchAngle = newVal;
+    turtle.angle = branchAngle;
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -78,10 +89,11 @@ function clearScene(turtle) {
   } 
 }
 
+// completes the lsystem
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene, lMesh);
+    turtle = new Turtle(turtle.scene, lMesh, branchAngle);
     turtle.renderSymbols(result);
 }
 

@@ -142,11 +142,10 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(0.55, 'S[D]FY'),
 
 		// rotate and add smaller branches
-		// new Rule(0.1, 'S[D][JBW]FY'),
-		// new Rule(0.1, 'S[D][KBE]FY'),
-		// new Rule(0.1, 'S[D][+BP]FY'),
-		// new Rule(0.1, 'S[D][-BQ]FY'),
-		new Rule(0.4, 'S[D][-BQ]FY'),
+		new Rule(0.1, 'S[D][JBW]FY'),
+		new Rule(0.1, 'S[D][KBE]FY'),
+		new Rule(0.1, 'S[D][+BP]FY'),
+		new Rule(0.1, 'S[D][-BQ]FY'),
 
 		// branching behavior in base branch
 		new Rule(0.5, 'S[D][LAY]Y')
@@ -154,10 +153,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.grammar['A'] = [
 		new Rule(1.0, 'S[D]FA')
 	];
-	// this.grammar['Q'] = [
-	// 	// new Rule(.5, 'B'),
-	// 	new Rule(1.0, 'P')
-	// ];
 
 	this.iterations = 0; 
 	
@@ -219,9 +214,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 				}
 			}
 		}
-
-		// console.log("lSystemString: " + linkedListToString(lSystemLL));
-
 		return lSystemLL;
 	}
 }
