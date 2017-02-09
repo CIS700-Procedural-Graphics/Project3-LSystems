@@ -3,11 +3,12 @@
 For this project I generated an L-System parser, and used it to visualize a bamboo plant. 
 
 ![Alt text](references/size-view.png?raw=true)
+*basic bamboo plant*
 
 ![Alt text](references/top-view.png?raw=true)
-*Wing with wind displacement turned on*
 
 ![Alt text](references/multiple-branches.png?raw=true)
+*branching behavior*
 
 ## Project Description
 
