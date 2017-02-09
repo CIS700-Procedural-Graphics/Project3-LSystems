@@ -16,14 +16,17 @@ export default class Turtle {
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
+        this.stateStack = [];
 
         // TODO: Start by adding rules for '[' and ']' then more!
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 30, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                '+' : this.rotateTurtle.bind(this, 72, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -72, 0, 0),
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+                '[' : this.pushState.bind(this),
+                ']' : this.popState.bind(this)
             };
         } else {
             this.renderGrammar = grammar;
@@ -90,6 +93,20 @@ export default class Turtle {
 
         //Scoot the turtle forward by len units
         this.moveForward(len/2);
+    };
+
+    // Add state into the stack
+    pushState() {
+        this.stateStack.push(cloneState());
+    };
+
+    // Restore state to the LIFO
+    popState() {
+        this.state = this.stateStack.pop();
+    };
+
+    cloneState() {
+        return JSON.parse(JSON.stringify(this.state));
     };
     
     // Call the function to which the input symbol is bound.
