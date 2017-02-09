@@ -29,7 +29,7 @@ function onLoad(framework) {
   scene.add( light );
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(10, 3, 10);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // add in plane
@@ -38,6 +38,9 @@ function onLoad(framework) {
   var cylinder = new THREE.Mesh( geometry, material );
   scene.add( cylinder );
 
+var axisHelper = new THREE.AxisHelper( 40 );
+scene.add( axisHelper );
+
       // load a simple obj mesh
   var objLoader = new THREE.OBJLoader();
   objLoader.load('geo/leafgroup.obj', function(obj) {
@@ -45,7 +48,6 @@ function onLoad(framework) {
     var leafMat = new THREE.MeshLambertMaterial( {color: 0x9fbf12} );
     var leafMesh = new THREE.Mesh(leafGeo, leafMat);
     lMesh = leafMesh; 
-    // leafMesh.rotation.set(Math.PI / 2.0, 0, 0);
   });
 
   // initialize LSystem and a Turtle to draw  

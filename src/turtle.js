@@ -24,21 +24,32 @@ export default class Turtle {
         // Make sure to implement the functions for the new rules inside Turtle
         if (typeof grammar === "undefined") {
             this.renderGrammar = {
-                '+' : this.rotateTurtle.bind(this, 25, 0, 0),
-                '-' : this.rotateTurtle.bind(this, -25, 0, 0),
+                // large base cylinder
                 'F' : this.makeCylinder.bind(this, 2, 0.15),
+
+                // save state/return state
                 '[' : this.saveState.bind(this),
                 ']' : this.popState.bind(this),
-                'B' : this.makeSmallBranch.bind(this, 1.5, 0.02),
+
+                // small branch geometry
+                'B' : this.makeSmallBranch.bind(this, 1.5, 0.05),
                 'S' : this.rotateBase.bind(this),
-                'D' : this.makeDivider.bind(this, .030, 0.18),
-                // to rotate branch position
+                'D' : this.makeDivider.bind(this, .037, 0.20),
+
+                // to rotate smaller branch position
+                '+' : this.rotateTurtle.bind(this, 25, 0, 0),
+                '-' : this.rotateTurtle.bind(this, -25, 0, 0),
                 'J' :  this.rotateTurtle.bind(this, 0, 0, 25),
                 'K' : this.rotateTurtle.bind(this, 0, 0, -25),
 
                 // small increment for branching
                 'L' : this.rotateTurtle.bind(this, 0,0,8),
-                'P' : this.makeLeaf.bind(this)
+
+                // to place leaves
+                'P' : this.makeLeaf.bind(this, Math.PI / 2),
+                'Q' : this.makeLeaf.bind(this, Math.PI * 1.5),
+                'W' : this.makeLeaf.bind(this, "posZ"),
+                'E' : this.makeLeaf.bind(this, "negZ")
             };
         } else {
             this.renderGrammar = grammar;
@@ -68,32 +79,6 @@ export default class Turtle {
 
     popState() {
         this.state = this.stack.pop(); 
-    };
-
-    // TRY TO LOAD OBJ
-    makeLeaf() {
-      var leafMesh = new THREE.Mesh(this.mesh.geometry, this.mesh.material);
-      leafMesh.position.set(this.state.pos.x, this.state.pos.x, this.state.pos.z)
-      leafMesh.scale.set(1/2.0,1/2.0,1/2.0);
-      leafMesh.rotation.set(Math.PI / 2.0, 0, 0);
-      this.scene.add(leafMesh);
-
-              //Orient the cylinder to the turtle's current direction
-        var quat = new THREE.Quaternion();
-        quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
-        var mat4 = new THREE.Matrix4();
-        mat4.makeRotationFromQuaternion(quat);
-        leafMesh.applyMatrix(mat4);
-
-        // //Move the cylinder so its base rests at the turtle's current position
-        var mat5 = new THREE.Matrix4();
-        var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * 1));
-        mat5.makeTranslation(trans.x, trans.y, trans.z);
-        leafMesh.applyMatrix(mat5);
-
-        // //Scoot the turtle forward by len units
-        this.moveForward(1/2);
-
     };
 
     // Rotate the turtle's _dir_ vector by each of the 
@@ -180,6 +165,37 @@ export default class Turtle {
                 z * 3.14/180);
         this.state.dir.applyEuler(e);
     };
+
+    // DISPLAY LEAF... BUT NEED TO FIX POSITION/ ORIENTATION 
+    makeLeaf(direction) {
+      var leafMesh = new THREE.Mesh(this.mesh.geometry, this.mesh.material);
+      leafMesh.scale.set(0.8,0.8,0.8);
+      leafMesh.position.set(this.state.pos.x,this.state.pos.y,this.state.pos.z );
+
+      var randOffset = (Math.random() * 10 - 5) / 100; 
+
+      // orient the leaf based on its direction
+      // if (direction === "posX") {
+          leafMesh.rotateY(direction + randOffset);
+          leafMesh.translateZ( -4.0 );
+          leafMesh.translateX(-1.06);
+          leafMesh.translateY(-0.2);
+          leafMesh.rotateZ(Math.PI / 7);
+      // } else if (direction === "negX") {
+      //     leafMesh.rotateY(Math.PI * 1.5);
+      //     leafMesh.translateZ( -4.0 );
+      //     leafMesh.translateX(-1.06);
+      //     leafMesh.translateY(-0.2);
+      //     leafMesh.rotateZ(Math.PI / 7);
+      // } else if (direction === "posZ") {
+      //   // 
+      // } else if (direction === "negZ") {
+      //   // 
+      // }    
+      
+      this.scene.add(leafMesh);
+    };
+
 
     // Call the function to which the input symbol is bound.
     // Look in the Turtle's constructor for examples of how to bind 
