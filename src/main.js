@@ -29,12 +29,16 @@ function onLoad(framework) {
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
 
+  clearScene(turtle);
+  doLsystem(lsys, 0, turtle);
+
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
+    clearScene(turtle);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
@@ -42,19 +46,24 @@ function onLoad(framework) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+  console.log("onLoad finished");
 }
 
 // clears the scene by removing all geometries added by turtle.js
 function clearScene(turtle) {
   var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
-      obj = turtle.scene.children[i];
-      turtle.scene.remove(obj);
-  }
+  turtle.scene.children.forEach(function(object) {
+    turtle.scene.remove(object);
+  });
+  // for( var i = turtle.scene.children.length - 1; i > 3; i--) {
+  //     obj = turtle.scene.children[i];
+  //     turtle.scene.remove(obj);
+  // }
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    lsystem.iterations = iterations;
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
     turtle.renderSymbols(result);
