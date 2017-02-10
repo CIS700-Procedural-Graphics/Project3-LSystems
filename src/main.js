@@ -21,7 +21,7 @@ function onLoad(framework) {
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
-  var leafMaterial = new THREE.MeshLambertMaterial( {color: 0x3A5F0B, side: THREE.DoubleSide} );
+ /*  var leafMaterial = new THREE.MeshLambertMaterial( {color: 0x3A5F0B, side: THREE.DoubleSide} );
   var objLoader = new THREE.OBJLoader();
   objLoader.load('/leaf.obj', function(obj) {
     var leafOBJ = obj.children[0].geometry;
@@ -29,7 +29,7 @@ function onLoad(framework) {
     leaf.name="leaf1";
     scene.add(leaf);
     //var leaf = new THREE.Mesh(leafOBJ, lambertWhite);
-  });
+  }); */
 
   // set camera position
   camera.position.set(1, 1, 2);
