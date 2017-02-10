@@ -9,7 +9,7 @@ The objective of this assignment is to create an L System parser and generate in
 
 One of my plants
 ----------------
-![](./screenshot_1)
+![](./screenshot_1.png)
 
 # DISCLAIMER
 - Once you go past 5 iterations, your computer may commit Seppuku. However, that is not the shinobi way (it's a samurai tradition) and is in fact frowned upon.
