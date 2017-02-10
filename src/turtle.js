@@ -17,7 +17,7 @@ export default class Turtle {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
         this.stack = [];
-        this.angle = 30;
+        this.angle = Math.floor(Math.random() * 10) * 5;
         this.scale = 0.1;
         
         // TODO: Start by adding rules for '[' and ']' then more!
@@ -118,8 +118,8 @@ export default class Turtle {
         
         var e = new THREE.Euler(
                 x * 3.14/180,
-				y * 3.14/180,
-				z * 3.14/180);
+				(y + (Math.floor(Math.random() * 10) * (Math.floor(Math.random() * 10) - 5))) * 3.14/180,
+				(z + (Math.floor(Math.random() * 10) * (Math.floor(Math.random() * 10) - 5))) * 3.14/180);
         this.state.dir.applyEuler(e);
     }
 
@@ -146,7 +146,8 @@ export default class Turtle {
         var material = new THREE.MeshBasicMaterial( {color: 0x7D4900} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
-
+        
+        
         //Orient the cylinder to the turtle's current direction
         var quat = new THREE.Quaternion();
         quat.setFromUnitVectors(new THREE.Vector3(0,1,0), this.state.dir);
@@ -160,7 +161,8 @@ export default class Turtle {
         var trans = this.state.pos.add(this.state.dir.multiplyScalar(0.5 * len));
         mat5.makeTranslation(trans.x, trans.y, trans.z);
         cylinder.applyMatrix(mat5);
-
+        
+        
         //Scoot the turtle forward by len units
         this.moveForward(len/2);
     };
