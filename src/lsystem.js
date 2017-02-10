@@ -152,20 +152,16 @@ function replaceNode(linkedList, node, replacementString) {
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
-  // default LSystem
-  this.axiom = "F[+FX][-FX][(FX][)FX]";
+  // default LSystem, B: Branch
+  // this.axiom = "BW[+BW][-BW][(BW][)BW]";
+  this.axiom = "BX"
   this.grammar = {};
   this.grammar['X'] = [
-    new Rule(0.25, '[-FX][+FX]'),
-    new Rule(0.5, '[)FX][(FX]'),
-    // new Rule(0.25, '[<FX][>FX]'),
-    new Rule(0.25, '[FX]')
+    new Rule(0.3, '[-BLX][<BLX]'),
+    new Rule(0.1, 'BLX'),
+    new Rule(0.3, '[-BX][+BLX]BL[>BLX][(BLX]'),
+    new Rule(0.3, '[-BLX][+BLX][)BLX]')
   ];
-  // 'T' means terminal branch - draw a sakura blossom
-  // 'P' means 
-  // this.grammar['F'] = [
-  //   new Rule(1.0, 'X')
-  // ];
   this.iterations = 0;
 
   // Set up the axiom string
@@ -209,7 +205,6 @@ export default function Lsystem(axiom, grammar, iterations) {
 
   this.expand = function(symbol_list) {
     var curr = symbol_list.head;
-    // console.log("before expand");
     // print_list(symbol_list);
     while (curr !== undefined) {
       // look at each symbol, find it in the dictionary
@@ -221,18 +216,14 @@ export default function Lsystem(axiom, grammar, iterations) {
       if (this.grammar[sym]) {
         // generate a random number
         var rand = Math.random();
-        console.log(rand);
         // probabilistically choose a rule
         var sum = 0;
         var replacement_str;
         for (var i = 0; i < this.grammar[sym].length; i++) {
           var rule = this.grammar[sym][i];
           sum += rule.probability;
-          console.log("sum is: "+sum);
-          console.log("rand is: "+rand);
           if (sum >= rand) {
             replacement_str = rule.successorString;
-            console.log("replacement is: "+replacement_str);
             break;
           }
         }
@@ -245,7 +236,5 @@ export default function Lsystem(axiom, grammar, iterations) {
         curr = curr.next;
       }
     }
-    // console.log("after expand");
-    // print_list(symbol_list);
   }
 }
