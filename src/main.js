@@ -81,6 +81,9 @@ function onLoad(framework) {
     lsys.updateAxiom(newVal);
     clearScene(turtle);
     doLsystem(lsys, lsys.iterations, turtle);
+    for (var i = 0; i < 100; i++) {
+      scene.add(falling_leaves[i]);
+    }
   });
 
   gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
