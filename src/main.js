@@ -5,6 +5,9 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var lMesh; 
+var branchAngle = 8.0;
+var branching = 1; 
 
 // called after the scene loads
 function onLoad(framework) {
@@ -14,34 +17,88 @@ function onLoad(framework) {
   var gui = framework.gui;
   var stats = framework.stats;
 
+  // set background
+  renderer.setClearColor (0x9cb49c, 1);
+
   // initialize a simple box and material
   var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
   directionalLight.color.setHSL(0.1, 1, 0.95);
-  directionalLight.position.set(1, 3, 2);
+  directionalLight.position.set(1, 2, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
+  // add in an ambient light 
+  var light = new THREE.AmbientLight( 0x404040, 1.7 );
+  scene.add(light);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(15, 6, 15);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
-  turtle = new Turtle(scene);
+  // add in ground plane
+  var material = new THREE.MeshLambertMaterial( { color: 0xcbccb8 } );
+  var geometry = new THREE.CylinderGeometry( 10, 10, 1, 50 );
+  var cylinder = new THREE.Mesh( geometry, material );
+  scene.add( cylinder );
 
+  // load leaf mesh
+  var objLoader = new THREE.OBJLoader();
+  objLoader.load('geo/leafgroup.obj', function(obj) {
+    var leafGeo = obj.children[0].geometry;
+    // lime green 0x9fbf12
+    // another green 0x6c8619
+    var leafMat = new THREE.MeshLambertMaterial( {color: 0x9ab021} );
+    var leafMesh = new THREE.Mesh(leafGeo, leafMat);
+    lMesh = leafMesh; 
+  });
+
+  // initialize LSystem and a Turtle to draw  
+  var lsys = new Lsystem();
+  turtle = new Turtle(scene, lMesh, branchAngle); 
+
+  // GUI stuff
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
+        for (var i = 0; i < branching; i++) {
     doLsystem(lsys, lsys.iterations, turtle);
+  }
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'iterations', 0, 15).step(1).onChange(function(newVal) {
     clearScene(turtle);
+        for (var i = 0; i < branching; i++) {
     doLsystem(lsys, newVal, turtle);
+    }
+
   });
+
+  var guiItems = function() {
+    this.angle = 8.0;
+    this.branching = 1; 
+  }
+  var guio = new guiItems(); 
+
+  gui.add(guio, 'branching', 1, 10).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    branching = newVal; 
+    for (var i = 0; i < branching; i++) {
+      turtle.state.pos = new THREE.Vector3(0,10,0);
+        doLsystem(lsys, lsys.iterations, turtle); 
+    }
+  });
+
+  gui.add(guio, 'angle', 0, 30).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    branchAngle = newVal;
+    turtle.angle = branchAngle;
+    for (var i = 0; i < branching; i++) {
+        doLsystem(lsys, lsys.iterations, turtle); 
+    }
+  });
+
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -50,13 +107,14 @@ function clearScene(turtle) {
   for( var i = turtle.scene.children.length - 1; i > 3; i--) {
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
-  }
+  } 
 }
 
+// completes the lsystem
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene, lMesh, branchAngle);
     turtle.renderSymbols(result);
 }
 
