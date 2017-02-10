@@ -27,6 +27,5 @@ Following options are available in the GUI:
 
 The plants grow in 3D based on the grammar. Multiple rules can be applied for same symbols by slight modifications in the GUI (in main.js). The behavior on symbols can be changed in turtle.js
 
-The leaf arrangement is not yet working as expected.
-
-Deployment is pending due to git issues.
+Deployed site:
+https://rms13.github.io/Project3-LSystems/
