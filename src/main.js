@@ -111,7 +111,7 @@ function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
-    //turtle.printState();
+    //turtle.scene.add();
     turtle.renderSymbols(result);
 }
 

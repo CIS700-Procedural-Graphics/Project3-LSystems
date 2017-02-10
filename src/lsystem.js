@@ -185,10 +185,10 @@ function replaceNode(linkedList, node, replacementString) {
 export default function Lsystem(axiom, grammar, iterations) {
 	// default LSystem
 	this.axiom = "F";
-	this.F='FF-A[-AF+AF+AF]+A[+AF-AF-AF]B';//'FF-B[-AF+AF+AF]+A[+AF-AF-AF]-A[-AF+AF+AF]';
+	this.F='FF-A[-AF+AF+AFX]+A[+AF-AF-AFX]B';//'FF-B[-AF+AF+AF]+A[+AF-AF-AF]-A[-AF+AF+AF]';
 	this.X='X';
 	this.A='A';
-	this.B='-A[-AF+AF+AF]';
+	this.B='-A[-AF+AF+AFX]';
 	this.ProbabilityA=1.0;
 	this.ProbabilityB=0.1;
 	this.grammar = {};

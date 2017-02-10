@@ -26,6 +26,7 @@ export default class Turtle {
                 'F' : this.makeCylinder.bind(this, 2, 0.1),
                 'A' : this.operateA.bind(this),
                 'B' : this.operateB.bind(this),
+				'X' : this.operateX.bind(this),
                 '[' : this.saveState.bind(this),
                 ']' : this.resumeState.bind(this)
             };
@@ -58,6 +59,19 @@ export default class Turtle {
     operateB() // add functionality if needed
     {
       //this.rotateTurtle(Math.random()*60-30,0,Math.random()*60-30);
+    }
+	
+	operateX() // add functionality if needed
+    {
+		var geometry = new THREE.SphereGeometry(0.2,32,32);
+		var material = new THREE.MeshLambertMaterial( {color: 0x0000FF} );
+		if(Math.random()<0.6)
+			material.color.set(0xFF0000);
+		if(Math.random()<0.3)
+			material.color.set(0x00FF00);
+        var sphere = new THREE.Mesh( geometry, material );
+		sphere.position.set(this.state.pos.x,this.state.pos.y,this.state.pos.z);
+        this.scene.add( sphere );
     }
 
     // Resets the turtle's position to the origin
