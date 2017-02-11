@@ -1,36 +1,26 @@
-
-The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
-
 # L-System Parser
 
-lsystem.js contains classes for L-system, Rule, and LinkedList. Here’s our suggested structure:
+lsystem.js contains classes for L-system, Rule, and LinkedList.
 
 **The Symbol Nodes/Linked List:**
 
-Rather than representing our symbols as a string like in many L-system implementations, we prefer to use a linked list. This allows us to store additional information about each symbol at time of parsing (e.g. what iteration was this symbol added in?) Since we’re adding and replacing symbols at each iteration, we also save on the overhead of creating and destroying strings, since linked lists of course make it easy to add and remove nodes. You should write a Linked List class with Nodes that contain at least the following information:
-
-- The next node in the linked list
-- The previous node in the linked list
-- The grammar symbol at theis point in the overal string
-
-We also recommend that you write the following functions to interact with your linked list:
-
-- A function to symmetrically link two nodes together (e.g. Node A’s next is Node B, and Node B’s prev is Node A)
-- A function to expand one of the symbol nodes of the linked list by replacing it with several new nodes. This function should look at the list of rules associated with the symbol in the linked list’s grammar dictionary, then generate a uniform random number between 0 and 1 in order to determine which of the Rules should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random number in order to determine which Rule should be chosen.
+The L-System Axiom, Grammar strings are represented as linked lists nodes. This helps when iterating through the linked list to replace with the appropriate replacement rule string. The Linked List structure is opted as Javascript re-creates a new string each time a copy or an append is to be made to the string.
 
 **Rules:**
 
-These are containers for the preconditions, postconditions and probability of a single replacement operation. They should operate on a symbol node in your linked list.
+These are containers for the preconditions, postconditions and probability of a single replacement operation. They operate on a symbol node in your linked list.
+
+The rules are selected on a probablity bases which is changable in the UI. Each symbol is changed during the parsing state based on the probablity of choosing the Rule to replace it with. The probablity is stored along with each rule and during execution a random number is generated to either apply or reject the symbol-rule swapping. 
 
 **L-system:**
 
-This is the parser, which will loop through your linked list of symbol nodes and apply rules at each iteration.
+This is the parser, which loops through the linked list of symbol nodes and apply rules at each iteration.
 
-Implement the following functions in L-System so that you can apply grammar rules to your axiom given some number of iterations. More details and implementation suggestions about  functions can be found in the TODO comments
+tThe following functions are implemented in the L-System so that you one can apply grammar rules to the axiom given some number of iterations.
 
 - `stringToLinkedList(input_string)`
 - `linkedListToString(linkedList)`
-- `replaceNode(linkedList, node, replacementString)`
+- `replaceNode(linkedList, node, grammar, iterations)`
 - `doIterations(num)`
 
 ## Turtle
@@ -42,6 +32,12 @@ Implement the following functions in L-System so that you can apply grammar rule
     - When you parse `]` you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given `F[+F][-F]`, the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
 
 - In addition to operations for `[` and `]`, you must invent operations for any three symbols of your choosing.
+
+## Symbols
+
+F- moves forward creating a cylinder
+X- rotate turtle along Y-axis 90 degrees
+A- include a fruit object in the scene
 
 
 ## Interactivity
