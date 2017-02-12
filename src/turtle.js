@@ -1,5 +1,48 @@
 const THREE = require('three')
 
+/*********************************************/
+/**************** STACK CLASS ****************/
+/*********************************************/
+function Node(p, s) {
+    this.prev = p;
+    this.state = s;
+};
+
+function Stack() {
+    this.curr = null;
+
+    this.push = function(node) {
+        if (this.curr == null) {
+            node.prev = this.curr;
+
+            // move stack to next item
+            this.curr = node;
+        } 
+    }
+    
+    this.pop = function() {
+        var top = this.curr;
+        this.curr = this.curr.prev;
+        return top;
+    }
+
+};
+/**************** end: STACK CLASS ****************/
+
+var prevSavedStates = new Stack();
+
+function rgbOneComponentToHex(rgbCol) {
+    var hex = rgbCol.toString(16);
+    console.log("INSIDE RGB ONE COMPONENT TO HEX: hex value for " + rgbCol + " is : " + hex);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function fullRGBToHex(r, g, b) {
+    var ret = "#" + rgbOneComponentToHex(r) + rgbOneComponentToHex(g) + rgbOneComponentToHex(b);
+    console.log("               HEX IS RET: " + ret);
+    return ret;
+}
+
 // A class used to encapsulate the state of a turtle at a given moment.
 // The Turtle class contains one TurtleState member variable.
 // You are free to add features to this state class,
@@ -12,7 +55,7 @@ var TurtleState = function(pos, dir) {
 }
   
 export default class Turtle {
-    
+
     constructor(scene, grammar) {
         this.state = new TurtleState(new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0));
         this.scene = scene;
@@ -23,11 +66,39 @@ export default class Turtle {
             this.renderGrammar = {
                 '+' : this.rotateTurtle.bind(this, 30, 0, 0),
                 '-' : this.rotateTurtle.bind(this, -30, 0, 0),
-                'F' : this.makeCylinder.bind(this, 2, 0.1)
+                'F' : this.makeCylinder.bind(this, 2, 0.1),
+
+                // the ones i added
+                'X' : this.makeCylinder.bind(this, 2, 0.1),
+                'A' : this.makeCylinder.bind(this, 2, 0.5),
+                'B' : this.rotateTurtle.bind(this, 10, 10, 0),
+                'C' : this.rotateTurtle.bind(this, -10, -10, 0),
+                // the ones required to implement
+                '[' : this.saveCurrState(),
+                ']' : this.goToPrevState()
             };
         } else {
             this.renderGrammar = grammar;
         }
+
+        this.color = {
+            r : 100,
+            g : 100,
+            b : 100
+        }
+    }
+
+    goToPrevState() {
+        //this.makeCylinder.bind(this, 1, 0.9);
+        var test = prevSavedStates.pop();
+        if (test != null) {
+            this.state = test; 
+        }
+    }
+
+    saveCurrState() {
+        //this.makeCylinder.bind(this, 1, 0.8);
+        prevSavedStates.push(this.state);
     }
 
     // Resets the turtle's position to the origin
@@ -70,7 +141,8 @@ export default class Turtle {
     // Moves turtle pos ahead to end of the new cylinder
     makeCylinder(len, width) {
         var geometry = new THREE.CylinderGeometry(width, width, len);
-        var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+        // var material = new THREE.MeshBasicMaterial( {color: 0x00cccc} );
+        var material = new THREE.MeshBasicMaterial( {color: fullRGBToHex(this.color.r, this.color.g, this.color.b)} );
         var cylinder = new THREE.Mesh( geometry, material );
         this.scene.add( cylinder );
 
@@ -89,7 +161,7 @@ export default class Turtle {
         cylinder.applyMatrix(mat5);
 
         //Scoot the turtle forward by len units
-        this.moveForward(len/2);
+        this.moveForward(len/2.0);
     };
     
     // Call the function to which the input symbol is bound.

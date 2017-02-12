@@ -5,6 +5,14 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var whichTree = {
+  tree: 0
+}
+var colorAttrib = {
+  r: 100,
+  g: 100,
+  b: 100
+}
 
 // called after the scene loads
 function onLoad(framework) {
@@ -33,30 +41,63 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
-  gui.add(lsys, 'axiom').onChange(function(newVal) {
+  // DISPLAYS THE CURRENT AXIOM
+  gui.add(lsys, 'axiom').listen().onChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(lsys, 'begAxiom').listen().onChange(function(newVal) {
+    lsys.updateBegAxiom(newVal);
+  });
+
+  gui.add(lsys, 'iterations', 0, 12).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
+  });
+
+ // GUI ELEMENT FOR PICKING IF DRAWING ORIGINAL AXIOM OR DRAWING A PLANT
+  gui.add(whichTree, 'tree', 0, 1).listen().step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, newVal, turtle);
+  });
+
+  gui.add(colorAttrib, 'r', 0, 255).listen().step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+  gui.add(colorAttrib, 'g', 0, 255).listen().step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
+    doLsystem(lsys, lsys.iterations, turtle);
+  });
+  gui.add(colorAttrib, 'b', 0, 255).listen().step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
+    doLsystem(lsys, lsys.iterations, turtle);
   });
 }
 
 // clears the scene by removing all geometries added by turtle.js
 function clearScene(turtle) {
   var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
+  for( var i = turtle.scene.children.length - 1; i > 0; i--) { //-HB changed i>3 to i>0 bc left remnant items in scene before
       obj = turtle.scene.children[i];
       turtle.scene.remove(obj);
   }
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations, whichTree.tree); // stating which tree is being built
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene); 
+    // updating new turtle's color values to proper attributes
+    turtle.color.r = colorAttrib.r;
+    turtle.color.g = colorAttrib.g;
+    turtle.color.b = colorAttrib.b;
+
+    // rendering resulting structuring
     turtle.renderSymbols(result);
 }
 

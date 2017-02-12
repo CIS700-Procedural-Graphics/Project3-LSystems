@@ -5,73 +5,64 @@ function Rule(prob, str) {
 	this.successorString = str; // The string that will replace the char that maps to this Rule
 }
 
+/*****************************************************************************/
+/**************** VAR OF WHICH SCENE BEING BUILT: WHICH RULES ****************/
+/*****************************************************************************/
+var tree = 0
+/**************** end:VAR OF WHICH SCENE BEING BUILT: WHICH RULES ****************/
+
 // TODO: Implement a linked list class and its requisite functions
 // as described in the homework writeup
 /***************************************************/
 /**************** LINKED LIST CLASS ****************/
 /***************************************************/
-function Node = {
-	this.prev: null;
-	this.next: null;
-	this.val: null;
-
-	setVals: function (a, b, c) {
-        this.prev = a;
-        this.next = b;
-        this.val = c;
-    }
+function Node(p, n, v) {
+	this.prev = p;
+	this.next = n;
+	this.character = v;
 };
 
 function LinkedList() {
     this.head = null;
 
     /***** link two nodes together symmetrically *****/
-    linkFirstThenSecond: function (a, b) {
-        a.next = b;
-        b.prev = a;
+    this.linkFirstThenSecond = function(a, b) {
+    	if (a != null) {
+    		a.next = b;
+    	}
+        if (b != null) {
+        	b.prev = a;
+        }
+        return;
     }
 
     /***** expand one node into more depending on rule *****/ 
     // A function to expand one of the symbol nodes of the linked list by replacing it with several new nodes.
     // node: node being inserted (listing of nodes that will replace char)
     // char: character that the listing of nodes will replace bc of the rule chosen for this iteration
-    expandNode: function (node, char) {
+    // onNode: current node being expanded
+    //
+    // returns node/null corresponding to whatever follows the last node added as the injected node sequence
+    this.expandNode = function(onNode, node, char) {
     	var begOfInsert = node;
     	var temp = node;
+
     	while (temp.next != null) {
     		temp = temp.next;
     	}
     	var endOfInsert = temp;
+
+    	//console.log("begOfInsert: " + begOfInsert.character);
+    	//console.log("endOfInsert: " + endOfInsert.character);
     	// now have begOfInsert and endOfInsert for easy insertion
 
-    	
-    	if (this.head == null) {
-    		// case 1: current list has no items
-    		this.head = node;
-    	} else {
-    		// case 2: current list has no items
-	    	var onNode = this.head;
+    	var prev = onNode.prev;
+    	var next = onNode.next;
+    	this.linkFirstThenSecond(prev, begOfInsert);
+    	this.linkFirstThenSecond(endOfInsert, next);
 
-	    	while (onNode != null) {
-	    		if (onNode.val == char) {
-	    			var nextN = onNode.next;
-	    			var prevN = onNode.prev;
-
-	    			onNode = node;
-
-	    			// finishing linking back to orig list
-	    			if (nextN != null) {
-	    				linkFirstThenSecond(endOfInsert, nextN);
-	    			}
-	    			if (prevN != null) {
-	    				linkFirstThenSecond(prevN, onNode);
-	    			}
-	    		}
-	    	} //end: while onNode != null
-
-    	} //end: this.head == null / != null
+    	return begOfInsert;
     }//end: expandNode method
-
 
 };
 /**************** end: LINKED LIST CLASS ****************/
@@ -88,11 +79,9 @@ export function stringToLinkedList(input_string) {
 	var working = input_string;
 
 	var onNode = ll.head;
-	while (working.length > 0) {
-		var char = working.substring(0,1);
-		var n = new Node();
-
-		n.val = char;
+	for (var i = 0; i < working.length; i++) {
+		var char = working.charAt(i);
+		var n = new Node(null, null, char);
 
 		if (ll.head == null) {
 			ll.head = n;
@@ -103,8 +92,6 @@ export function stringToLinkedList(input_string) {
 		// steps for iteration
 		// iterate current pointer node
 		onNode = n;
-		// iterate working string so ignore prev parts
-		working = working.substring(1);
 	}
 
 	return ll;
@@ -116,11 +103,12 @@ export function linkedListToString(linkedList) {
 	var result = "";
 
 	var onNode = linkedList.head;
-	while (onNode != null) {
-		result += onNode.val;
+	while (onNode != null && onNode.character != null) {
+		result += onNode.character;
 		onNode = onNode.next;
 	}
 
+	console.log("in linkedListToString: with output: "+ result);
 
 	return result;
 }
@@ -128,37 +116,64 @@ export function linkedListToString(linkedList) {
 // TODO: Given the node/char to be replaced, 
 // insert a sub-linked-list that represents replacementString
 // into the whole list
-function replaceNode(linkedList, node, replacementString) {
-	// looking for nodes of this value
-	var char = node.val; 
-	// nodes to replace given node
-	var listOfReplacement = stringToLinkedList(replacementString); 
+function replaceNode(linkedList, char, replacementString) {
+	//console.log("in replaceNode");
+	//console.log("CHAR BEING REPLACED: " + char + " replacement string for char: " + replacementString);
 
-	// expands all the nodes properly
-	linkedList.expandNode(listOfReplacement.head, char);
+	var onNode = linkedList.head;
+	//console.log("INSERTING IN THE REPLACEMENT STRING INTO PARTICULAR NODES");
+	
+	while (onNode != null && onNode.character != null) {
+		//console.log("onNode.character = " + onNode.character);
+		if (onNode.character == char) {
+			//console.log("		EXPANDING THE NODE");
+			var next = onNode.next;
+			var prev = onNode.prev;
+
+			var listOfReplacement = stringToLinkedList(replacementString); 
+			var returnedFromExpanded = linkedList.expandNode(onNode, listOfReplacement.head, char);
+			if (onNode.prev == null) {
+				linkedList.head = returnedFromExpanded;
+			}
+			
+
+			onNode = next;
+		} else {
+			onNode = onNode.next;
+		}
+
+		//console.log("CURRENTLY HAVE THE FOLLOWING FOR AXIOM: " + linkedListToString(linkedList));
+	}
 
 	return linkedList;
 }
 
 export default function Lsystem(axiom, grammar, iterations) {
+
 	// default LSystem
+	this.begAxiom = "FX";
 	this.axiom = "FX";
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(0.0, '[-FX][+FX]');
+		new Rule(0.6, "[-FX][+FX]"), // tree 0
+		new Rule(0.6, "[-FX][+FX][--FX][++FX]") // tree 1
 	];
 	// adding in my rules -HB
 	this.grammar['F'] = [
-		new Rule(0.1, '--XA++XF');
+		new Rule(0.7, "AFFB[BXX]"), // tree 0
+		new Rule(0.6, "[AFB]") // tree 1
 	];
 	this.grammar['A'] = [
-		new Rule(0.3, '-C+[ABC]+XF');
+		new Rule(0.4, "[-FFX[BXF]FC]FB"), // tree 0
+		new Rule(0.4, "[-FFC]B") // tree 1
 	];
 	this.grammar['B'] = [
-		new Rule(0.2, '-CX++[FA]');
+		new Rule(0.3, "[X+FFA]XCF"), // tree 0
+		new Rule(0.3, "[X+FF]F") // tree 1
 	];
 	this.grammar['C'] = [
-		new Rule(0.4, 'B+[XC]--AF');
+		new Rule(0.5, "XA[BXF]FX--F"), // tree 0
+		new Rule(0.5, "X[AFF]X") // tree 1
 	];
 
 	this.iterations = 0; 
@@ -189,6 +204,13 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
+	this.updateBegAxiom = function(axiom) {
+		// Setup axiom
+		if (typeof axiom !== "undefined") {
+			this.begAxiom = axiom;
+		}
+	}
+
 	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
@@ -200,41 +222,46 @@ export default function Lsystem(axiom, grammar, iterations) {
     // should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random
     // number in order to determine which Rule should be chosen.
     // note: the random part is done in do iterations in Lsystem.
-	this.doIterations = function(n) {	
+	this.doIterations = function(n, tree) {	
 		// set up for iterations
 		// var lSystemLL = StringToLinkedList(this.axiom);
 
+		// console.log("in lsystem.doIterations: with input of n: " + n + " iterations");
+		this.iterations = n;
 		if (n == 0) {
-			return StringToLinkedList(this.axiom);
+			return stringToLinkedList(this.axiom);
 		} 
 
 		var i = 0;
-		var list = StringToLinkedList(this.axiom);
 		while (i < n) {
-			// pick current rule for this iteration	
-			var rand = (Math.floor(Math.random() * 5.0)) / 10.0; // bc only 5 items but between 0 and 1
+			var list = stringToLinkedList(this.begAxiom);
+			var rand = (Math.floor(Math.random() * 5.0)) / 10.0 + 0.3; // bc only 5 items but between 0 and 1
 			var currChar;
-			if (rand == 0) {
+			if (rand == 0.6) {
 				currChar = 'X';
-			} else if (rand == .1) {
+			} else if (rand == 0.7) {
 				currChar = 'F';
-			} else if (rand == .2) {
+			} else if (rand == .4) {
 				currChar = 'A';
 			} else if (rand == .3) {
 				currChar = 'B';
-			} else if (rand == .4) {
+			} else if (rand == .5) {
 				currChar = 'C';
 			} else {
 				console.log("ERROR: GOT RAND VALUE THAT DOESNT MAP TO A RULE");
 				currChar = null;
 			}
 
-			replaceNode(list, new Node(null, null, currChar), this.grammar[currChar].successorString);
+			// search for all nodes with this value and expand/replace them properly
+			this.axiom = linkedListToString(replaceNode(list, currChar, this.grammar[currChar][tree].successorString));
+			console.log("updated the axiom to: " + this.axiom);
 
 			//iterate
 			i++;	
+			console.log("ITERATED I: " + i);
 		}
 		
+		console.log("finished this set of doIterations");
 		return list;
 	}
 }
