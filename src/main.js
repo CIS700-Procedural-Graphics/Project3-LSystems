@@ -5,6 +5,9 @@ import Lsystem, {LinkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var iter = {
+  iters: 0
+}
 var whichTree = {
   tree: 0
 }
@@ -53,9 +56,18 @@ function onLoad(framework) {
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).listen().step(1).onChange(function(newVal) {
+  gui.add(iter, 'iters', 0, 12).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
+
+    if (iter.iters > lsys.iterations) {
+      // then the tree is growing
+      console.log("INSIDE MAIN: iter.iters: " + iter.iters + " lsys.iterations: " + lsys.iterations);
+      buildOnOldSystem(lsys, iter.iters, turtle);
+    } else {
+      // otherwise create brand new tree
+      doLsystem(lsys, iter.iters, turtle);
+    }
+    lsys.iterations = newVal;
   });
 
  // GUI ELEMENT FOR PICKING IF DRAWING ORIGINAL AXIOM OR DRAWING A PLANT
@@ -66,20 +78,14 @@ function onLoad(framework) {
 
   gui.add(colorAttrib, 'r', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
-    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    //doLsystem(lsys, lsys.iterations, turtle);
     rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
   gui.add(colorAttrib, 'g', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
-    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    //doLsystem(lsys, lsys.iterations, turtle);
     rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
   gui.add(colorAttrib, 'b', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
-    // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    //doLsystem(lsys, lsys.iterations, turtle);
     rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
 }
@@ -108,14 +114,24 @@ function doRestForBuild(turtle, result) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
+    console.log("error? : 1" );
+
     var result = lsystem.doIterations(iterations, whichTree.tree); // stating which tree is being built
-    
+    console.log("error? : 1 : got result");
     doRestForBuild(turtle, result);
+}
+
+function buildOnOldSystem(lsystem, iterations, turtle) {
+    var result = lsystem.axiom;
+    console.log("error? : 2" );
+    var listFromOld = lsystem.doIterationsFromAxiom(iterations, whichTree.tree, result);
+    doRestForBuild(turtle, listFromOld);
 }
 
 
 function rebuildOldSystem(lsystem, iterations, turtle) {
-    var result = lsystem.getListOfAxiom(); // stating which tree is being built
+  console.log("error? : 3" );
+    var result = lsystem.getListOfAxiom(); 
     
     doRestForBuild(turtle, result);
 }

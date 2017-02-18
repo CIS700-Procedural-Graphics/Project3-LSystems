@@ -163,8 +163,8 @@ export default function Lsystem(axiom, grammar, iterations) {
 	this.grammar = {};
 	this.grammar['X'] = [
 		new Rule(0.6, "F-[B[X]+XC]+FA[+FXBC]-X"), // tree 0
-		new Rule(0.6, "F−[B[X]+XC]+FA[+FXBC]-X"), // tree 1
-		new Rule(0.6, '-FX')
+		new Rule(0.6, "F−[B+XC]+FA[+FC]-X"), // tree 1
+		new Rule(0.6, '-FAXBC')
 	];
 	// adding in my rules -HB
 	this.grammar['F'] = [
@@ -227,6 +227,17 @@ export default function Lsystem(axiom, grammar, iterations) {
 		return stringToLinkedList(this.axiom);
 	}
 
+	this.getStringOfAxiom = function() {
+		return linkedListToString(this.axiom);
+	}
+
+	this.doIterations = function(n, tree) {
+		console.log("before this.doIterationsFromAxiom");
+		console.log("this.begAxiom: " + this.begAxiom);
+		var listOut = this.doIterationsFromAxiom(n, tree, this.begAxiom);
+		return listOut;
+	}
+
 	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
@@ -238,28 +249,45 @@ export default function Lsystem(axiom, grammar, iterations) {
     // should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random
     // number in order to determine which Rule should be chosen.
     // note: the random part is done in do iterations in Lsystem.
-	this.doIterations = function(n, tree) {	
+    // AXIOM INPUTTED IS A STRING
+	this.doIterationsFromAxiom = function(n, tree, inputtedAxiom) {	
 		// set up for iterations
 		// var lSystemLL = StringToLinkedList(this.axiom);
 
 		// console.log("in lsystem.doIterations: with input of n: " + n + " iterations");
+		
+		var oldIter = this.iterations;
 		this.iterations = n;
 		if (n == 0) {
-			return stringToLinkedList(this.begAxiom);
+			return stringToLinkedList(inputtedAxiom);
 		} 
 
+		console.log("here1");
+
 		var i = 0;
-		var list = stringToLinkedList(this.begAxiom);
+		var list = stringToLinkedList(inputtedAxiom);
 
 		var stringListOfChars = "";
 
-		while (i < n) {
+		console.log("here2");
+
+		console.log("N - OLDITER : " + (n - oldIter));
+		console.log("N : " + n);
+		console.log("OLD ITER: " + oldIter);
+
+		var loopOver = n - oldIter;
+		if (loopOver < 0) {
+			loopOver = n;
+		}
+
+		while (i < loopOver) {
 
 			// GETTING THE RANDOM CHARACTER FOR THIS ITER
 			// curr chars used:
 			var h = list.head;
 			while (h != null) {
 				var onChar = h.character;
+				//console.log("on char : " + onChar);
 				if ( !(stringListOfChars.includes(onChar))
 						&& (onChar == 'F' || onChar == 'X' || onChar == 'A' || onChar == 'B' || onChar == 'C') ) {
 					stringListOfChars += h.character;
@@ -270,12 +298,12 @@ export default function Lsystem(axiom, grammar, iterations) {
 			var randForItem = Math.ceil( Math.random()*(stringListOfChars.length - 1) );
 			var currChar = stringListOfChars.charAt(randForItem);
 
-			console.log("CURRENT CHARACTER: " + currChar);
+			//console.log("CURRENT CHARACTER: " + currChar);
 
 			// search for all nodes with this value and expand/replace them properly
 			var currList = replaceNode(list, currChar, this.grammar[currChar][tree].successorString);
 			this.axiom = linkedListToString(currList);
-			console.log("updated the axiom to: " + this.axiom);
+			//console.log("updated the axiom to: " + this.axiom);
 
 			//iterate
 			i++;	
@@ -284,8 +312,10 @@ export default function Lsystem(axiom, grammar, iterations) {
 			// continue with current axiom
 			var list = currList;
 		}
+
+		console.log("here3");
 		
-		console.log("finished this set of doIterations");
+		console.log("finished this set of doIterations: current string: " + linkedListToString(list));
 		return list;
 	}
 }
