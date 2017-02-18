@@ -152,28 +152,40 @@ export default function Lsystem(axiom, grammar, iterations) {
 
 	// default LSystem
 	this.begAxiom = "FX";
-	this.axiom = "FX";
+	/*
+	if (tree == 0) {
+		this.begAxiom = "FX";
+	} else if (tree == 1) {
+		this.begAxiom = "X";
+	}
+	*/
+	this.axiom = this.begAxiom;
 	this.grammar = {};
 	this.grammar['X'] = [
-		new Rule(0.6, "[-FX][+FX]"), // tree 0
-		new Rule(0.6, "[-FX][+FX][--FX][++FX]") // tree 1
+		new Rule(0.6, "F-[B[X]+XC]+FA[+FXBC]-X"), // tree 0
+		new Rule(0.6, "F−[B[X]+XC]+FA[+FXBC]-X"), // tree 1
+		new Rule(0.6, '-FX')
 	];
 	// adding in my rules -HB
 	this.grammar['F'] = [
-		new Rule(0.7, "AFFB[BXX]"), // tree 0
-		new Rule(0.6, "[AFB]") // tree 1
+		new Rule(0.7, "FF"), // tree 0
+		new Rule(0.6, "FF"), // tree 1
+		new Rule(0.6, '-FX')
 	];
 	this.grammar['A'] = [
-		new Rule(0.4, "[-FFX[BXF]FC]FB"), // tree 0
-		new Rule(0.4, "[-FFC]B") // tree 1
+		new Rule(0.6, "FF"), // tree 0
+		new Rule(0.6, "FF"), // tree 1
+		new Rule(0.4, 'A')
 	];
 	this.grammar['B'] = [
-		new Rule(0.3, "[X+FFA]XCF"), // tree 0
-		new Rule(0.3, "[X+FF]F") // tree 1
+		new Rule(0.6, "FF"), // tree 0
+		new Rule(0.6, "FF"), // tree 1
+		new Rule(0.3, 'B')
 	];
 	this.grammar['C'] = [
-		new Rule(0.5, "XA[BXF]FX--F"), // tree 0
-		new Rule(0.5, "X[AFF]X") // tree 1
+		new Rule(0.5, "C"), // tree 0
+		new Rule(0.5, "C"), // tree 1
+		new Rule(0.5, 'C')
 	];
 
 	this.iterations = 0; 
@@ -211,6 +223,10 @@ export default function Lsystem(axiom, grammar, iterations) {
 		}
 	}
 
+	this.getListOfAxiom = function() {
+		return stringToLinkedList(this.axiom);
+	}
+
 	// TODO
 	// This function returns a linked list that is the result 
 	// of expanding the L-system's axiom n times.
@@ -229,36 +245,44 @@ export default function Lsystem(axiom, grammar, iterations) {
 		// console.log("in lsystem.doIterations: with input of n: " + n + " iterations");
 		this.iterations = n;
 		if (n == 0) {
-			return stringToLinkedList(this.axiom);
+			return stringToLinkedList(this.begAxiom);
 		} 
 
 		var i = 0;
+		var list = stringToLinkedList(this.begAxiom);
+
+		var stringListOfChars = "";
+
 		while (i < n) {
-			var list = stringToLinkedList(this.begAxiom);
-			var rand = (Math.floor(Math.random() * 5.0)) / 10.0 + 0.3; // bc only 5 items but between 0 and 1
-			var currChar;
-			if (rand == 0.6) {
-				currChar = 'X';
-			} else if (rand == 0.7) {
-				currChar = 'F';
-			} else if (rand == .4) {
-				currChar = 'A';
-			} else if (rand == .3) {
-				currChar = 'B';
-			} else if (rand == .5) {
-				currChar = 'C';
-			} else {
-				console.log("ERROR: GOT RAND VALUE THAT DOESNT MAP TO A RULE");
-				currChar = null;
+
+			// GETTING THE RANDOM CHARACTER FOR THIS ITER
+			// curr chars used:
+			var h = list.head;
+			while (h != null) {
+				var onChar = h.character;
+				if ( !(stringListOfChars.includes(onChar))
+						&& (onChar == 'F' || onChar == 'X' || onChar == 'A' || onChar == 'B' || onChar == 'C') ) {
+					stringListOfChars += h.character;
+				}
+				h = h.next;
 			}
+			// for each char used, max: first char, after is always evenly distributed
+			var randForItem = Math.ceil( Math.random()*(stringListOfChars.length - 1) );
+			var currChar = stringListOfChars.charAt(randForItem);
+
+			console.log("CURRENT CHARACTER: " + currChar);
 
 			// search for all nodes with this value and expand/replace them properly
-			this.axiom = linkedListToString(replaceNode(list, currChar, this.grammar[currChar][tree].successorString));
+			var currList = replaceNode(list, currChar, this.grammar[currChar][tree].successorString);
+			this.axiom = linkedListToString(currList);
 			console.log("updated the axiom to: " + this.axiom);
 
 			//iterate
 			i++;	
 			console.log("ITERATED I: " + i);
+
+			// continue with current axiom
+			var list = currList;
 		}
 		
 		console.log("finished this set of doIterations");

@@ -9,9 +9,9 @@ var whichTree = {
   tree: 0
 }
 var colorAttrib = {
-  r: 100,
-  g: 100,
-  b: 100
+  r: 30,
+  g: 60,
+  b: 240
 }
 
 // called after the scene loads
@@ -43,12 +43,14 @@ function onLoad(framework) {
 
   // DISPLAYS THE CURRENT AXIOM
   gui.add(lsys, 'axiom').listen().onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(lsys, 'begAxiom').listen().onChange(function(newVal) {
     lsys.updateBegAxiom(newVal);
+    lsys.updateAxiom(newVal);
+    doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(lsys, 'iterations', 0, 12).listen().step(1).onChange(function(newVal) {
@@ -57,25 +59,28 @@ function onLoad(framework) {
   });
 
  // GUI ELEMENT FOR PICKING IF DRAWING ORIGINAL AXIOM OR DRAWING A PLANT
-  gui.add(whichTree, 'tree', 0, 1).listen().step(1).onChange(function(newVal) {
+  gui.add(whichTree, 'tree', 0, 2).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
+    doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(colorAttrib, 'r', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
     // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    doLsystem(lsys, lsys.iterations, turtle);
+    //doLsystem(lsys, lsys.iterations, turtle);
+    rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
   gui.add(colorAttrib, 'g', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
     // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    doLsystem(lsys, lsys.iterations, turtle);
+    //doLsystem(lsys, lsys.iterations, turtle);
+    rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
   gui.add(colorAttrib, 'b', 0, 255).listen().step(1).onChange(function(newVal) {
     clearScene(turtle);
     // updating colorAttrib. giving new turtle created in doLsystem the proper coloring there
-    doLsystem(lsys, lsys.iterations, turtle);
+    //doLsystem(lsys, lsys.iterations, turtle);
+    rebuildOldSystem(lsys, lsys.iterations, turtle);
   });
 }
 
@@ -88,17 +93,31 @@ function clearScene(turtle) {
   }
 }
 
+function doRestForBuild(turtle, result) {
+  turtle.clear();
+  turtle = new Turtle(turtle.scene); 
+  // updating new turtle's color values to proper attributes
+  turtle.color.r = colorAttrib.r;
+  turtle.color.g = colorAttrib.g;
+  turtle.color.b = colorAttrib.b;
+  // update turtle's tree for proper iterations
+  turtle.tree = whichTree.tree;
+
+  // rendering resulting structuring
+  turtle.renderSymbols(result);
+}
+
 function doLsystem(lsystem, iterations, turtle) {
     var result = lsystem.doIterations(iterations, whichTree.tree); // stating which tree is being built
-    turtle.clear();
-    turtle = new Turtle(turtle.scene); 
-    // updating new turtle's color values to proper attributes
-    turtle.color.r = colorAttrib.r;
-    turtle.color.g = colorAttrib.g;
-    turtle.color.b = colorAttrib.b;
+    
+    doRestForBuild(turtle, result);
+}
 
-    // rendering resulting structuring
-    turtle.renderSymbols(result);
+
+function rebuildOldSystem(lsystem, iterations, turtle) {
+    var result = lsystem.getListOfAxiom(); // stating which tree is being built
+    
+    doRestForBuild(turtle, result);
 }
 
 // called on frame updates
