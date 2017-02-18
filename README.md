@@ -42,7 +42,7 @@ Clearer depiction of flowers color change:
 Iterations Changed to a Greater Amount: Tree Grows
 ![Increase in Iterations](https://github.com/hanbollar/Project3-LSystems/blob/a01f96d554d9855dc85437d73221f360bcf4d999/photos/6_treegrowsPosIterations.png "Increase in Iterations")
 
-Less than or equal to Amount of Iterations: Rebuild Tree from Beginning Axiom
+Iterations Changed to a Less than or Equal to Current Amount: Rebuild Tree from Beginning Axiom
 ![Rebuild Tree](https://github.com/hanbollar/Project3-LSystems/blob/a01f96d554d9855dc85437d73221f360bcf4d999/photos/7_newtreeSameFewerIterations.png "Rebuild Tree")
 
 Change Tree Base Axiom:
