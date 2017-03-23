@@ -26,8 +26,8 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 5, 5);
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
+  camera.position.set(0, 5, 20);
+  camera.lookAt(new THREE.Vector3(0, 5, 0));
 
   var loader = new THREE.TextureLoader();
   var background = new THREE.TextureLoader().load('gradient01.jpg');
@@ -48,11 +48,11 @@ function onLoad(framework) {
     for(var j = -3; j <= 3; j++)
     {
         var rando = Math.floor(Math.random()*5 + 5);
-        var rando2 = Math.floor(Math.random()*5 + 5);
-        var rando3 = Math.floor(Math.random()*10 - 5);
+        var rando2 = Math.floor(Math.random()*10 + 5);
+        var rando3 = Math.floor(Math.random()*20 - 5);
         var flower = new THREE.Mesh(flowerGeo, material);
         flower.name = "flower" + i + j; //used in onUpdate
-        flower.position.set(i*rando, 20+rando3, j*rando2);
+        flower.position.set(i*rando, 25+rando3, j*rando2);
         scene.add(flower);
     }
   }
@@ -129,6 +129,10 @@ function doLsystem(lsystem, iterations, turtle) {
 
 // called on frame updates
 function onUpdate(framework) {
+    if(time == 1)
+    {
+        doLsystem(lsys, lsys.iterations, turtle);
+    }
     var cycle = time%400;
     for(var i = -6; i <= 0; i++)
     {
