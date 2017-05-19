@@ -1,67 +1,49 @@
 
 The objective of this assignment is to create an L System parser and generate interesting looking plants. Start by forking and then cloning this repository: [https://github.com/CIS700-Procedural-Graphics/Project3-LSystems](https://github.com/CIS700-Procedural-Graphics/Project3-LSystems)
 
-# L-System Parser
+For this project, I took inspiration from Low-Poly art (one of my favorite styles of art), and the Pokemon Bonsly. I wanted to simulate what it would look like for a tree like Bonsly to grow up. I originally kept the tree symmetrical about the y-axis because it looks more visually appealing to me, but I later added some twisting to the trunk to make it more dynamic. I changed the color of the light to a warm peach color to make the tree seem more "friendly."
 
-lsystem.js contains classes for L-system, Rule, and LinkedList. Here’s our suggested structure:
+![](./images/bonsly.jpg)
 
-**The Symbol Nodes/Linked List:**
-
-Rather than representing our symbols as a string like in many L-system implementations, we prefer to use a linked list. This allows us to store additional information about each symbol at time of parsing (e.g. what iteration was this symbol added in?) Since we’re adding and replacing symbols at each iteration, we also save on the overhead of creating and destroying strings, since linked lists of course make it easy to add and remove nodes. You should write a Linked List class with Nodes that contain at least the following information:
-
-- The next node in the linked list
-- The previous node in the linked list
-- The grammar symbol at theis point in the overal string
-
-We also recommend that you write the following functions to interact with your linked list:
-
-- A function to symmetrically link two nodes together (e.g. Node A’s next is Node B, and Node B’s prev is Node A)
-- A function to expand one of the symbol nodes of the linked list by replacing it with several new nodes. This function should look at the list of rules associated with the symbol in the linked list’s grammar dictionary, then generate a uniform random number between 0 and 1 in order to determine which of the Rules should be used to expand the symbol node. You will refer to a Rule’s probability and compare it to your random number in order to determine which Rule should be chosen.
-
-**Rules:**
-
-These are containers for the preconditions, postconditions and probability of a single replacement operation. They should operate on a symbol node in your linked list.
-
-**L-system:**
-
-This is the parser, which will loop through your linked list of symbol nodes and apply rules at each iteration.
-
-Implement the following functions in L-System so that you can apply grammar rules to your axiom given some number of iterations. More details and implementation suggestions about  functions can be found in the TODO comments
-
-- `stringToLinkedList(input_string)`
-- `linkedListToString(linkedList)`
-- `replaceNode(linkedList, node, replacementString)`
-- `doIterations(num)`
+![](./images/bonslySmall.png)
 
 ## Turtle
 
-`turtle.js` has a function called renderSymbol that takes in a single node of a linked list and performs an operation to change the turtle’s state based on the symbol contained in the node. Usually, the turtle’s change in state will result in some sort of rendering output, such as drawing a cylinder when the turtle moves forward. We have provided you with a few example functions to illustrate how to write your own functions to be called by renderSymbol; these functions are rotateTurtle, moveTurtle, moveForward, and makeCylinder. If you inspect the constructor of the Turtle class, you can see how to associate an operation with a grammar symbol.
+I rewrote the turtle class so that the turtle had a local forward, up, and left axes. This allowed me to create the symmetric effect of the tree.
 
-- Modify turtle.js to support operations associated with the symbols `[` and `]`
-    - When you parse `[` you need to store the current turtle state somewhere
-    - When you parse `]` you need to set your turtle’s state to the most recently stored state. Think of this a pushing and popping turtle states on and off a stack. For example, given `F[+F][-F]`, the turtle should draw a Y shape. Note that your program must be capable of storing many turtle states at once in a stack.
+In addition to operations for `[` and `]`, I invented the operations:
 
-- In addition to operations for `[` and `]`, you must invent operations for any three symbols of your choosing.
-
+1. '&' : rotate the turtle along its forward vector (main trunk)
+2. '$' : rotate the turtle along its up vector (trunk bending)
+3. '%' : rotate the turtle along its up vector (trunk bending)
+4. 'X' : draw a branch if iteration ends
+5. 'A' : draw a branch if iteration ends
+6. 'S' : make a bright-colored leaf
+7. 'D' : make a dark-colored leaf
 
 ## Interactivity
 
-Using dat.GUI and the examples provided in the reference code, make some aspect of your demo an interactive variable. For example, you could modify:
+Aspects of my demo that is interactive:
 
 1. the axiom
-2. Your input grammer rules and their probability
-3. the angle of rotation of the turtle
-4. the size or color or material of the cylinder the turtle draws, etc!
+2. number of iterations
+3. the angle of rotation of the turtle (branches only)
 
-## L-System Plants
+##Grammar Features
 
-Design a grammar for a new procedural plant! As the preceding parts of this assignment are basic computer science tasks, this is where you should spend the bulk of your time on this assignment. Come up with new grammar rules and include screenshots of your plants in your README. For inspiration, take a look at Example 7: Fractal Plant in Wikipedia: https://en.wikipedia.org/wiki/L-system Your procedural plant must have the following features
+1. The farther the branch from ground, the thinner it is.
+2. Leaves bunch up in "levels."
+3. Leaves are ONLY created at the ends of the branches.
+4. Randomized leaf color between 2 colors.
+5. Branch twisting between "levels" of leaf bunches
+5. Randomized branch twisting.
 
-1. Grow in 3D. Take advantage of three.js! 
-2. Have flowers or leaves that are added as a part of the grammar
-3. Variation. Different instances of your plant should look distinctly different!
-4. A twist. Broccoli trees are cool and all, but we hope to see sometime a little more surprising in your grammars
+##Design Process
 
-# Publishing Your code
+![](./images/symmetric1.png)
 
-Running `npm run deploy` will automatically build your project and push it to gh-pages where it will be visible at `username.github.io/repo-name`. NOTE: You MUST commit AND push all changes to your MASTER branch before doing this or you may lose your work. The `git` command must also be available in your terminal or command prompt. If you're using Windows, it's a good idea to use Git Bash.
+![](./images/symmetric2.png)
+
+![](./images/twisting1.png)
+
+![](./images/twisting2.png)

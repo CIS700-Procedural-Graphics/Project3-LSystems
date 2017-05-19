@@ -1,10 +1,16 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var result;
+
+var Sliders = function() {
+  this.anglefactor = 0.75;
+};
+var sliders = new Sliders();
 
 // called after the scene loads
 function onLoad(framework) {
@@ -13,55 +19,65 @@ function onLoad(framework) {
   var renderer = framework.renderer;
   var gui = framework.gui;
   var stats = framework.stats;
+  var controls = framework.controls;
 
-  // initialize a simple box and material
-  var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  directionalLight.color.setHSL(0.1, 1, 0.95);
+  var directionalLight = new THREE.DirectionalLight(0xFFDAB9, 0.85);
+  //directionalLight.color.setHSL(0.1, 1, 0.95);
   directionalLight.position.set(1, 3, 2);
   directionalLight.position.multiplyScalar(10);
   scene.add(directionalLight);
 
+  var ambientLight = new THREE.AmbientLight(0xFFDAB9, 0.15); // soft white light
+  scene.add( ambientLight );
+
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(0, 15, 65);
+  camera.lookAt(new THREE.Vector3(0,25,0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
 
-  gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
-    camera.updateProjectionMatrix();
-  });
+  doLsystem(lsys, 1, sliders.anglefactor);
 
+  /*
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
-    doLsystem(lsys, lsys.iterations, turtle);
+    doLsystem(lsys, lsys.iterations, sliders.anglefactor);
   });
-
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
-    clearScene(turtle);
-    doLsystem(lsys, newVal, turtle);
+  */
+  gui.add(lsys, 'iterations', 0, 4).step(1).onChange(function(newVal) {
+    clearScene();
+    doLsystem(lsys, newVal, sliders.anglefactor);
+  });
+  gui.add(sliders, 'anglefactor', 0.5, 1.0).step(0.05).onChange(function(newVal) {
+    clearScene();
+    turtle = new Turtle(turtle.scene, lsys.iterations, newVal);
+    turtle.renderSymbols(result);
   });
 }
 
 // clears the scene by removing all geometries added by turtle.js
-function clearScene(turtle) {
-  var obj;
-  for( var i = turtle.scene.children.length - 1; i > 3; i--) {
-      obj = turtle.scene.children[i];
-      turtle.scene.remove(obj);
+function clearScene() {
+  for (var mesh of turtle.allMeshes) {
+      mesh.material.dispose();
+      mesh.geometry.dispose();
+      turtle.scene.remove(mesh);
+      //framework.renderer.deallocateObject( mesh );
   }
+  turtle.allMeshes = new Set();    
 }
 
-function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
-    turtle.clear();
-    turtle = new Turtle(turtle.scene);
+function doLsystem(lsystem, iterations, anglefactor) {
+    result = lsystem.doIterations(iterations);
+    turtle = new Turtle(turtle.scene, iterations, anglefactor);
     turtle.renderSymbols(result);
 }
 
 // called on frame updates
 function onUpdate(framework) {
+  //console.log(framework.camera.position);
+  //console.log(framework.controls.target);
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
