@@ -26,15 +26,16 @@ function init(callback, update) {
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 50000 );
-    var renderer = new THREE.WebGLRenderer( { antialias: true } );
+    var renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x216EB2, 1);
+    //renderer.setClearColor(0x216EB2, 1);
 
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.enableZoom = true;
-    controls.target.set(0, 0, 0);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.target.set(0, 25, 0);
     controls.rotateSpeed = 0.3;
     controls.zoomSpeed = 1.0;
     controls.panSpeed = 2.0;
@@ -52,6 +53,7 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
+    framework.controls = controls;
 
     // begin the animation loop
     (function tick() {
