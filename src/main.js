@@ -5,6 +5,7 @@ import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var result;
 
 var Sliders = function() {
   this.anglefactor = 0.75;
@@ -37,6 +38,8 @@ function onLoad(framework) {
   var lsys = new Lsystem();
   turtle = new Turtle(scene);
 
+  doLsystem(lsys, 1, sliders.anglefactor);
+
   /*
   gui.add(lsys, 'axiom').onChange(function(newVal) {
     lsys.UpdateAxiom(newVal);
@@ -49,7 +52,8 @@ function onLoad(framework) {
   });
   gui.add(sliders, 'anglefactor', 0.5, 1.0).step(0.05).onChange(function(newVal) {
     clearScene();
-    doLsystem(lsys, lsys.iterations, sliders.anglefactor);
+    turtle = new Turtle(turtle.scene, lsys.iterations, newVal);
+    turtle.renderSymbols(result);
   });
 }
 
@@ -65,14 +69,14 @@ function clearScene() {
 }
 
 function doLsystem(lsystem, iterations, anglefactor) {
-    var result = lsystem.doIterations(iterations);
+    result = lsystem.doIterations(iterations);
     turtle = new Turtle(turtle.scene, iterations, anglefactor);
     turtle.renderSymbols(result);
 }
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(framework.camera.position);
+  //console.log(framework.camera.position);
   //console.log(framework.controls.target);
 }
 

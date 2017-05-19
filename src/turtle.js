@@ -23,9 +23,9 @@ export default class Turtle {
         this.allMeshes = new Set();
         this.mergeBranches = new THREE.Geometry();
         this.mergeLeaves = new THREE.Geometry();
-        this.branches = new THREE.Mesh(this.mergeBranches, new THREE.MeshStandardMaterial({color: 0xCD853F, shading: THREE.FlatShading, roughness: 1, metalness: 0}) );
-        this.leaves = new THREE.Mesh(this.mergeLeaves, new THREE.MeshStandardMaterial( {color: 0xADFF2F, shading: THREE.FlatShading, roughness: 1, metalness: 0} ) );
-        
+        this.branches = new THREE.Mesh(this.mergeBranches, new THREE.MeshStandardMaterial({color: 0xb6732f, shading: THREE.FlatShading, roughness: 1, metalness: 0}) );
+        this.leaves = new THREE.Mesh(this.mergeLeaves, new THREE.MeshStandardMaterial( {color: 0xace600, shading: THREE.FlatShading, roughness: 1, metalness: 0} ) );
+
         scene.add(this.branches);
         scene.add(this.leaves);
         this.allMeshes.add(this.branches);

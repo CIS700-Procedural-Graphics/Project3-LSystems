@@ -144,7 +144,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 		new Rule(0.5, 'F[AD][+AS][&+AS][&&+AD][&&&+AD][&&&&+AS]'),
 		new Rule(0.5, 'F[AS][+AS][&+AD][&&+AS][&&&+AD][&&&&+AS]')
 	];
-	this.iterations = 0; 
+	this.iterations = 1; 
 	
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {
