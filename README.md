@@ -1,8 +1,6 @@
-# [HW1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
+# [L-System on the web](http://amansachan.com/L-System/)
 
 ## Project Description
-
-### Overall description
 
 Created an L system incorporating probability, that changes every time
 Various GUI controls were added to give the project more life.
