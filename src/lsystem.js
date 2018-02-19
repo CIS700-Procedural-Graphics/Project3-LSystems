@@ -166,7 +166,7 @@ export default function Lsystem(axiom, grammar, iterations) {
 	// ];
 
 	
-	this.iterations = 0; 
+	this.iterations = 5; 
 	
 	// Set up the axiom string
 	if (typeof axiom !== "undefined") {

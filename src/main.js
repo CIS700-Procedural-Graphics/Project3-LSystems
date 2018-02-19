@@ -58,6 +58,7 @@ function onLoad(framework) {
     doLsystem(lsys, newVal, turtle);
   });
 
+  doLsystem(lsys, 5, turtle);
 
 }
 
