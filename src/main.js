@@ -23,8 +23,8 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(1, 50, 50);
+  camera.lookAt(new THREE.Vector3(0,20,0));
 
   //test
   testLinkedList();
