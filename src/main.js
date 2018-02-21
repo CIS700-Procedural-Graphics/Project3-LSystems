@@ -1,10 +1,11 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {linkedListToString, testLinkedList} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var lsys;
 
 // called after the scene loads
 function onLoad(framework) {
@@ -22,11 +23,14 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
-  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.position.set(1, 50, 50);
+  camera.lookAt(new THREE.Vector3(0,20,0));
+
+  //test
+  testLinkedList();
 
   // initialize LSystem and a Turtle to draw
-  var lsys = new Lsystem();
+  lsys = new Lsystem();
   turtle = new Turtle(scene);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
@@ -34,14 +38,28 @@ function onLoad(framework) {
   });
 
   gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
+    lsys.updateAxiom(newVal);
     doLsystem(lsys, lsys.iterations, turtle);
+  });
+
+  gui.add(turtle, 'angle', 0, 180).step(1).onChange(function(newVal) {
+    clearScene(turtle);
+    turtle.clear();
+    turtle.updateAngle(newVal);
+    var result = lsys.doIterations(lsys.iterations);
+    turtle.iterations = lsys.iterations;
+    turtle.renderSymbols(result);
+
+    //doLsystem(lsys, lsys.iterations, turtle);
   });
 
   gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
+
+  doLsystem(lsys, 5, turtle);
+
 }
 
 // clears the scene by removing all geometries added by turtle.js
@@ -54,9 +72,10 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
     turtle = new Turtle(turtle.scene);
+    turtle.iterations = iterations;
     turtle.renderSymbols(result);
 }
 
