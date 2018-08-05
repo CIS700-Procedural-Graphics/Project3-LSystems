@@ -1,10 +1,15 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-import Lsystem, {LinkedListToString} from './lsystem.js'
+import Lsystem, {linkedListToString} from './lsystem.js'
 import Turtle from './turtle.js'
 
 var turtle;
+var userInput = {
+  iterations : 4,
+  width : 0.2,
+  angle : 60
+}
 
 // called after the scene loads
 function onLoad(framework) {
@@ -22,23 +27,29 @@ function onLoad(framework) {
   scene.add(directionalLight);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(22, 3, 0);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // initialize LSystem and a Turtle to draw
   var lsys = new Lsystem();
-  turtle = new Turtle(scene);
+  turtle = new Turtle(scene, userInput.angle, userInput.width);
+  doLsystem(lsys, userInput.iterations, turtle);
 
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
 
-  gui.add(lsys, 'axiom').onChange(function(newVal) {
-    lsys.UpdateAxiom(newVal);
-    doLsystem(lsys, lsys.iterations, turtle);
+  gui.add(userInput, 'width', 0, 1).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, userInput.iterations, turtle);
   });
 
-  gui.add(lsys, 'iterations', 0, 12).step(1).onChange(function(newVal) {
+  gui.add(userInput, 'angle', 0, 180).onChange(function(newVal) {
+    clearScene(turtle);
+    doLsystem(lsys, userInput.iterations, turtle);
+  });
+
+  gui.add(userInput, 'iterations', 0, 8).step(1).onChange(function(newVal) {
     clearScene(turtle);
     doLsystem(lsys, newVal, turtle);
   });
@@ -54,9 +65,9 @@ function clearScene(turtle) {
 }
 
 function doLsystem(lsystem, iterations, turtle) {
-    var result = lsystem.DoIterations(iterations);
+    var result = lsystem.doIterations(iterations);
     turtle.clear();
-    turtle = new Turtle(turtle.scene);
+    turtle = new Turtle(turtle.scene, userInput.angle, userInput.width);
     turtle.renderSymbols(result);
 }
 
